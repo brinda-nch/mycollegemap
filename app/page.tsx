@@ -1,205 +1,201 @@
+"use client"
+
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { GraduationCap, Trophy, FileText, Target, BookOpen, Award } from "lucide-react"
+import { GraduationCap, Target, BarChart3, Trophy, FileText, Calculator, Users, Star } from "lucide-react"
 import Link from "next/link"
 
-export default function Dashboard() {
-  const overallProgress = 75
+export default function HomePage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
-  const stats = [
-    { label: "Current GPA", value: "3.85", icon: GraduationCap, color: "text-blue-600" },
-    { label: "SAT Score", value: "1450", icon: Target, color: "text-green-600" },
-    { label: "Extracurriculars", value: "8", icon: Trophy, color: "text-purple-600" },
-    { label: "Essays Complete", value: "3/5", icon: FileText, color: "text-orange-600" },
-  ]
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard")
+    }
+  }, [session, router])
 
-  const recentActivity = [
-    { action: "Updated GPA", time: "2 hours ago", type: "gpa" },
-    { action: "Added SAT Score", time: "1 day ago", type: "test" },
-    { action: "Completed Common App Essay", time: "3 days ago", type: "essay" },
-    { action: "Added Honor Society", time: "1 week ago", type: "award" },
-  ]
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
-  const upcomingDeadlines = [
-    { college: "Stanford University", deadline: "Jan 5, 2025", type: "Regular Decision", daysLeft: 45 },
-    { college: "MIT", deadline: "Jan 1, 2025", type: "Regular Decision", daysLeft: 41 },
-    { college: "UC Berkeley", deadline: "Nov 30, 2024", type: "Application", daysLeft: 10 },
-  ]
+  if (session) {
+    return null // Will redirect to dashboard
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">College Application Dashboard</h1>
-        <p className="text-muted-foreground">Track your progress and stay organized</p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Application Progress</CardTitle>
-            <CardDescription>Overall completion status</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Overall Progress</span>
-                <span>{overallProgress}%</span>
-              </div>
-              <Progress value={overallProgress} className="h-2" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center">
+              <GraduationCap className="h-8 w-8 text-blue-600 mr-2" />
+              <span className="text-2xl font-bold text-gray-900">MyCollegeMap</span>
             </div>
-            <div className="grid gap-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Academic Records</span>
-                <Badge variant="secondary">Complete</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Test Scores</span>
-                <Badge variant="secondary">Complete</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Essays</span>
-                <Badge variant="outline">In Progress</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Recommendations</span>
-                <Badge variant="outline">Pending</Badge>
-              </div>
+            <div className="flex space-x-4">
+              <Link href="/auth/login">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+              <Link href="/auth/signup">
+                <Button>Get Started</Button>
+              </Link>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Deadlines</CardTitle>
-            <CardDescription>Don't miss these important dates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {upcomingDeadlines.map((deadline, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{deadline.college}</p>
-                    <p className="text-xs text-muted-foreground">{deadline.type}</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge variant={deadline.daysLeft <= 14 ? "destructive" : "outline"}>{deadline.deadline}</Badge>
-                    <p className="text-xs text-muted-foreground mt-1">{deadline.daysLeft} days left</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Your latest updates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-600 rounded-full" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{activity.action}</p>
-                  <p className="text-xs text-muted-foreground">{activity.time}</p>
-                </div>
-              </div>
-            ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </header>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Link href="/gpa">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5" />
-                GPA Tracking
-              </CardTitle>
-              <CardDescription>Monitor your academic performance</CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
+      {/* Hero Section */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">Your Complete College Application Tracker</h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Organize your GPA, test scores, extracurriculars, essays, and college applications all in one place. Get
+            personalized insights and stay on track for your dream schools.
+          </p>
+          <div className="flex justify-center space-x-4">
+            <Link href="/auth/signup">
+              <Button size="lg" className="px-8 py-3">
+                Start Tracking Free
+              </Button>
+            </Link>
+            <Link href="/auth/login">
+              <Button size="lg" variant="outline" className="px-8 py-3 bg-transparent">
+                Sign In
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
 
-        <Link href="/test-scores">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Test Scores
-              </CardTitle>
-              <CardDescription>Track SAT, ACT, and AP scores</CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
+      {/* Features Grid */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Everything You Need to Succeed</h2>
+            <p className="text-lg text-gray-600">
+              Comprehensive tools to manage every aspect of your college application journey
+            </p>
+          </div>
 
-        <Link href="/extracurriculars">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5" />
-                Extracurriculars
-              </CardTitle>
-              <CardDescription>Document your activities</CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="text-center">
+              <CardHeader>
+                <BarChart3 className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <CardTitle>GPA Tracking</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Track weighted and unweighted GPA with detailed course analysis</CardDescription>
+              </CardContent>
+            </Card>
 
-        <Link href="/honors-awards">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Honors & Awards
-              </CardTitle>
-              <CardDescription>Track achievements and recognition</CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
+            <Card className="text-center">
+              <CardHeader>
+                <Target className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <CardTitle>Test Scores</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Manage SAT, ACT, and AP scores with improvement tracking</CardDescription>
+              </CardContent>
+            </Card>
 
-        <Link href="/college-estimations">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                College Estimations
-              </CardTitle>
-              <CardDescription>Admission probability analysis</CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
+            <Card className="text-center">
+              <CardHeader>
+                <Users className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <CardTitle>Extracurriculars</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Document activities, leadership roles, and time commitments</CardDescription>
+              </CardContent>
+            </Card>
 
-        <Link href="/essays">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Essay Grading
-              </CardTitle>
-              <CardDescription>Review and improve your essays</CardDescription>
-            </CardHeader>
-          </Card>
-        </Link>
-      </div>
+            <Card className="text-center">
+              <CardHeader>
+                <Trophy className="h-12 w-12 text-yellow-600 mx-auto mb-4" />
+                <CardTitle>Honors & Awards</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Showcase achievements and recognition you've earned</CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <Calculator className="h-12 w-12 text-red-600 mx-auto mb-4" />
+                <CardTitle>College Estimations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Get admission probability estimates for your target schools</CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <FileText className="h-12 w-12 text-indigo-600 mx-auto mb-4" />
+                <CardTitle>Essay Grading</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Write, edit, and get feedback on your application essays</CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <Star className="h-12 w-12 text-pink-600 mx-auto mb-4" />
+                <CardTitle>Grade Impact</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Analyze how future grades will affect your overall GPA</CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <GraduationCap className="h-12 w-12 text-teal-600 mx-auto mb-4" />
+                <CardTitle>Application Dashboard</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Centralized view of all your college application progress</CardDescription>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-blue-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Get Organized?</h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Join thousands of students who are successfully managing their college applications
+          </p>
+          <Link href="/auth/signup">
+            <Button size="lg" variant="secondary" className="px-8 py-3">
+              Start Your Journey Today
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <GraduationCap className="h-6 w-6 mr-2" />
+              <span className="text-lg font-semibold">MyCollegeMap</span>
+            </div>
+            <p className="text-gray-400">© 2024 MyCollegeMap. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

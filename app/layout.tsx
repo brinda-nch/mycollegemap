@@ -2,29 +2,14 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { AuthProvider } from "@/components/auth-provider"
 import { ThemeProvider } from "@/components/theme-provider"
-import { Sidebar } from "@/components/sidebar"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "MyCollegeMap - College Application Tracker",
-  description:
-    "Track your college application progress with GPA monitoring, test scores, essays, and admission estimations",
-  keywords: "college application, GPA tracker, SAT scores, college admissions, essay tracker",
-  authors: [{ name: "MyCollegeMap Team" }],
-  openGraph: {
-    title: "MyCollegeMap - College Application Tracker",
-    description: "The complete platform for tracking your college application journey",
-    url: "https://cmap.com",
-    siteName: "MyCollegeMap",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "MyCollegeMap - College Application Tracker",
-    description: "Track your college application progress with ease",
-  },
+  description: "Track your college applications, GPA, test scores, and more",
     generator: 'v0.dev'
 }
 
@@ -34,13 +19,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <div className="flex h-screen bg-background">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto p-6">{children}</main>
-          </div>
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>
