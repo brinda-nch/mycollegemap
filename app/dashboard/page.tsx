@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { GraduationCap, Target, TrendingUp, Users, BookOpen, Award, Calendar, Plus } from "lucide-react"
+import { GraduationCap, TrendingUp, Target, Users, Calendar, Plus, BookOpen, Award, FileText } from "lucide-react"
 import Link from "next/link"
 
 export default function DashboardPage() {
@@ -26,7 +26,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Current GPA</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3.85</div>
@@ -37,7 +37,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Test Scores</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1450</div>
@@ -51,7 +51,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">12</div>
             <p className="text-xs text-muted-foreground">Extracurricular activities</p>
           </CardContent>
         </Card>
@@ -62,81 +62,75 @@ export default function DashboardPage() {
             <GraduationCap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">Colleges on your list</p>
+            <div className="text-2xl font-bold">8</div>
+            <p className="text-xs text-muted-foreground">Colleges applied to</p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Progress Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Application Progress */}
         <Card>
           <CardHeader>
             <CardTitle>Application Progress</CardTitle>
-            <CardDescription>Track your college application status</CardDescription>
+            <CardDescription>Track your college application completion</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Common Application</span>
-                <span>75%</span>
+                <span>85%</span>
               </div>
-              <Progress value={75} className="h-2" />
+              <Progress value={85} />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Essays Completed</span>
                 <span>60%</span>
               </div>
-              <Progress value={60} className="h-2" />
+              <Progress value={60} />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Recommendation Letters</span>
                 <span>100%</span>
               </div>
-              <Progress value={100} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Transcripts Sent</span>
-                <span>90%</span>
-              </div>
-              <Progress value={90} className="h-2" />
+              <Progress value={100} />
             </div>
           </CardContent>
         </Card>
 
-        {/* Upcoming Deadlines */}
         <Card>
           <CardHeader>
             <CardTitle>Upcoming Deadlines</CardTitle>
             <CardDescription>Don't miss these important dates</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <Calendar className="h-4 w-4 text-red-500" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Stanford University EA</p>
-                <p className="text-xs text-muted-foreground">November 1, 2024</p>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <Calendar className="h-4 w-4 text-red-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Stanford University</p>
+                  <p className="text-xs text-muted-foreground">Application due in 5 days</p>
+                </div>
+                <Badge variant="destructive">Urgent</Badge>
               </div>
-              <Badge variant="destructive">3 days</Badge>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Calendar className="h-4 w-4 text-orange-500" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">UC Application</p>
-                <p className="text-xs text-muted-foreground">November 30, 2024</p>
+              <div className="flex items-center space-x-4">
+                <Calendar className="h-4 w-4 text-orange-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">MIT</p>
+                  <p className="text-xs text-muted-foreground">Application due in 12 days</p>
+                </div>
+                <Badge variant="secondary">Soon</Badge>
               </div>
-              <Badge variant="secondary">33 days</Badge>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Calendar className="h-4 w-4 text-blue-500" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">MIT Regular Decision</p>
-                <p className="text-xs text-muted-foreground">January 1, 2025</p>
+              <div className="flex items-center space-x-4">
+                <Calendar className="h-4 w-4 text-blue-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">UC Berkeley</p>
+                  <p className="text-xs text-muted-foreground">Application due in 25 days</p>
+                </div>
+                <Badge variant="outline">Upcoming</Badge>
               </div>
-              <Badge variant="outline">65 days</Badge>
             </div>
           </CardContent>
         </Card>
@@ -149,41 +143,29 @@ export default function DashboardPage() {
           <CardDescription>Jump to the tools you need most</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link href="/gpa">
               <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
-                <Target className="h-6 w-6" />
-                <span className="text-xs">Update GPA</span>
+                <BookOpen className="h-6 w-6" />
+                <span className="text-sm">Update GPA</span>
               </Button>
             </Link>
             <Link href="/test-scores">
               <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
-                <TrendingUp className="h-6 w-6" />
-                <span className="text-xs">Add Scores</span>
+                <Target className="h-6 w-6" />
+                <span className="text-sm">Add Test Score</span>
               </Button>
             </Link>
             <Link href="/extracurriculars">
               <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
                 <Users className="h-6 w-6" />
-                <span className="text-xs">Activities</span>
-              </Button>
-            </Link>
-            <Link href="/honors-awards">
-              <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
-                <Award className="h-6 w-6" />
-                <span className="text-xs">Add Award</span>
+                <span className="text-sm">Log Activity</span>
               </Button>
             </Link>
             <Link href="/essays">
               <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
-                <BookOpen className="h-6 w-6" />
-                <span className="text-xs">Write Essay</span>
-              </Button>
-            </Link>
-            <Link href="/college-estimations">
-              <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
-                <GraduationCap className="h-6 w-6" />
-                <span className="text-xs">Estimations</span>
+                <FileText className="h-6 w-6" />
+                <span className="text-sm">Write Essay</span>
               </Button>
             </Link>
           </div>
@@ -196,33 +178,28 @@ export default function DashboardPage() {
           <CardTitle>Recent Activity</CardTitle>
           <CardDescription>Your latest updates and achievements</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center space-x-4">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Added SAT Score: 1450</p>
-              <p className="text-xs text-muted-foreground">2 hours ago</p>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <Award className="h-4 w-4 text-yellow-500" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Added National Honor Society</p>
+                <p className="text-xs text-muted-foreground">2 hours ago</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Updated GPA to 3.85</p>
-              <p className="text-xs text-muted-foreground">1 day ago</p>
+            <div className="flex items-center space-x-4">
+              <Target className="h-4 w-4 text-green-500" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Updated SAT Score to 1450</p>
+                <p className="text-xs text-muted-foreground">1 day ago</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Completed Common App Essay</p>
-              <p className="text-xs text-muted-foreground">3 days ago</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Added National Honor Society</p>
-              <p className="text-xs text-muted-foreground">1 week ago</p>
+            <div className="flex items-center space-x-4">
+              <FileText className="h-4 w-4 text-blue-500" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Completed Common App Essay</p>
+                <p className="text-xs text-muted-foreground">3 days ago</p>
+              </div>
             </div>
           </div>
         </CardContent>

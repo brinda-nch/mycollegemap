@@ -20,13 +20,12 @@ const handler = NextAuth({
         }
 
         // For demo purposes, accept any email/password combination
-        // In production, you would validate against your database
+        // In production, validate against your database
         if (credentials.email && credentials.password) {
           return {
             id: "1",
             email: credentials.email,
             name: credentials.email.split("@")[0],
-            image: null,
           }
         }
 
@@ -51,9 +50,6 @@ const handler = NextAuth({
       }
       return session
     },
-  },
-  session: {
-    strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
 })

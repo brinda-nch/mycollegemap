@@ -17,15 +17,15 @@ import {
 import {
   GraduationCap,
   Home,
+  BookOpen,
   Target,
-  TrendingUp,
   Users,
   Award,
-  BookOpen,
-  Calculator,
+  FileText,
+  TrendingUp,
+  BarChart3,
   LogOut,
   Settings,
-  User,
   Menu,
   X,
 } from "lucide-react"
@@ -33,13 +33,13 @@ import { cn } from "@/lib/utils"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "GPA Tracking", href: "/gpa", icon: Target },
-  { name: "Test Scores", href: "/test-scores", icon: TrendingUp },
+  { name: "GPA Tracking", href: "/gpa", icon: BookOpen },
+  { name: "Test Scores", href: "/test-scores", icon: Target },
   { name: "Extracurriculars", href: "/extracurriculars", icon: Users },
   { name: "Honors & Awards", href: "/honors-awards", icon: Award },
-  { name: "College Estimations", href: "/college-estimations", icon: GraduationCap },
-  { name: "Essays", href: "/essays", icon: BookOpen },
-  { name: "Grade Impact", href: "/grade-impact", icon: Calculator },
+  { name: "College Estimations", href: "/college-estimations", icon: BarChart3 },
+  { name: "Essays", href: "/essays", icon: FileText },
+  { name: "Grade Impact", href: "/grade-impact", icon: TrendingUp },
 ]
 
 export function Sidebar() {
@@ -55,7 +55,7 @@ export function Sidebar() {
     <>
       {/* Mobile menu button */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button variant="outline" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+        <Button variant="outline" size="sm" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
       </div>
@@ -63,13 +63,13 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+          "fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center px-6 py-4 border-b">
             <GraduationCap className="h-8 w-8 text-blue-600" />
             <span className="ml-2 text-xl font-bold text-gray-900">MyCollegeMap</span>
           </div>
@@ -96,10 +96,10 @@ export function Sidebar() {
           </nav>
 
           {/* User menu */}
-          <div className="border-t border-gray-200 p-4">
+          <div className="border-t px-4 py-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start p-2">
+                <Button variant="ghost" className="w-full justify-start px-3 py-2">
                   <Avatar className="h-8 w-8 mr-3">
                     <AvatarImage src={session?.user?.image || ""} />
                     <AvatarFallback>
@@ -107,7 +107,9 @@ export function Sidebar() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start">
-                    <span className="text-sm font-medium">{session?.user?.name || session?.user?.email}</span>
+                    <span className="text-sm font-medium">
+                      {session?.user?.name || session?.user?.email?.split("@")[0]}
+                    </span>
                     <span className="text-xs text-gray-500">{session?.user?.email}</span>
                   </div>
                 </Button>
@@ -115,10 +117,6 @@ export function Sidebar() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
