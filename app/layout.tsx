@@ -8,8 +8,23 @@ import { Sidebar } from "@/components/sidebar"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "College Application Tracker",
-  description: "Track your college application progress",
+  title: "MyCollegeMap - College Application Tracker",
+  description:
+    "Track your college application progress with GPA monitoring, test scores, essays, and admission estimations",
+  keywords: "college application, GPA tracker, SAT scores, college admissions, essay tracker",
+  authors: [{ name: "MyCollegeMap Team" }],
+  openGraph: {
+    title: "MyCollegeMap - College Application Tracker",
+    description: "The complete platform for tracking your college application journey",
+    url: "https://cmap.com",
+    siteName: "MyCollegeMap",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MyCollegeMap - College Application Tracker",
+    description: "Track your college application progress with ease",
+  },
     generator: 'v0.dev'
 }
 

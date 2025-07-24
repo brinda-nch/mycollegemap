@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Trash2 } from "lucide-react"
+import { Progress } from "@/components/ui/progress"
+import { Trash2, Plus, TrendingUp, Calculator } from "lucide-react"
 
 interface Course {
   id: string
@@ -25,6 +26,8 @@ export default function GPAPage() {
     { id: "2", name: "AP English Literature", grade: "A-", credits: 4, semester: "Fall", year: "2024", type: "AP" },
     { id: "3", name: "AP Chemistry", grade: "B+", credits: 4, semester: "Fall", year: "2024", type: "AP" },
     { id: "4", name: "AP US History", grade: "A", credits: 4, semester: "Spring", year: "2024", type: "AP" },
+    { id: "5", name: "Honors Physics", grade: "A-", credits: 4, semester: "Spring", year: "2024", type: "Honors" },
+    { id: "6", name: "Spanish IV", grade: "B+", credits: 3, semester: "Fall", year: "2024", type: "Regular" },
   ])
 
   const [newCourse, setNewCourse] = useState({
@@ -77,6 +80,10 @@ export default function GPAPage() {
     setCourses(courses.filter((course) => course.id !== id))
   }
 
+  const unweightedGPA = Number.parseFloat(calculateGPA(false))
+  const weightedGPA = Number.parseFloat(calculateGPA(true))
+  const totalCredits = courses.reduce((sum, course) => sum + course.credits, 0)
+
   return (
     <div className="space-y-6">
       <div>
@@ -86,34 +93,37 @@ export default function GPAPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader>
-            <CardTitle>Unweighted GPA</CardTitle>
-            <CardDescription>Standard 4.0 scale</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Unweighted GPA</CardTitle>
+            <Calculator className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-blue-600">{calculateGPA(false)}</div>
+            <Progress value={(unweightedGPA / 4.0) * 100} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">Standard 4.0 scale</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Weighted GPA</CardTitle>
-            <CardDescription>Including AP/Honors bonus</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Weighted GPA</CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600">{calculateGPA(true)}</div>
+            <Progress value={(weightedGPA / 4.0) * 100} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-1">Including AP/Honors bonus</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Total Credits</CardTitle>
-            <CardDescription>Completed credit hours</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
+            <Calculator className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-600">
-              {courses.reduce((sum, course) => sum + course.credits, 0)}
-            </div>
+            <div className="text-3xl font-bold text-purple-600">{totalCredits}</div>
+            <p className="text-xs text-muted-foreground mt-1">Completed credit hours</p>
           </CardContent>
         </Card>
       </div>

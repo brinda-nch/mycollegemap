@@ -21,6 +21,12 @@ export default function Dashboard() {
     { action: "Added Honor Society", time: "1 week ago", type: "award" },
   ]
 
+  const upcomingDeadlines = [
+    { college: "Stanford University", deadline: "Jan 5, 2025", type: "Regular Decision", daysLeft: 45 },
+    { college: "MIT", deadline: "Jan 1, 2025", type: "Regular Decision", daysLeft: 41 },
+    { college: "UC Berkeley", deadline: "Nov 30, 2024", type: "Application", daysLeft: 10 },
+  ]
+
   return (
     <div className="space-y-6">
       <div>
@@ -79,17 +85,20 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest updates</CardDescription>
+            <CardTitle>Upcoming Deadlines</CardTitle>
+            <CardDescription>Don't miss these important dates</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-blue-600 rounded-full" />
+              {upcomingDeadlines.map((deadline, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.time}</p>
+                    <p className="text-sm font-medium">{deadline.college}</p>
+                    <p className="text-xs text-muted-foreground">{deadline.type}</p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={deadline.daysLeft <= 14 ? "destructive" : "outline"}>{deadline.deadline}</Badge>
+                    <p className="text-xs text-muted-foreground mt-1">{deadline.daysLeft} days left</p>
                   </div>
                 </div>
               ))}
@@ -97,6 +106,26 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>Your latest updates</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {recentActivity.map((activity, index) => (
+              <div key={index} className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-blue-600 rounded-full" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{activity.action}</p>
+                  <p className="text-xs text-muted-foreground">{activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Link href="/gpa">

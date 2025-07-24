@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Trash2, TrendingUp, TrendingDown, School } from "lucide-react"
+import { Plus, Trash2, TrendingUp, TrendingDown, School, MapPin, Calendar } from "lucide-react"
 
 interface College {
   id: string
@@ -20,6 +20,8 @@ interface College {
   estimatedChance: number
   applied: boolean
   deadline: string
+  location: string
+  notes: string
 }
 
 export default function CollegeEstimationsPage() {
@@ -34,6 +36,8 @@ export default function CollegeEstimationsPage() {
       estimatedChance: 15,
       applied: false,
       deadline: "2025-01-01",
+      location: "Cambridge, MA",
+      notes: "Strong engineering program, need excellent essays",
     },
     {
       id: "2",
@@ -45,6 +49,8 @@ export default function CollegeEstimationsPage() {
       estimatedChance: 65,
       applied: true,
       deadline: "2024-11-30",
+      location: "Berkeley, CA",
+      notes: "Great for computer science, submitted application",
     },
     {
       id: "3",
@@ -54,8 +60,10 @@ export default function CollegeEstimationsPage() {
       avgGPA: 3.72,
       avgSAT: 1350,
       estimatedChance: 85,
-      applied: true,
+      applied: false,
       deadline: "2024-12-15",
+      location: "Seattle, WA",
+      notes: "Strong backup option with good programs",
     },
     {
       id: "4",
@@ -67,6 +75,8 @@ export default function CollegeEstimationsPage() {
       estimatedChance: 12,
       applied: false,
       deadline: "2025-01-02",
+      location: "Stanford, CA",
+      notes: "Dream school, highly competitive",
     },
     {
       id: "5",
@@ -78,6 +88,8 @@ export default function CollegeEstimationsPage() {
       estimatedChance: 70,
       applied: false,
       deadline: "2025-02-01",
+      location: "Ann Arbor, MI",
+      notes: "Strong engineering and business programs",
     },
   ])
 
@@ -88,6 +100,8 @@ export default function CollegeEstimationsPage() {
     avgGPA: 0,
     avgSAT: 0,
     deadline: "",
+    location: "",
+    notes: "",
   })
 
   // Mock student stats - in real app, this would come from other pages
@@ -141,6 +155,8 @@ export default function CollegeEstimationsPage() {
         avgGPA: 0,
         avgSAT: 0,
         deadline: "",
+        location: "",
+        notes: "",
       })
     }
   }
@@ -283,6 +299,18 @@ export default function CollegeEstimationsPage() {
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                value={newCollege.location}
+                onChange={(e) => setNewCollege({ ...newCollege, location: e.target.value })}
+                placeholder="e.g., Los Angeles, CA"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
               <Label htmlFor="type">School Type</Label>
               <Select
                 value={newCollege.type}
@@ -298,9 +326,18 @@ export default function CollegeEstimationsPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="deadline">Application Deadline</Label>
+              <Input
+                id="deadline"
+                type="date"
+                value={newCollege.deadline}
+                onChange={(e) => setNewCollege({ ...newCollege, deadline: e.target.value })}
+              />
+            </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="acceptance-rate">Acceptance Rate (%)</Label>
               <Input
@@ -335,15 +372,16 @@ export default function CollegeEstimationsPage() {
                 placeholder="1450"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="deadline">Application Deadline</Label>
-              <Input
-                id="deadline"
-                type="date"
-                value={newCollege.deadline}
-                onChange={(e) => setNewCollege({ ...newCollege, deadline: e.target.value })}
-              />
-            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Input
+              id="notes"
+              value={newCollege.notes}
+              onChange={(e) => setNewCollege({ ...newCollege, notes: e.target.value })}
+              placeholder="Any additional notes about this college"
+            />
           </div>
 
           <Button onClick={addCollege} className="w-full">
@@ -375,11 +413,20 @@ export default function CollegeEstimationsPage() {
                           </Badge>
                         )}
                       </div>
-                      <div className="grid gap-2 md:grid-cols-4 text-sm text-muted-foreground mb-3">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {college.location}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          Due: {new Date(college.deadline).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className="grid gap-2 md:grid-cols-3 text-sm text-muted-foreground mb-3">
                         <span>📊 {college.acceptanceRate}% acceptance rate</span>
                         <span>🎓 {college.avgGPA} avg GPA</span>
                         <span>📝 {college.avgSAT} avg SAT</span>
-                        <span>📅 Due: {new Date(college.deadline).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="flex-1">
@@ -392,6 +439,7 @@ export default function CollegeEstimationsPage() {
                           <Progress value={college.estimatedChance} className="h-2" />
                         </div>
                       </div>
+                      {college.notes && <p className="text-sm text-muted-foreground mt-2">{college.notes}</p>}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button

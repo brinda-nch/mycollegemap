@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Trash2, Clock, Users, Award } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Plus, Trash2, Clock, Users, Award, Star } from "lucide-react"
 
 interface Extracurricular {
   id: string
@@ -21,6 +22,7 @@ interface Extracurricular {
   hoursPerWeek: number
   weeksPerYear: number
   achievements: string[]
+  isLeadership: boolean
 }
 
 export default function ExtracurricularsPage() {
@@ -36,6 +38,7 @@ export default function ExtracurricularsPage() {
       hoursPerWeek: 8,
       weeksPerYear: 36,
       achievements: ["Organized school-wide fundraiser raising $5,000", "Implemented new student feedback system"],
+      isLeadership: true,
     },
     {
       id: "2",
@@ -48,6 +51,7 @@ export default function ExtracurricularsPage() {
       hoursPerWeek: 15,
       weeksPerYear: 20,
       achievements: ["Led team to state championship", "All-State selection 2023"],
+      isLeadership: true,
     },
     {
       id: "3",
@@ -60,6 +64,20 @@ export default function ExtracurricularsPage() {
       hoursPerWeek: 4,
       weeksPerYear: 50,
       achievements: ["Coordinated 200+ volunteers", "Helped distribute food to 1,000+ families"],
+      isLeadership: false,
+    },
+    {
+      id: "4",
+      name: "Math Tutoring Club",
+      category: "Academic",
+      position: "President",
+      description: "Founded and led peer tutoring program for underclassmen",
+      startDate: "2022-01",
+      endDate: "2024-06",
+      hoursPerWeek: 6,
+      weeksPerYear: 32,
+      achievements: ["Helped 50+ students improve math grades", "Expanded program to 3 schools"],
+      isLeadership: true,
     },
   ])
 
@@ -73,6 +91,7 @@ export default function ExtracurricularsPage() {
     hoursPerWeek: 0,
     weeksPerYear: 0,
     achievements: [""],
+    isLeadership: false,
   })
 
   const addActivity = () => {
@@ -95,6 +114,7 @@ export default function ExtracurricularsPage() {
         hoursPerWeek: 0,
         weeksPerYear: 0,
         achievements: [""],
+        isLeadership: false,
       })
     }
   }
@@ -122,6 +142,10 @@ export default function ExtracurricularsPage() {
     return activities.reduce((total, activity) => {
       return total + activity.hoursPerWeek * activity.weeksPerYear
     }, 0)
+  }
+
+  const getLeadershipCount = () => {
+    return activities.filter((activity) => activity.isLeadership).length
   }
 
   const getCategoryColor = (category: string) => {
@@ -172,17 +196,7 @@ export default function ExtracurricularsPage() {
             <Award className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              {
-                activities.filter(
-                  (a) =>
-                    a.category === "Leadership" ||
-                    a.position.toLowerCase().includes("president") ||
-                    a.position.toLowerCase().includes("captain") ||
-                    a.position.toLowerCase().includes("leader"),
-                ).length
-              }
-            </div>
+            <div className="text-2xl font-bold text-purple-600">{getLeadershipCount()}</div>
           </CardContent>
         </Card>
       </div>
@@ -237,32 +251,13 @@ export default function ExtracurricularsPage() {
                 placeholder="e.g., President, Member, Volunteer"
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-2">
-                <Label htmlFor="hours-week">Hours/Week</Label>
-                <Input
-                  id="hours-week"
-                  type="number"
-                  value={newActivity.hoursPerWeek || ""}
-                  onChange={(e) =>
-                    setNewActivity({ ...newActivity, hoursPerWeek: Number.parseInt(e.target.value) || 0 })
-                  }
-                  min="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="weeks-year">Weeks/Year</Label>
-                <Input
-                  id="weeks-year"
-                  type="number"
-                  value={newActivity.weeksPerYear || ""}
-                  onChange={(e) =>
-                    setNewActivity({ ...newActivity, weeksPerYear: Number.parseInt(e.target.value) || 0 })
-                  }
-                  min="0"
-                  max="52"
-                />
-              </div>
+            <div className="flex items-center space-x-2 pt-6">
+              <Checkbox
+                id="leadership"
+                checked={newActivity.isLeadership}
+                onCheckedChange={(checked) => setNewActivity({ ...newActivity, isLeadership: checked as boolean })}
+              />
+              <Label htmlFor="leadership">This is a leadership role</Label>
             </div>
           </div>
 
@@ -283,6 +278,30 @@ export default function ExtracurricularsPage() {
                 type="month"
                 value={newActivity.endDate}
                 onChange={(e) => setNewActivity({ ...newActivity, endDate: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="hours-week">Hours per Week</Label>
+              <Input
+                id="hours-week"
+                type="number"
+                value={newActivity.hoursPerWeek || ""}
+                onChange={(e) => setNewActivity({ ...newActivity, hoursPerWeek: Number.parseInt(e.target.value) || 0 })}
+                min="0"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="weeks-year">Weeks per Year</Label>
+              <Input
+                id="weeks-year"
+                type="number"
+                value={newActivity.weeksPerYear || ""}
+                onChange={(e) => setNewActivity({ ...newActivity, weeksPerYear: Number.parseInt(e.target.value) || 0 })}
+                min="0"
+                max="52"
               />
             </div>
           </div>
@@ -347,6 +366,12 @@ export default function ExtracurricularsPage() {
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-semibold text-lg">{activity.name}</h4>
                       <Badge className={getCategoryColor(activity.category)}>{activity.category}</Badge>
+                      {activity.isLeadership && (
+                        <Badge variant="default" className="bg-blue-600">
+                          <Award className="w-3 h-3 mr-1" />
+                          Leadership
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-sm font-medium text-muted-foreground mb-2">{activity.position}</p>
                     <p className="text-sm mb-3">{activity.description}</p>
@@ -366,7 +391,7 @@ export default function ExtracurricularsPage() {
                         <ul className="text-sm text-muted-foreground space-y-1">
                           {activity.achievements.map((achievement, index) => (
                             <li key={index} className="flex items-start gap-2">
-                              <span className="text-yellow-500 mt-0.5">★</span>
+                              <Star className="w-3 h-3 text-yellow-500 mt-0.5 flex-shrink-0" />
                               {achievement}
                             </li>
                           ))}

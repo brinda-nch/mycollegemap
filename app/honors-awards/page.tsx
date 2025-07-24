@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Trash2, Award, Trophy, Medal } from "lucide-react"
+import { Plus, Trash2, Award, Trophy, Medal, Star } from "lucide-react"
 
 interface Honor {
   id: string
@@ -58,6 +58,15 @@ export default function HonorsAwardsPage() {
       description: "Completed 100+ hours of community service",
       organization: "Corporation for National and Community Service",
     },
+    {
+      id: "5",
+      name: "Regional Science Fair - 1st Place",
+      category: "Academic",
+      level: "State",
+      date: "2024-03",
+      description: "First place in Environmental Science category",
+      organization: "Regional Science Fair Association",
+    },
   ])
 
   const [newHonor, setNewHonor] = useState({
@@ -93,6 +102,8 @@ export default function HonorsAwardsPage() {
         return <Award className="w-4 h-4" />
       case "Athletic":
         return <Trophy className="w-4 h-4" />
+      case "Arts":
+        return <Star className="w-4 h-4" />
       default:
         return <Medal className="w-4 h-4" />
     }

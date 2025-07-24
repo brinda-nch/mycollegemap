@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Plus, Trash2, Target } from "lucide-react"
+import { Plus, Trash2, Target, TrendingUp, Award } from "lucide-react"
 
 interface TestScore {
   id: string
@@ -26,6 +26,8 @@ export default function TestScoresPage() {
     { id: "2", testType: "ACT", score: 32, maxScore: 36, date: "2024-04-20", percentile: 95 },
     { id: "3", testType: "AP", subject: "Calculus BC", score: 5, maxScore: 5, date: "2024-05-10" },
     { id: "4", testType: "AP", subject: "English Literature", score: 4, maxScore: 5, date: "2024-05-12" },
+    { id: "5", testType: "AP", subject: "Chemistry", score: 4, maxScore: 5, date: "2024-05-08" },
+    { id: "6", testType: "SAT Subject", subject: "Math Level 2", score: 780, maxScore: 800, date: "2024-06-01" },
   ])
 
   const [newScore, setNewScore] = useState({
@@ -84,6 +86,16 @@ export default function TestScoresPage() {
     return testScores.length > 0 ? Math.max(...testScores.map((score) => score.score)) : null
   }
 
+  const getAPStats = () => {
+    const apScores = scores.filter((score) => score.testType === "AP")
+    const total = apScores.length
+    const fivesAndFours = apScores.filter((score) => score.score >= 4).length
+    const average = total > 0 ? apScores.reduce((sum, score) => sum + score.score, 0) / total : 0
+    return { total, fivesAndFours, average }
+  }
+
+  const apStats = getAPStats()
+
   return (
     <div className="space-y-6">
       <div>
@@ -117,29 +129,22 @@ export default function TestScoresPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">AP Exams</CardTitle>
-            <Target className="h-4 w-4 text-purple-600" />
+            <Award className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              {scores.filter((score) => score.testType === "AP").length}
-            </div>
-            <p className="text-xs text-muted-foreground">exams taken</p>
+            <div className="text-2xl font-bold text-purple-600">{apStats.total}</div>
+            <p className="text-xs text-muted-foreground">{apStats.fivesAndFours} scored 4+</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Average AP Score</CardTitle>
-            <Target className="h-4 w-4 text-orange-600" />
+            <TrendingUp className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {scores.filter((score) => score.testType === "AP").length > 0
-                ? (
-                    scores.filter((score) => score.testType === "AP").reduce((sum, score) => sum + score.score, 0) /
-                    scores.filter((score) => score.testType === "AP").length
-                  ).toFixed(1)
-                : "N/A"}
+              {apStats.total > 0 ? apStats.average.toFixed(1) : "N/A"}
             </div>
             <p className="text-xs text-muted-foreground">out of 5</p>
           </CardContent>
