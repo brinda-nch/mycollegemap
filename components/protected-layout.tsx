@@ -5,16 +5,17 @@ import type React from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { Sidebar } from "./sidebar"
+import { Sidebar } from "@/components/sidebar"
 
 export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
   const router = useRouter()
 
   useEffect(() => {
-    if (status === "loading") return // Still loading
-    if (!session) router.push("/auth/login")
-  }, [session, status, router])
+    if (status === "unauthenticated") {
+      router.push("/auth/login")
+    }
+  }, [status, router])
 
   if (status === "loading") {
     return (
@@ -24,7 +25,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!session) {
+  if (status === "unauthenticated") {
     return null
   }
 

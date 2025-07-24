@@ -2,15 +2,15 @@
 
 import type React from "react"
 
-import { signIn, getSession } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
+import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Chrome, GraduationCap } from "lucide-react"
+import { GraduationCap } from "lucide-react"
 import Link from "next/link"
 
 export default function SignUpPage() {
@@ -18,68 +18,79 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const router = useRouter()
 
-  useEffect(() => {
-    const checkSession = async () => {
-      const session = await getSession()
-      if (session) {
-        router.push("/dashboard")
-      }
-    }
-    checkSession()
-  }, [router])
-
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true)
     try {
-      await signIn("google", { callbackUrl: "/dashboard" })
+      const result = await signIn("google", {
+        callbackUrl: "/dashboard",
+        redirect: false,
+      })
+
+      if (result?.ok) {
+        router.push("/dashboard")
+      } else {
+        setError("Failed to sign up with Google")
+      }
     } catch (error) {
-      console.error("Google sign up error:", error)
+      setError("An error occurred during sign up")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleEmailSignUp = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+
     if (password !== confirmPassword) {
-      alert("Passwords don't match")
+      setError("Passwords do not match")
       return
     }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters")
+      return
+    }
+
     setIsLoading(true)
+
     try {
+      // In a real app, you'd create the user account here
+      // For demo purposes, we'll just sign them in
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
       })
+
       if (result?.ok) {
         router.push("/dashboard")
+      } else {
+        setError("Failed to create account")
       }
     } catch (error) {
-      console.error("Email sign up error:", error)
+      setError("An error occurred during sign up")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-blue-600 p-3 rounded-full">
-              <GraduationCap className="h-8 w-8 text-white" />
-            </div>
+            <GraduationCap className="h-12 w-12 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-          <CardDescription>Start tracking your college applications today</CardDescription>
+          <CardTitle className="text-2xl">Create Account</CardTitle>
+          <CardDescription>Start tracking your college journey today</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button onClick={handleGoogleSignUp} disabled={isLoading} className="w-full bg-transparent" variant="outline">
-            <Chrome className="mr-2 h-4 w-4" />
-            Continue with Google
+          <Button onClick={handleGoogleSignIn} disabled={isLoading} className="w-full bg-transparent" variant="outline">
+            {isLoading ? "Creating account..." : "Continue with Google"}
           </Button>
 
           <div className="relative">
@@ -87,11 +98,11 @@ export default function SignUpPage() {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
+              <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
             </div>
           </div>
 
-          <form onSubmit={handleEmailSignUp} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -125,13 +136,14 @@ export default function SignUpPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            {error && <div className="text-sm text-red-600 text-center">{error}</div>}
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
+            Already have an account?{" "}
             <Link href="/auth/login" className="text-blue-600 hover:underline">
               Sign in
             </Link>

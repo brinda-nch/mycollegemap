@@ -1,34 +1,26 @@
 "use client"
 
-import { useSession } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { BarChart3, Target, Users, FileText, Calculator, Calendar } from "lucide-react"
+import { GraduationCap, Target, TrendingUp, Users, Calendar, BookOpen, FileText } from "lucide-react"
 import Link from "next/link"
 
 export default function DashboardPage() {
-  const { data: session } = useSession()
-
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {session?.user?.name || "Student"}!</h1>
-          <p className="text-gray-600 mt-1">Here's your college application progress overview</p>
-        </div>
-        <Badge variant="secondary" className="text-sm">
-          Senior Year
-        </Badge>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600">Welcome back! Here's your college application progress.</p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Current GPA</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3.85</div>
@@ -39,7 +31,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Test Scores</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1450</div>
@@ -49,23 +41,23 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Applications</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Activities</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8/12</div>
-            <p className="text-xs text-muted-foreground">Submitted applications</p>
+            <div className="text-2xl font-bold">8</div>
+            <p className="text-xs text-muted-foreground">Extracurricular activities</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Activities</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Applications</CardTitle>
+            <GraduationCap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15</div>
-            <p className="text-xs text-muted-foreground">Extracurricular activities</p>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground">Colleges on your list</p>
           </CardContent>
         </Card>
       </div>
@@ -75,34 +67,29 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Application Progress</CardTitle>
-            <CardDescription>Track your college application submissions</CardDescription>
+            <CardDescription>Track your college application completion</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Overall Progress</span>
-                <span>67%</span>
+                <span>Common Application</span>
+                <span>85%</span>
               </div>
-              <Progress value={67} className="h-2" />
+              <Progress value={85} />
             </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Stanford University</span>
-                <Badge variant="secondary">Submitted</Badge>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Essays Completed</span>
+                <span>60%</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">MIT</span>
-                <Badge variant="secondary">Submitted</Badge>
+              <Progress value={60} />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Recommendation Letters</span>
+                <span>100%</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">UC Berkeley</span>
-                <Badge variant="outline">In Progress</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Harvard University</span>
-                <Badge variant="outline">Draft</Badge>
-              </div>
+              <Progress value={100} />
             </div>
           </CardContent>
         </Card>
@@ -112,26 +99,31 @@ export default function DashboardPage() {
             <CardTitle>Upcoming Deadlines</CardTitle>
             <CardDescription>Don't miss these important dates</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <Calendar className="h-4 w-4 text-red-500" />
-              <div>
-                <p className="text-sm font-medium">UC Berkeley Application</p>
-                <p className="text-xs text-muted-foreground">Due in 5 days</p>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <Calendar className="h-4 w-4 text-red-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Stanford University</p>
+                  <p className="text-xs text-muted-foreground">Application due in 5 days</p>
+                </div>
+                <Badge variant="destructive">Urgent</Badge>
               </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Calendar className="h-4 w-4 text-orange-500" />
-              <div>
-                <p className="text-sm font-medium">Harvard Essays</p>
-                <p className="text-xs text-muted-foreground">Due in 12 days</p>
+              <div className="flex items-center space-x-4">
+                <Calendar className="h-4 w-4 text-orange-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">MIT</p>
+                  <p className="text-xs text-muted-foreground">Application due in 12 days</p>
+                </div>
+                <Badge variant="secondary">Soon</Badge>
               </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Calendar className="h-4 w-4 text-blue-500" />
-              <div>
-                <p className="text-sm font-medium">Financial Aid Forms</p>
-                <p className="text-xs text-muted-foreground">Due in 18 days</p>
+              <div className="flex items-center space-x-4">
+                <Calendar className="h-4 w-4 text-blue-500" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">UC Berkeley</p>
+                  <p className="text-xs text-muted-foreground">Application due in 25 days</p>
+                </div>
+                <Badge variant="outline">Upcoming</Badge>
               </div>
             </div>
           </CardContent>
@@ -147,27 +139,27 @@ export default function DashboardPage() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link href="/gpa">
-              <Button variant="outline" className="w-full h-20 flex flex-col bg-transparent">
-                <BarChart3 className="h-6 w-6 mb-2" />
+              <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
+                <Target className="h-6 w-6" />
                 <span className="text-sm">Update GPA</span>
               </Button>
             </Link>
             <Link href="/test-scores">
-              <Button variant="outline" className="w-full h-20 flex flex-col bg-transparent">
-                <Target className="h-6 w-6 mb-2" />
+              <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
+                <BookOpen className="h-6 w-6" />
                 <span className="text-sm">Add Test Score</span>
               </Button>
             </Link>
-            <Link href="/essays">
-              <Button variant="outline" className="w-full h-20 flex flex-col bg-transparent">
-                <FileText className="h-6 w-6 mb-2" />
-                <span className="text-sm">Write Essay</span>
+            <Link href="/extracurriculars">
+              <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
+                <Users className="h-6 w-6" />
+                <span className="text-sm">Log Activity</span>
               </Button>
             </Link>
-            <Link href="/college-estimations">
-              <Button variant="outline" className="w-full h-20 flex flex-col bg-transparent">
-                <Calculator className="h-6 w-6 mb-2" />
-                <span className="text-sm">Check Chances</span>
+            <Link href="/essays">
+              <Button variant="outline" className="h-20 flex flex-col space-y-2 bg-transparent">
+                <FileText className="h-6 w-6" />
+                <span className="text-sm">Write Essay</span>
               </Button>
             </Link>
           </div>
