@@ -4,8 +4,8 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { GraduationCap, Target, TrendingUp, Users } from "lucide-react"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { GraduationCap, Target, TrendingUp, Users, BookOpen, Award } from "lucide-react"
 import Link from "next/link"
 
 export default function HomePage() {
@@ -31,94 +31,139 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <GraduationCap className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-900">MyCollegeMap</span>
-            </div>
-            <div className="flex space-x-4">
-              <Link href="/auth/login">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link href="/auth/signup">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <GraduationCap className="h-8 w-8 text-blue-600" />
+            <span className="text-2xl font-bold text-gray-900">MyCollegeMap</span>
+          </div>
+          <div className="space-x-4">
+            <Link href="/auth/login">
+              <Button variant="ghost">Sign In</Button>
+            </Link>
+            <Link href="/auth/signup">
+              <Button>Get Started</Button>
+            </Link>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl">
-            Navigate Your Path to
-            <span className="text-blue-600"> College Success</span>
+      <section className="py-20 px-4">
+        <div className="container mx-auto text-center">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Your College Journey,{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+              Simplified
+            </span>
           </h1>
-          <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Track your GPA, test scores, extracurriculars, and college applications all in one place. Get personalized
-            insights to maximize your admission chances.
+            insights and stay organized throughout your college application process.
           </p>
-          <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+          <div className="space-x-4">
             <Link href="/auth/signup">
-              <Button size="lg" className="w-full sm:w-auto">
-                Start Your Journey
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                Start Tracking Free
+              </Button>
+            </Link>
+            <Link href="/auth/login">
+              <Button size="lg" variant="outline">
+                Sign In
               </Button>
             </Link>
           </div>
         </div>
+      </section>
 
-        {/* Features */}
-        <div className="mt-20">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <Card>
+      {/* Features Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+            Everything You Need for College Success
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
               <CardHeader>
-                <Target className="h-8 w-8 text-blue-600" />
+                <Target className="h-12 w-12 text-blue-600 mb-4" />
                 <CardTitle>GPA Tracking</CardTitle>
-              </CardHeader>
-              <CardContent>
                 <CardDescription>
                   Monitor your weighted and unweighted GPA with detailed course tracking
                 </CardDescription>
-              </CardContent>
+              </CardHeader>
             </Card>
 
-            <Card>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
               <CardHeader>
-                <TrendingUp className="h-8 w-8 text-green-600" />
-                <CardTitle>Test Scores</CardTitle>
-              </CardHeader>
-              <CardContent>
+                <TrendingUp className="h-12 w-12 text-green-600 mb-4" />
+                <CardTitle>Test Score Management</CardTitle>
                 <CardDescription>Track SAT, ACT, and AP scores with improvement recommendations</CardDescription>
-              </CardContent>
+              </CardHeader>
             </Card>
 
-            <Card>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
               <CardHeader>
-                <Users className="h-8 w-8 text-purple-600" />
-                <CardTitle>Extracurriculars</CardTitle>
+                <Users className="h-12 w-12 text-purple-600 mb-4" />
+                <CardTitle>Extracurricular Tracking</CardTitle>
+                <CardDescription>Document activities, leadership roles, and time commitments</CardDescription>
               </CardHeader>
-              <CardContent>
-                <CardDescription>Document activities, leadership roles, and community service hours</CardDescription>
-              </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
               <CardHeader>
-                <GraduationCap className="h-8 w-8 text-orange-600" />
-                <CardTitle>College Planning</CardTitle>
+                <Award className="h-12 w-12 text-yellow-600 mb-4" />
+                <CardTitle>Honors & Awards</CardTitle>
+                <CardDescription>Keep track of achievements, scholarships, and recognition</CardDescription>
               </CardHeader>
-              <CardContent>
-                <CardDescription>Get admission probability estimates and application deadline tracking</CardDescription>
-              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <BookOpen className="h-12 w-12 text-red-600 mb-4" />
+                <CardTitle>Essay Management</CardTitle>
+                <CardDescription>Write, edit, and get feedback on your college application essays</CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader>
+                <GraduationCap className="h-12 w-12 text-indigo-600 mb-4" />
+                <CardTitle>College Estimations</CardTitle>
+                <CardDescription>Get personalized admission chances for your target schools</CardDescription>
+              </CardHeader>
             </Card>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white mb-6">Ready to Take Control of Your College Journey?</h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of students who are already using MyCollegeMap to organize their college applications and
+            achieve their dreams.
+          </p>
+          <Link href="/auth/signup">
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+              Get Started Today
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 px-4">
+        <div className="container mx-auto text-center">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <GraduationCap className="h-6 w-6" />
+            <span className="text-xl font-bold">MyCollegeMap</span>
+          </div>
+          <p className="text-gray-400">© 2024 MyCollegeMap. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   )
 }
