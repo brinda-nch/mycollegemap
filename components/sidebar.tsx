@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useSession, signOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -17,29 +18,29 @@ import {
 import {
   GraduationCap,
   Home,
-  BookOpen,
   Target,
+  TrendingUp,
   Users,
   Award,
+  BookOpen,
   FileText,
-  TrendingUp,
   BarChart3,
-  LogOut,
-  Settings,
   Menu,
   X,
+  LogOut,
+  Settings,
+  User,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "GPA Tracking", href: "/gpa", icon: BookOpen },
-  { name: "Test Scores", href: "/test-scores", icon: Target },
+  { name: "GPA Tracking", href: "/gpa", icon: Target },
+  { name: "Test Scores", href: "/test-scores", icon: TrendingUp },
   { name: "Extracurriculars", href: "/extracurriculars", icon: Users },
   { name: "Honors & Awards", href: "/honors-awards", icon: Award },
-  { name: "College Estimations", href: "/college-estimations", icon: BarChart3 },
+  { name: "College Estimations", href: "/college-estimations", icon: BookOpen },
   { name: "Essays", href: "/essays", icon: FileText },
-  { name: "Grade Impact", href: "/grade-impact", icon: TrendingUp },
+  { name: "Grade Impact", href: "/grade-impact", icon: BarChart3 },
 ]
 
 export function Sidebar() {
@@ -55,7 +56,7 @@ export function Sidebar() {
     <>
       {/* Mobile menu button */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button variant="outline" size="sm" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+        <Button variant="outline" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
       </div>
@@ -82,11 +83,11 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
                   className={cn(
                     "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                     isActive ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
                   )}
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
                   {item.name}
@@ -107,9 +108,7 @@ export function Sidebar() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start">
-                    <span className="text-sm font-medium">
-                      {session?.user?.name || session?.user?.email?.split("@")[0]}
-                    </span>
+                    <span className="text-sm font-medium">{session?.user?.name || session?.user?.email}</span>
                     <span className="text-xs text-gray-500">{session?.user?.email}</span>
                   </div>
                 </Button>
@@ -117,6 +116,10 @@ export function Sidebar() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
@@ -135,7 +138,7 @@ export function Sidebar() {
       {/* Mobile overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 z-30 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

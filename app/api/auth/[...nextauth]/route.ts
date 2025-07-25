@@ -1,14 +1,14 @@
 import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
+import Google from "next-auth/providers/google"
+import Credentials from "next-auth/providers/credentials"
 
 const handler = NextAuth({
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
-    CredentialsProvider({
+    Credentials({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -35,7 +35,6 @@ const handler = NextAuth({
   ],
   pages: {
     signIn: "/auth/login",
-    signUp: "/auth/signup",
   },
   callbacks: {
     async jwt({ token, user }) {

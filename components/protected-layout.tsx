@@ -5,7 +5,6 @@ import type React from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { Sidebar } from "@/components/sidebar"
 
 export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
@@ -20,19 +19,14 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
       </div>
     )
   }
 
-  if (!session) {
+  if (status === "unauthenticated") {
     return null
   }
 
-  return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
-    </div>
-  )
+  return <>{children}</>
 }
