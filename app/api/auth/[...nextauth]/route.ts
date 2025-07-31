@@ -1,14 +1,9 @@
 import NextAuth from "next-auth"
-import Google from "next-auth/providers/google"
-import Credentials from "next-auth/providers/credentials"
+import CredentialsProvider from "next-auth/providers/credentials"
 
 const handler = NextAuth({
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
-    Credentials({
+    CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -19,13 +14,12 @@ const handler = NextAuth({
           return null
         }
 
-        // For demo purposes, accept any email/password combination
-        // In production, validate against your database
-        if (credentials.email && credentials.password) {
+        // Simple demo authentication - replace with real database check
+        if (credentials.email === "demo@example.com" && credentials.password === "password") {
           return {
             id: "1",
             email: credentials.email,
-            name: credentials.email.split("@")[0],
+            name: "Demo User",
           }
         }
 
@@ -37,17 +31,14 @@ const handler = NextAuth({
     signIn: "/auth/login",
   },
   callbacks: {
+    async session({ session, token }) {
+      return session
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
       }
       return token
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string
-      }
-      return session
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

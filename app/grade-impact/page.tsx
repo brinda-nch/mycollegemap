@@ -6,101 +6,95 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TrendingUp, TrendingDown, Target, Calculator } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { BarChart3, TrendingUp, TrendingDown, Calculator } from "lucide-react"
 
 interface Course {
   id: string
   name: string
   currentGrade: string
   credits: number
-  type: "Regular" | "Honors" | "AP" | "IB"
+  semester: string
 }
 
 interface Scenario {
   id: string
   name: string
-  courseChanges: { courseId: string; newGrade: string }[]
-  projectedGPA: number
+  courseId: string
+  newGrade: string
   impact: number
 }
 
-export default function GradeImpact() {
-  const [courses] = useState<Course[]>([
-    { id: "1", name: "AP Calculus BC", currentGrade: "A", credits: 4, type: "AP" },
-    { id: "2", name: "AP Chemistry", currentGrade: "A-", credits: 4, type: "AP" },
-    { id: "3", name: "English Literature", currentGrade: "B+", credits: 3, type: "Honors" },
-    { id: "4", name: "US History", currentGrade: "A", credits: 3, type: "AP" },
-    { id: "5", name: "Spanish IV", currentGrade: "B", credits: 3, type: "Regular" },
-    { id: "6", name: "Physics", currentGrade: "B+", credits: 4, type: "Honors" },
+export default function GradeImpactPage() {
+  const [courses, setCourses] = useState<Course[]>([
+    { id: "1", name: "AP Calculus BC", currentGrade: "A", credits: 4, semester: "Fall 2024" },
+    { id: "2", name: "AP English Literature", currentGrade: "A-", credits: 3, semester: "Fall 2024" },
+    { id: "3", name: "AP Chemistry", currentGrade: "B+", credits: 4, semester: "Fall 2024" },
+    { id: "4", name: "AP US History", currentGrade: "A", credits: 3, semester: "Fall 2024" },
+    { id: "5", name: "Spanish III", currentGrade: "A-", credits: 3, semester: "Fall 2024" },
   ])
 
   const [scenarios, setScenarios] = useState<Scenario[]>([])
-  const [targetGPA, setTargetGPA] = useState("4.0")
-  const [selectedCourse, setSelectedCourse] = useState("")
-  const [newGrade, setNewGrade] = useState("")
+  const [newScenario, setNewScenario] = useState({
+    name: "",
+    courseId: "",
+    newGrade: "",
+  })
 
-  const gradePoints = {
-    "A+": { regular: 4.0, honors: 4.5, ap: 5.0 },
-    A: { regular: 4.0, honors: 4.5, ap: 5.0 },
-    "A-": { regular: 3.7, honors: 4.2, ap: 4.7 },
-    "B+": { regular: 3.3, honors: 3.8, ap: 4.3 },
-    B: { regular: 3.0, honors: 3.5, ap: 4.0 },
-    "B-": { regular: 2.7, honors: 3.2, ap: 3.7 },
-    "C+": { regular: 2.3, honors: 2.8, ap: 3.3 },
-    C: { regular: 2.0, honors: 2.5, ap: 3.0 },
-    "C-": { regular: 1.7, honors: 2.2, ap: 2.7 },
-    D: { regular: 1.0, honors: 1.0, ap: 1.0 },
-    F: { regular: 0.0, honors: 0.0, ap: 0.0 },
+  const gradePoints: { [key: string]: number } = {
+    "A+": 4.0,
+    A: 4.0,
+    "A-": 3.7,
+    "B+": 3.3,
+    B: 3.0,
+    "B-": 2.7,
+    "C+": 2.3,
+    C: 2.0,
+    "C-": 1.7,
+    "D+": 1.3,
+    D: 1.0,
+    F: 0.0,
   }
 
-  const calculateGPA = (courseOverrides: { courseId: string; newGrade: string }[] = []) => {
-    let totalPoints = 0
-    let totalCredits = 0
-
-    courses.forEach((course) => {
-      const override = courseOverrides.find((o) => o.courseId === course.id)
-      const grade = override ? override.newGrade : course.currentGrade
-      const gradeData = gradePoints[grade as keyof typeof gradePoints]
-
-      if (gradeData) {
-        let points = gradeData.regular
-        if (course.type === "Honors") points = gradeData.honors
-        else if (course.type === "AP" || course.type === "IB") points = gradeData.ap
-
-        totalPoints += points * course.credits
-        totalCredits += course.credits
-      }
-    })
-
+  const calculateCurrentGPA = () => {
+    const totalPoints = courses.reduce((sum, course) => {
+      return sum + (gradePoints[course.currentGrade] || 0) * course.credits
+    }, 0)
+    const totalCredits = courses.reduce((sum, course) => sum + course.credits, 0)
     return totalCredits > 0 ? totalPoints / totalCredits : 0
   }
 
-  const currentGPA = calculateGPA()
+  const calculateScenarioGPA = (courseId: string, newGrade: string) => {
+    const updatedCourses = courses.map((course) =>
+      course.id === courseId ? { ...course, currentGrade: newGrade } : course,
+    )
 
-  const analyzeCourseImpact = (courseId: string, grade: string) => {
-    const currentGPA = calculateGPA()
-    const newGPA = calculateGPA([{ courseId, newGrade: grade }])
-    return newGPA - currentGPA
+    const totalPoints = updatedCourses.reduce((sum, course) => {
+      return sum + (gradePoints[course.currentGrade] || 0) * course.credits
+    }, 0)
+    const totalCredits = updatedCourses.reduce((sum, course) => sum + course.credits, 0)
+    return totalCredits > 0 ? totalPoints / totalCredits : 0
   }
 
-  const createScenario = () => {
-    if (selectedCourse && newGrade) {
-      const courseChanges = [{ courseId: selectedCourse, newGrade }]
-      const projectedGPA = calculateGPA(courseChanges)
-      const impact = projectedGPA - currentGPA
-      const course = courses.find((c) => c.id === selectedCourse)
+  const addScenario = () => {
+    if (newScenario.name && newScenario.courseId && newScenario.newGrade) {
+      const currentGPA = calculateCurrentGPA()
+      const scenarioGPA = calculateScenarioGPA(newScenario.courseId, newScenario.newGrade)
+      const impact = scenarioGPA - currentGPA
 
-      const scenario: Scenario = {
-        id: Date.now().toString(),
-        name: `${course?.name}: ${newGrade}`,
-        courseChanges,
-        projectedGPA,
-        impact,
-      }
-
-      setScenarios([...scenarios, scenario])
-      setSelectedCourse("")
-      setNewGrade("")
+      setScenarios([
+        ...scenarios,
+        {
+          ...newScenario,
+          id: Date.now().toString(),
+          impact,
+        },
+      ])
+      setNewScenario({
+        name: "",
+        courseId: "",
+        newGrade: "",
+      })
     }
   }
 
@@ -108,184 +102,98 @@ export default function GradeImpact() {
     setScenarios(scenarios.filter((s) => s.id !== id))
   }
 
-  const getGradeNeededForTarget = () => {
-    const target = Number.parseFloat(targetGPA)
-    if (!target || !selectedCourse) return null
-
-    const course = courses.find((c) => c.id === selectedCourse)
-    if (!course) return null
-
-    const grades = Object.keys(gradePoints)
-
-    for (const grade of grades) {
-      const projectedGPA = calculateGPA([{ courseId: selectedCourse, newGrade: grade }])
-      if (projectedGPA >= target) {
-        return grade
-      }
-    }
-
-    return null
-  }
+  const currentGPA = calculateCurrentGPA()
 
   const getImpactColor = (impact: number) => {
-    if (impact > 0.05) return "text-green-600"
-    if (impact > 0) return "text-green-500"
-    if (impact < -0.05) return "text-red-600"
-    if (impact < 0) return "text-red-500"
-    return "text-gray-600"
+    if (impact > 0.05) return "default"
+    if (impact > 0) return "secondary"
+    if (impact > -0.05) return "outline"
+    return "destructive"
   }
 
   const getImpactIcon = (impact: number) => {
     if (impact > 0) return <TrendingUp className="h-4 w-4" />
     if (impact < 0) return <TrendingDown className="h-4 w-4" />
-    return <Target className="h-4 w-4" />
+    return <Calculator className="h-4 w-4" />
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Grade Impact Analysis</h1>
-          <p className="text-muted-foreground">Analyze how different grades affect your GPA</p>
-        </div>
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Grade Impact Analysis</h1>
+        <p className="text-gray-600 mt-2">Analyze how different grades would affect your overall GPA</p>
       </div>
 
       {/* Current GPA */}
-      <Card>
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="h-5 w-5" />
-            Current GPA Analysis
+          <CardTitle className="flex items-center">
+            <BarChart3 className="h-5 w-5 mr-2" />
+            Current Academic Standing
           </CardTitle>
-          <CardDescription>Your current weighted GPA and course breakdown</CardDescription>
+          <CardDescription>Your current GPA based on recorded grades</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center mb-6">
-            <div className="text-4xl font-bold">{currentGPA.toFixed(3)}</div>
-            <p className="text-muted-foreground">Current Weighted GPA</p>
+          <div className="text-center">
+            <div className="text-4xl font-bold text-blue-600 mb-2">{currentGPA.toFixed(3)}</div>
+            <p className="text-gray-600">Current Cumulative GPA</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Based on {courses.length} courses ({courses.reduce((sum, c) => sum + c.credits, 0)} credits)
+            </p>
           </div>
+        </CardContent>
+      </Card>
 
+      {/* Current Courses */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Current Courses</CardTitle>
+          <CardDescription>Your current course grades used for impact analysis</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-3">
             {courses.map((course) => (
               <div key={course.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium">{course.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {course.credits} credits • {course.type}
+                  <p className="text-sm text-gray-500">
+                    {course.semester} • {course.credits} credits
                   </p>
                 </div>
-                <div className="text-right">
-                  <div className="font-bold text-lg">{course.currentGrade}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {(() => {
-                      const gradeData = gradePoints[course.currentGrade as keyof typeof gradePoints]
-                      if (!gradeData) return "0.0"
-                      let points = gradeData.regular
-                      if (course.type === "Honors") points = gradeData.honors
-                      else if (course.type === "AP" || course.type === "IB") points = gradeData.ap
-                      return points.toFixed(1)
-                    })()} pts
-                  </div>
-                </div>
+                <Badge variant="outline">
+                  {course.currentGrade} ({gradePoints[course.currentGrade]?.toFixed(1)} pts)
+                </Badge>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Scenario Builder */}
-      <Card>
+      {/* Add New Scenario */}
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle>Create Grade Scenario</CardTitle>
           <CardDescription>See how changing a grade would impact your GPA</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="course-select">Select Course</Label>
-              <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a course" />
-                </SelectTrigger>
-                <SelectContent>
-                  {courses.map((course) => (
-                    <SelectItem key={course.id} value={course.id}>
-                      {course.name} (Current: {course.currentGrade})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="grade-select">New Grade</Label>
-              <Select value={newGrade} onValueChange={setNewGrade}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select grade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(gradePoints).map((grade) => (
-                    <SelectItem key={grade} value={grade}>
-                      {grade}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-end">
-              <Button onClick={createScenario} className="w-full" disabled={!selectedCourse || !newGrade}>
-                Analyze Impact
-              </Button>
-            </div>
-          </div>
-
-          {selectedCourse && newGrade && (
-            <div className="p-4 bg-muted rounded-lg">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Projected Impact:</span>
-                <div
-                  className={`flex items-center gap-2 font-bold ${getImpactColor(analyzeCourseImpact(selectedCourse, newGrade))}`}
-                >
-                  {getImpactIcon(analyzeCourseImpact(selectedCourse, newGrade))}
-                  {analyzeCourseImpact(selectedCourse, newGrade) > 0 ? "+" : ""}
-                  {analyzeCourseImpact(selectedCourse, newGrade).toFixed(3)}
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                New GPA would be: {calculateGPA([{ courseId: selectedCourse, newGrade }]).toFixed(3)}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Target GPA Calculator */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Target GPA Calculator</CardTitle>
-          <CardDescription>Find out what grade you need to reach your target GPA</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="target-gpa">Target GPA</Label>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <Label htmlFor="scenarioName">Scenario Name</Label>
               <Input
-                id="target-gpa"
-                type="number"
-                step="0.01"
-                min="0"
-                max="5"
-                value={targetGPA}
-                onChange={(e) => setTargetGPA(e.target.value)}
-                placeholder="e.g., 4.0"
+                id="scenarioName"
+                value={newScenario.name}
+                onChange={(e) => setNewScenario({ ...newScenario, name: e.target.value })}
+                placeholder="e.g., If I get A in Calc"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="course-target">Course to Improve</Label>
-              <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+            <div>
+              <Label htmlFor="course">Course</Label>
+              <Select
+                value={newScenario.courseId}
+                onValueChange={(value) => setNewScenario({ ...newScenario, courseId: value })}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a course" />
+                  <SelectValue placeholder="Select course" />
                 </SelectTrigger>
                 <SelectContent>
                   {courses.map((course) => (
@@ -296,64 +204,125 @@ export default function GradeImpact() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          {selectedCourse && targetGPA && (
-            <div className="p-4 bg-muted rounded-lg">
-              {(() => {
-                const neededGrade = getGradeNeededForTarget()
-                const course = courses.find((c) => c.id === selectedCourse)
-                return (
-                  <div>
-                    <p className="font-medium">
-                      To reach a {targetGPA} GPA, you need at least a{" "}
-                      <span className="font-bold text-blue-600">
-                        {neededGrade || "A+ (not achievable with current courses)"}
-                      </span>{" "}
-                      in {course?.name}
-                    </p>
-                    {neededGrade && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        This would improve your GPA by{" "}
-                        {(calculateGPA([{ courseId: selectedCourse, newGrade: neededGrade }]) - currentGPA).toFixed(3)}{" "}
-                        points
-                      </p>
-                    )}
-                  </div>
-                )
-              })()}
+            <div>
+              <Label htmlFor="newGrade">New Grade</Label>
+              <Select
+                value={newScenario.newGrade}
+                onValueChange={(value) => setNewScenario({ ...newScenario, newGrade: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(gradePoints).map((grade) => (
+                    <SelectItem key={grade} value={grade}>
+                      {grade} ({gradePoints[grade]})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          )}
+            <div className="flex items-end">
+              <Button onClick={addScenario} className="w-full">
+                <Calculator className="h-4 w-4 mr-2" />
+                Analyze Impact
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Scenarios */}
+      {/* Scenarios Results */}
       {scenarios.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Grade Scenarios</CardTitle>
-            <CardDescription>Compare different grade scenarios</CardDescription>
+            <CardTitle>Grade Impact Scenarios</CardTitle>
+            <CardDescription>How different grades would affect your GPA</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {scenarios.map((scenario) => (
-                <div key={scenario.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h3 className="font-medium">{scenario.name}</h3>
-                    <p className="text-sm text-muted-foreground">Projected GPA: {scenario.projectedGPA.toFixed(3)}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className={`flex items-center gap-2 font-bold ${getImpactColor(scenario.impact)}`}>
-                      {getImpactIcon(scenario.impact)}
-                      {scenario.impact > 0 ? "+" : ""}
-                      {scenario.impact.toFixed(3)}
+            <div className="space-y-4">
+              {scenarios.map((scenario) => {
+                const course = courses.find((c) => c.id === scenario.courseId)
+                const newGPA = currentGPA + scenario.impact
+
+                return (
+                  <div key={scenario.id} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{scenario.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          {course?.name}: {course?.currentGrade} → {scenario.newGrade}
+                        </p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => removeScenario(scenario.id)}>
+                        Remove
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => removeScenario(scenario.id)}>
-                      Remove
-                    </Button>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <div className="text-lg font-semibold text-gray-700">{currentGPA.toFixed(3)}</div>
+                        <p className="text-xs text-gray-500">Current GPA</p>
+                      </div>
+
+                      <div className="text-center p-3 bg-blue-50 rounded-lg">
+                        <div className="text-lg font-semibold text-blue-700">{newGPA.toFixed(3)}</div>
+                        <p className="text-xs text-blue-600">New GPA</p>
+                      </div>
+
+                      <div
+                        className="text-center p-3 rounded-lg"
+                        style={{
+                          backgroundColor:
+                            scenario.impact > 0 ? "#f0fdf4" : scenario.impact < 0 ? "#fef2f2" : "#f9fafb",
+                        }}
+                      >
+                        <div
+                          className={`text-lg font-semibold flex items-center justify-center ${
+                            scenario.impact > 0
+                              ? "text-green-700"
+                              : scenario.impact < 0
+                                ? "text-red-700"
+                                : "text-gray-700"
+                          }`}
+                        >
+                          {getImpactIcon(scenario.impact)}
+                          <span className="ml-1">
+                            {scenario.impact > 0 ? "+" : ""}
+                            {scenario.impact.toFixed(3)}
+                          </span>
+                        </div>
+                        <p
+                          className={`text-xs ${
+                            scenario.impact > 0
+                              ? "text-green-600"
+                              : scenario.impact < 0
+                                ? "text-red-600"
+                                : "text-gray-500"
+                          }`}
+                        >
+                          GPA Impact
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 text-center">
+                      <Badge variant={getImpactColor(scenario.impact)} className="flex items-center w-fit mx-auto">
+                        {getImpactIcon(scenario.impact)}
+                        <span className="ml-1">
+                          {scenario.impact > 0.05
+                            ? "Significant Positive Impact"
+                            : scenario.impact > 0
+                              ? "Positive Impact"
+                              : scenario.impact > -0.05
+                                ? "Minimal Impact"
+                                : "Negative Impact"}
+                        </span>
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </CardContent>
         </Card>

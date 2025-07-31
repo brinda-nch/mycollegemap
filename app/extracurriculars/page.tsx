@@ -8,295 +8,223 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, Trash2, Clock, Users, Award, Star } from "lucide-react"
+import { Plus, Users, Clock, Award } from "lucide-react"
 
-interface Extracurricular {
+interface Activity {
   id: string
   name: string
-  category: "Academic" | "Sports" | "Arts" | "Community Service" | "Leadership" | "Work" | "Other"
-  position: string
+  category: string
+  role: string
   description: string
-  startDate: string
-  endDate: string
   hoursPerWeek: number
   weeksPerYear: number
-  achievements: string[]
-  isLeadership: boolean
+  yearsParticipated: number
+  achievements: string
 }
 
 export default function ExtracurricularsPage() {
-  const [activities, setActivities] = useState<Extracurricular[]>([
+  const [activities, setActivities] = useState<Activity[]>([
     {
       id: "1",
       name: "Student Government",
       category: "Leadership",
-      position: "Vice President",
+      role: "Vice President",
       description: "Led student initiatives and represented student body in school decisions",
-      startDate: "2022-09",
-      endDate: "2024-06",
       hoursPerWeek: 8,
       weeksPerYear: 36,
-      achievements: ["Organized school-wide fundraiser raising $5,000", "Implemented new student feedback system"],
-      isLeadership: true,
+      yearsParticipated: 2,
+      achievements: "Organized school-wide fundraiser raising $5,000 for local charity",
     },
     {
       id: "2",
       name: "Varsity Soccer",
       category: "Sports",
-      position: "Team Captain",
-      description: "Competitive soccer player and team leader",
-      startDate: "2021-08",
-      endDate: "2024-06",
+      role: "Team Captain",
+      description: "Competed at varsity level and led team training sessions",
       hoursPerWeek: 15,
       weeksPerYear: 20,
-      achievements: ["Led team to state championship", "All-State selection 2023"],
-      isLeadership: true,
+      yearsParticipated: 4,
+      achievements: "Led team to regional championships, All-State honorable mention",
     },
     {
       id: "3",
-      name: "Local Food Bank",
-      category: "Community Service",
-      position: "Volunteer Coordinator",
-      description: "Organized volunteer schedules and food distribution events",
-      startDate: "2020-06",
-      endDate: "2024-08",
-      hoursPerWeek: 4,
-      weeksPerYear: 50,
-      achievements: ["Coordinated 200+ volunteers", "Helped distribute food to 1,000+ families"],
-      isLeadership: false,
-    },
-    {
-      id: "4",
-      name: "Math Tutoring Club",
+      name: "National Honor Society",
       category: "Academic",
-      position: "President",
-      description: "Founded and led peer tutoring program for underclassmen",
-      startDate: "2022-01",
-      endDate: "2024-06",
-      hoursPerWeek: 6,
-      weeksPerYear: 32,
-      achievements: ["Helped 50+ students improve math grades", "Expanded program to 3 schools"],
-      isLeadership: true,
+      role: "Member",
+      description: "Participated in community service and academic excellence programs",
+      hoursPerWeek: 3,
+      weeksPerYear: 36,
+      yearsParticipated: 2,
+      achievements: "Completed 100+ hours of community service",
     },
   ])
 
   const [newActivity, setNewActivity] = useState({
     name: "",
-    category: "Academic" as Extracurricular["category"],
-    position: "",
+    category: "",
+    role: "",
     description: "",
-    startDate: "",
-    endDate: "",
     hoursPerWeek: 0,
     weeksPerYear: 0,
-    achievements: [""],
-    isLeadership: false,
+    yearsParticipated: 0,
+    achievements: "",
   })
 
   const addActivity = () => {
-    if (newActivity.name && newActivity.position && newActivity.description) {
+    if (newActivity.name && newActivity.category && newActivity.role) {
       setActivities([
         ...activities,
         {
           ...newActivity,
           id: Date.now().toString(),
-          achievements: newActivity.achievements.filter((a) => a.trim() !== ""),
         },
       ])
       setNewActivity({
         name: "",
-        category: "Academic",
-        position: "",
+        category: "",
+        role: "",
         description: "",
-        startDate: "",
-        endDate: "",
         hoursPerWeek: 0,
         weeksPerYear: 0,
-        achievements: [""],
-        isLeadership: false,
+        yearsParticipated: 0,
+        achievements: "",
       })
     }
+  }
+
+  const getTotalHours = () => {
+    return activities.reduce((total, activity) => {
+      return total + activity.hoursPerWeek * activity.weeksPerYear * activity.yearsParticipated
+    }, 0)
+  }
+
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      Leadership: "default",
+      Sports: "secondary",
+      Academic: "outline",
+      "Community Service": "destructive",
+      Arts: "default",
+      Work: "secondary",
+    }
+    return colors[category] || "outline"
   }
 
   const removeActivity = (id: string) => {
     setActivities(activities.filter((activity) => activity.id !== id))
   }
 
-  const updateAchievement = (index: number, value: string) => {
-    const newAchievements = [...newActivity.achievements]
-    newAchievements[index] = value
-    setNewActivity({ ...newActivity, achievements: newAchievements })
-  }
-
-  const addAchievement = () => {
-    setNewActivity({ ...newActivity, achievements: [...newActivity.achievements, ""] })
-  }
-
-  const removeAchievement = (index: number) => {
-    const newAchievements = newActivity.achievements.filter((_, i) => i !== index)
-    setNewActivity({ ...newActivity, achievements: newAchievements })
-  }
-
-  const getTotalHours = () => {
-    return activities.reduce((total, activity) => {
-      return total + activity.hoursPerWeek * activity.weeksPerYear
-    }, 0)
-  }
-
-  const getLeadershipCount = () => {
-    return activities.filter((activity) => activity.isLeadership).length
-  }
-
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      Academic: "bg-blue-100 text-blue-800",
-      Sports: "bg-green-100 text-green-800",
-      Arts: "bg-purple-100 text-purple-800",
-      "Community Service": "bg-orange-100 text-orange-800",
-      Leadership: "bg-red-100 text-red-800",
-      Work: "bg-yellow-100 text-yellow-800",
-      Other: "bg-gray-100 text-gray-800",
-    }
-    return colors[category] || colors["Other"]
-  }
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Extracurricular Activities</h1>
-        <p className="text-muted-foreground">Document your activities, leadership roles, and achievements</p>
+    <div className="p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Extracurricular Activities</h1>
+        <p className="text-gray-600 mt-2">Document your involvement in activities outside the classroom</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* Activity Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Activities</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{activities.length}</div>
+            <div className="text-2xl font-bold">{activities.length}</div>
+            <p className="text-xs text-muted-foreground">Activities recorded</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
-            <Clock className="h-4 w-4 text-green-600" />
+            <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{getTotalHours().toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">estimated hours</p>
+            <div className="text-2xl font-bold">{getTotalHours().toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Hours of involvement</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Leadership Roles</CardTitle>
-            <Award className="h-4 w-4 text-purple-600" />
+            <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{getLeadershipCount()}</div>
+            <div className="text-2xl font-bold">
+              {
+                activities.filter(
+                  (a) =>
+                    a.role.toLowerCase().includes("president") ||
+                    a.role.toLowerCase().includes("captain") ||
+                    a.role.toLowerCase().includes("leader"),
+                ).length
+              }
+            </div>
+            <p className="text-xs text-muted-foreground">Leadership positions</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
+      {/* Add New Activity */}
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle>Add New Activity</CardTitle>
-          <CardDescription>Record your extracurricular involvement</CardDescription>
+          <CardDescription>Record your extracurricular involvement and achievements</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="activity-name">Activity Name</Label>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <Label htmlFor="activityName">Activity Name</Label>
               <Input
-                id="activity-name"
+                id="activityName"
                 value={newActivity.name}
                 onChange={(e) => setNewActivity({ ...newActivity, name: e.target.value })}
-                placeholder="e.g., National Honor Society"
+                placeholder="e.g., Debate Team"
               />
             </div>
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="category">Category</Label>
               <Select
                 value={newActivity.category}
-                onValueChange={(value: Extracurricular["category"]) =>
-                  setNewActivity({ ...newActivity, category: value })
-                }
+                onValueChange={(value) => setNewActivity({ ...newActivity, category: value })}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Academic">Academic</SelectItem>
-                  <SelectItem value="Sports">Sports</SelectItem>
-                  <SelectItem value="Arts">Arts</SelectItem>
-                  <SelectItem value="Community Service">Community Service</SelectItem>
                   <SelectItem value="Leadership">Leadership</SelectItem>
+                  <SelectItem value="Sports">Sports</SelectItem>
+                  <SelectItem value="Academic">Academic</SelectItem>
+                  <SelectItem value="Community Service">Community Service</SelectItem>
+                  <SelectItem value="Arts">Arts</SelectItem>
                   <SelectItem value="Work">Work</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="position">Position/Role</Label>
+            <div>
+              <Label htmlFor="role">Your Role</Label>
               <Input
-                id="position"
-                value={newActivity.position}
-                onChange={(e) => setNewActivity({ ...newActivity, position: e.target.value })}
-                placeholder="e.g., President, Member, Volunteer"
+                id="role"
+                value={newActivity.role}
+                onChange={(e) => setNewActivity({ ...newActivity, role: e.target.value })}
+                placeholder="e.g., Team Captain"
               />
             </div>
-            <div className="flex items-center space-x-2 pt-6">
-              <Checkbox
-                id="leadership"
-                checked={newActivity.isLeadership}
-                onCheckedChange={(checked) => setNewActivity({ ...newActivity, isLeadership: checked as boolean })}
-              />
-              <Label htmlFor="leadership">This is a leadership role</Label>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="start-date">Start Date</Label>
+            <div>
+              <Label htmlFor="hoursPerWeek">Hours per Week</Label>
               <Input
-                id="start-date"
-                type="month"
-                value={newActivity.startDate}
-                onChange={(e) => setNewActivity({ ...newActivity, startDate: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="end-date">End Date</Label>
-              <Input
-                id="end-date"
-                type="month"
-                value={newActivity.endDate}
-                onChange={(e) => setNewActivity({ ...newActivity, endDate: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="hours-week">Hours per Week</Label>
-              <Input
-                id="hours-week"
+                id="hoursPerWeek"
                 type="number"
                 value={newActivity.hoursPerWeek || ""}
                 onChange={(e) => setNewActivity({ ...newActivity, hoursPerWeek: Number.parseInt(e.target.value) || 0 })}
                 min="0"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="weeks-year">Weeks per Year</Label>
+            <div>
+              <Label htmlFor="weeksPerYear">Weeks per Year</Label>
               <Input
-                id="weeks-year"
+                id="weeksPerYear"
                 type="number"
                 value={newActivity.weeksPerYear || ""}
                 onChange={(e) => setNewActivity({ ...newActivity, weeksPerYear: Number.parseInt(e.target.value) || 0 })}
@@ -304,110 +232,106 @@ export default function ExtracurricularsPage() {
                 max="52"
               />
             </div>
+            <div>
+              <Label htmlFor="yearsParticipated">Years Participated</Label>
+              <Input
+                id="yearsParticipated"
+                type="number"
+                value={newActivity.yearsParticipated || ""}
+                onChange={(e) =>
+                  setNewActivity({ ...newActivity, yearsParticipated: Number.parseInt(e.target.value) || 0 })
+                }
+                min="0"
+                max="4"
+              />
+            </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={newActivity.description}
-              onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
-              placeholder="Describe your role and responsibilities..."
-              rows={3}
-            />
+          <div className="grid grid-cols-1 gap-4 mb-4">
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={newActivity.description}
+                onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
+                placeholder="Describe your involvement and responsibilities"
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="achievements">Achievements & Awards</Label>
+              <Textarea
+                id="achievements"
+                value={newActivity.achievements}
+                onChange={(e) => setNewActivity({ ...newActivity, achievements: e.target.value })}
+                placeholder="List any awards, recognitions, or notable achievements"
+                rows={2}
+              />
+            </div>
           </div>
-
-          <div className="space-y-2">
-            <Label>Achievements & Awards</Label>
-            {newActivity.achievements.map((achievement, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  value={achievement}
-                  onChange={(e) => updateAchievement(index, e.target.value)}
-                  placeholder="Describe an achievement or award..."
-                />
-                {newActivity.achievements.length > 1 && (
-                  <Button type="button" variant="outline" size="sm" onClick={() => removeAchievement(index)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addAchievement}
-              className="w-full bg-transparent"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Achievement
-            </Button>
-          </div>
-
-          <Button onClick={addActivity} className="w-full">
-            <Plus className="w-4 h-4 mr-2" />
+          <Button onClick={addActivity}>
+            <Plus className="h-4 w-4 mr-2" />
             Add Activity
           </Button>
         </CardContent>
       </Card>
 
+      {/* Activities List */}
       <Card>
         <CardHeader>
           <CardTitle>Your Activities</CardTitle>
-          <CardDescription>Your recorded extracurricular activities</CardDescription>
+          <CardDescription>All your extracurricular activities and involvement</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {activities.map((activity) => (
-              <div key={activity.id} className="border rounded-lg p-4">
-                <div className="flex items-start justify-between mb-3">
+              <div key={activity.id} className="border rounded-lg p-6">
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold text-lg">{activity.name}</h4>
-                      <Badge className={getCategoryColor(activity.category)}>{activity.category}</Badge>
-                      {activity.isLeadership && (
-                        <Badge variant="default" className="bg-blue-600">
-                          <Award className="w-3 h-3 mr-1" />
-                          Leadership
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">{activity.position}</p>
-                    <p className="text-sm mb-3">{activity.description}</p>
-
-                    <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mb-3">
-                      <span>
-                        📅 {activity.startDate} - {activity.endDate}
-                      </span>
-                      <span>⏰ {activity.hoursPerWeek}h/week</span>
-                      <span>📊 {activity.weeksPerYear} weeks/year</span>
-                      <span>🕐 {activity.hoursPerWeek * activity.weeksPerYear} total hours</span>
-                    </div>
-
-                    {activity.achievements.length > 0 && (
-                      <div>
-                        <h5 className="text-sm font-medium mb-1">Achievements:</h5>
-                        <ul className="text-sm text-muted-foreground space-y-1">
-                          {activity.achievements.map((achievement, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <Star className="w-3 h-3 text-yellow-500 mt-0.5 flex-shrink-0" />
-                              {achievement}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                    <h3 className="text-lg font-semibold">{activity.name}</h3>
+                    <p className="text-sm text-gray-600">{activity.role}</p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeActivity(activity.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <Badge variant={getCategoryColor(activity.category)}>{activity.category}</Badge>
                 </div>
+
+                <p className="text-gray-700 mb-4">{activity.description}</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm">
+                  <div>
+                    <span className="font-medium">Time Commitment:</span>
+                    <p className="text-gray-600">
+                      {activity.hoursPerWeek} hrs/week × {activity.weeksPerYear} weeks × {activity.yearsParticipated}{" "}
+                      years
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium">Total Hours:</span>
+                    <p className="text-gray-600">
+                      {(activity.hoursPerWeek * activity.weeksPerYear * activity.yearsParticipated).toLocaleString()}{" "}
+                      hours
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-medium">Duration:</span>
+                    <p className="text-gray-600">
+                      {activity.yearsParticipated} year{activity.yearsParticipated !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </div>
+
+                {activity.achievements && (
+                  <div>
+                    <span className="font-medium text-sm">Achievements:</span>
+                    <p className="text-gray-700 text-sm mt-1">{activity.achievements}</p>
+                  </div>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeActivity(activity.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Award className="w-4 h-4" />
+                </Button>
               </div>
             ))}
           </div>
