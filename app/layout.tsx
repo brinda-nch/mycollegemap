@@ -4,14 +4,14 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "College Application Tracker",
-  description: "Track your college applications, GPA, test scores, and more",
-    generator: 'v0.dev'
+  description: "Track your college applications, essays, and academic progress",
+    generator: 'v0.app'
 }
 
 export default function RootLayout({

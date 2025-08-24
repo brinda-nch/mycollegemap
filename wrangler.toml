@@ -1,0 +1,18 @@
+name = "college-tracker"
+compatibility_date = "2024-01-15"
+
+[env.production]
+name = "college-tracker-production"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "college-tracker-db"
+database_id = "your-d1-database-id"
+
+[env.development]
+name = "college-tracker-development"
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "college-tracker-db-dev"
+database_id = "your-d1-database-id-dev"

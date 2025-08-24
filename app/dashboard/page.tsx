@@ -2,247 +2,212 @@
 
 import { useSession } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen, Trophy, Users, GraduationCap, TrendingUp, Calendar, Target, Award, Plus } from "lucide-react"
-import Link from "next/link"
+import { Progress } from "@/components/ui/progress"
+import { GraduationCap, BookOpen, Trophy, FileText, Target, TrendingUp, Calendar, Award } from "lucide-react"
 
 export default function DashboardPage() {
   const { data: session } = useSession()
 
+  const stats = [
+    {
+      title: "Current GPA",
+      value: "3.85",
+      description: "Weighted GPA",
+      icon: GraduationCap,
+      color: "text-green-600",
+    },
+    {
+      title: "SAT Score",
+      value: "1450",
+      description: "Latest attempt",
+      icon: BookOpen,
+      color: "text-blue-600",
+    },
+    {
+      title: "Applications",
+      value: "8",
+      description: "In progress",
+      icon: FileText,
+      color: "text-purple-600",
+    },
+    {
+      title: "Essays",
+      value: "12",
+      description: "Completed",
+      icon: Trophy,
+      color: "text-orange-600",
+    },
+  ]
+
+  const recentActivities = [
+    {
+      title: "Updated Common App Essay",
+      description: "Personal statement draft completed",
+      time: "2 hours ago",
+      type: "essay",
+    },
+    {
+      title: "Added SAT Score",
+      description: "Math: 750, Reading: 700",
+      time: "1 day ago",
+      type: "test",
+    },
+    {
+      title: "Submitted Stanford Application",
+      description: "Early Action deadline met",
+      time: "3 days ago",
+      type: "application",
+    },
+    {
+      title: "Added Extracurricular",
+      description: "Debate Team Captain",
+      time: "1 week ago",
+      type: "activity",
+    },
+  ]
+
+  const upcomingDeadlines = [
+    {
+      college: "Harvard University",
+      deadline: "Jan 1, 2024",
+      type: "Regular Decision",
+      status: "pending",
+    },
+    {
+      college: "MIT",
+      deadline: "Jan 1, 2024",
+      type: "Regular Decision",
+      status: "pending",
+    },
+    {
+      college: "UC Berkeley",
+      deadline: "Nov 30, 2023",
+      type: "UC Application",
+      status: "urgent",
+    },
+  ]
+
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
       <div>
-        <h1 className="text-3xl font-bold">Welcome back, {session?.user?.name || "Student"}!</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Welcome back, {session?.user?.firstName || session?.user?.name}!
+        </h1>
         <p className="text-muted-foreground">Here's an overview of your college application progress.</p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current GPA</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">3.85</div>
-            <p className="text-xs text-muted-foreground">+0.12 from last semester</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Test Scores</CardTitle>
-            <Trophy className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1450</div>
-            <p className="text-xs text-muted-foreground">SAT Score (Latest)</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Activities</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">Extracurricular activities</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Applications</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">Colleges applied to</p>
-          </CardContent>
-        </Card>
+        {stats.map((stat) => (
+          <Card key={stat.title}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <p className="text-xs text-muted-foreground">{stat.description}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Progress Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        {/* Recent Activities */}
+        <Card className="col-span-4">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Application Progress
+              <TrendingUp className="h-5 w-5" />
+              Recent Activities
             </CardTitle>
+            <CardDescription>Your latest updates and achievements</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Common App</span>
-                <span>85%</span>
-              </div>
-              <Progress value={85} />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Essays</span>
-                <span>60%</span>
-              </div>
-              <Progress value={60} />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Recommendations</span>
-                <span>100%</span>
-              </div>
-              <Progress value={100} />
+          <CardContent>
+            <div className="space-y-4">
+              {recentActivities.map((activity, index) => (
+                <div key={index} className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    {activity.type === "essay" && <FileText className="h-4 w-4 text-purple-600" />}
+                    {activity.type === "test" && <BookOpen className="h-4 w-4 text-blue-600" />}
+                    {activity.type === "application" && <Target className="h-4 w-4 text-green-600" />}
+                    {activity.type === "activity" && <Award className="h-4 w-4 text-orange-600" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{activity.title}</p>
+                    <p className="text-sm text-muted-foreground">{activity.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Upcoming Deadlines */}
+        <Card className="col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
               Upcoming Deadlines
             </CardTitle>
+            <CardDescription>Don't miss these important dates</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Stanford University</p>
-                  <p className="text-sm text-muted-foreground">Regular Decision</p>
+            <div className="space-y-4">
+              {upcomingDeadlines.map((deadline, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{deadline.college}</p>
+                    <p className="text-xs text-muted-foreground">{deadline.type}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">{deadline.deadline}</p>
+                    <Badge variant={deadline.status === "urgent" ? "destructive" : "secondary"} className="text-xs">
+                      {deadline.status}
+                    </Badge>
+                  </div>
                 </div>
-                <Badge variant="destructive">Jan 5</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">MIT</p>
-                  <p className="text-sm text-muted-foreground">Regular Decision</p>
-                </div>
-                <Badge variant="secondary">Jan 1</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">UC Berkeley</p>
-                  <p className="text-sm text-muted-foreground">Application</p>
-                </div>
-                <Badge>Nov 30</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <Award className="h-4 w-4 mt-1 text-yellow-500" />
-                <div>
-                  <p className="text-sm font-medium">Added National Honor Society</p>
-                  <p className="text-xs text-muted-foreground">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <BookOpen className="h-4 w-4 mt-1 text-blue-500" />
-                <div>
-                  <p className="text-sm font-medium">Updated Fall semester grades</p>
-                  <p className="text-xs text-muted-foreground">1 day ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Trophy className="h-4 w-4 mt-1 text-green-500" />
-                <div>
-                  <p className="text-sm font-medium">Recorded SAT score: 1450</p>
-                  <p className="text-xs text-muted-foreground">3 days ago</p>
-                </div>
-              </div>
+              ))}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Progress Overview */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common tasks to keep your application on track</CardDescription>
+          <CardTitle>Application Progress</CardTitle>
+          <CardDescription>Track your progress across different application components</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Link href="/gpa">
-              <Button variant="outline" className="h-20 flex flex-col gap-2 bg-transparent">
-                <BookOpen className="h-6 w-6" />
-                <span>Update GPA</span>
-              </Button>
-            </Link>
-            <Link href="/test-scores">
-              <Button variant="outline" className="h-20 flex flex-col gap-2 bg-transparent">
-                <Trophy className="h-6 w-6" />
-                <span>Add Test Score</span>
-              </Button>
-            </Link>
-            <Link href="/extracurriculars">
-              <Button variant="outline" className="h-20 flex flex-col gap-2 bg-transparent">
-                <Users className="h-6 w-6" />
-                <span>Log Activity</span>
-              </Button>
-            </Link>
-            <Link href="/essays">
-              <Button variant="outline" className="h-20 flex flex-col gap-2 bg-transparent">
-                <Plus className="h-6 w-6" />
-                <span>Write Essay</span>
-              </Button>
-            </Link>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Common Application</span>
+              <span>85%</span>
+            </div>
+            <Progress value={85} className="h-2" />
           </div>
-        </CardContent>
-      </Card>
-
-      {/* College Recommendations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <GraduationCap className="h-5 w-5" />
-            College Recommendations
-          </CardTitle>
-          <CardDescription>Based on your academic profile</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold">University of California, Los Angeles</h3>
-              <p className="text-sm text-muted-foreground mb-2">Match School</p>
-              <div className="flex justify-between items-center">
-                <Badge variant="secondary">75% Match</Badge>
-                <Button size="sm" variant="outline">
-                  Learn More
-                </Button>
-              </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Essays Completed</span>
+              <span>75%</span>
             </div>
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold">University of Michigan</h3>
-              <p className="text-sm text-muted-foreground mb-2">Target School</p>
-              <div className="flex justify-between items-center">
-                <Badge variant="secondary">68% Match</Badge>
-                <Button size="sm" variant="outline">
-                  Learn More
-                </Button>
-              </div>
+            <Progress value={75} className="h-2" />
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Recommendation Letters</span>
+              <span>100%</span>
             </div>
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold">Northwestern University</h3>
-              <p className="text-sm text-muted-foreground mb-2">Reach School</p>
-              <div className="flex justify-between items-center">
-                <Badge variant="secondary">45% Match</Badge>
-                <Button size="sm" variant="outline">
-                  Learn More
-                </Button>
-              </div>
+            <Progress value={100} className="h-2" />
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Test Scores Submitted</span>
+              <span>90%</span>
             </div>
+            <Progress value={90} className="h-2" />
           </div>
         </CardContent>
       </Card>
