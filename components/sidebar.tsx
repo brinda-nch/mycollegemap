@@ -27,7 +27,10 @@ import {
   Menu,
   X,
   User,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react"
+import { useSidebar } from "@/lib/sidebar-context"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -36,7 +39,6 @@ const navigation = [
   { name: "Extracurriculars", href: "/extracurriculars", icon: Trophy },
   { name: "Essays", href: "/essays", icon: FileText },
   { name: "College List", href: "/college-estimations", icon: Target },
-  { name: "Grade Impact", href: "/grade-impact", icon: BarChart3 },
   { name: "Honors & Awards", href: "/honors-awards", icon: Trophy },
 ]
 
@@ -44,6 +46,7 @@ export function Sidebar() {
   const { data: session } = useSession()
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { isSidebarVisible, toggleSidebar } = useSidebar()
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" })
@@ -59,9 +62,19 @@ export function Sidebar() {
 
   const SidebarContent = () => (
     <>
-      <div className="flex items-center px-4 py-6">
-        <GraduationCap className="h-8 w-8 text-primary" />
-        <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">College Tracker</span>
+      <div className="flex items-center justify-between px-4 py-6">
+                 <div className="flex items-center">
+           <GraduationCap className="h-8 w-8 text-primary" />
+           <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">mycollegemap</span>
+         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSidebar}
+          className="lg:hidden"
+        >
+          <PanelLeftClose className="h-4 w-4" />
+        </Button>
       </div>
 
       <nav className="flex-1 px-4 space-y-2">
@@ -131,9 +144,11 @@ export function Sidebar() {
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
-        <SidebarContent />
-      </div>
+      {isSidebarVisible && (
+        <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
+          <SidebarContent />
+        </div>
+      )}
 
       {/* Mobile sidebar */}
       {isMobileMenuOpen && (
@@ -146,7 +161,7 @@ export function Sidebar() {
       )}
 
       {/* Main content offset for desktop */}
-      <div className="lg:pl-64">{/* This div ensures content doesn't overlap with sidebar on desktop */}</div>
+      <div className={isSidebarVisible ? "lg:pl-64" : ""}>{/* This div ensures content doesn't overlap with sidebar on desktop */}</div>
     </>
   )
 }

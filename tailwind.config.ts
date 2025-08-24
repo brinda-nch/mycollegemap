@@ -12,6 +12,11 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  				fontFamily: {
+			sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+			serif: ['Georgia', '"Times New Roman"', 'Times', 'serif'],
+			mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

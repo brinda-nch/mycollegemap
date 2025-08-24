@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { ProtectedRoute } from "./protected-route"
-import { Sidebar } from "./sidebar"
+import { TopNavbar } from "./top-navbar"
 
 interface ProtectedLayoutProps {
   children: React.ReactNode
@@ -12,10 +12,12 @@ interface ProtectedLayoutProps {
 export function ProtectedLayout({ children }: ProtectedLayoutProps) {
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto px-6 py-8">{children}</div>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <TopNavbar />
+        <main className="pt-16">
+          <div className="container mx-auto px-6 py-8 max-w-6xl">
+            {children}
+          </div>
         </main>
       </div>
     </ProtectedRoute>

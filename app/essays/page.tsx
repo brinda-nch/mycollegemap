@@ -9,58 +9,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Plus, FileText, Clock, CheckCircle } from "lucide-react"
-
-interface Essay {
-  id: string
-  title: string
-  type: string
-  college: string
-  prompt: string
-  content: string
-  wordLimit: number
-  status: "Not Started" | "In Progress" | "Draft Complete" | "Final"
-  lastModified: string
-}
+import { Plus, FileText, Clock, CheckCircle, Trash2 } from "lucide-react"
+import { useData } from "@/lib/data-context"
 
 export default function EssaysPage() {
-  const [essays, setEssays] = useState<Essay[]>([
-    {
-      id: "1",
-      title: "Common Application Personal Statement",
-      type: "Personal Statement",
-      college: "Common App",
-      prompt:
-        "Some students have a background, identity, interest, or talent that is so meaningful they believe their application would be incomplete without it.",
-      content:
-        "Growing up in a multicultural household has shaped my perspective on the world in ways I never fully appreciated until I began my college search...",
-      wordLimit: 650,
-      status: "Final",
-      lastModified: "2024-10-15",
-    },
-    {
-      id: "2",
-      title: "Stanford Supplemental Essay",
-      type: "Supplemental",
-      college: "Stanford University",
-      prompt: "What matters most to you, and why?",
-      content: "The intersection of technology and social justice matters most to me because...",
-      wordLimit: 250,
-      status: "In Progress",
-      lastModified: "2024-10-20",
-    },
-    {
-      id: "3",
-      title: "UC Personal Insight Question #1",
-      type: "Personal Insight",
-      college: "UC System",
-      prompt: "Describe an example of your leadership experience in which you have positively influenced others.",
-      content: "",
-      wordLimit: 350,
-      status: "Not Started",
-      lastModified: "2024-10-01",
-    },
-  ])
+  const { essays, addEssay, deleteEssay, updateEssay } = useData()
 
   const [newEssay, setNewEssay] = useState({
     title: "",
@@ -70,18 +23,15 @@ export default function EssaysPage() {
     wordLimit: 650,
   })
 
-  const addEssay = () => {
+  const handleAddEssay = () => {
     if (newEssay.title && newEssay.type && newEssay.college && newEssay.prompt) {
-      setEssays([
-        ...essays,
-        {
-          ...newEssay,
-          id: Date.now().toString(),
-          content: "",
-          status: "Not Started" as const,
-          lastModified: new Date().toISOString().split("T")[0],
-        },
-      ])
+      addEssay({
+        title: newEssay.title,
+        prompt: newEssay.prompt,
+        content: "",
+        wordCount: newEssay.wordLimit,
+        status: "draft",
+      })
       setNewEssay({
         title: "",
         type: "",
@@ -293,7 +243,7 @@ export default function EssaysPage() {
               rows={3}
             />
           </div>
-          <Button onClick={addEssay}>
+          <Button onClick={handleAddEssay}>
             <Plus className="h-4 w-4 mr-2" />
             Add Essay
           </Button>
@@ -323,20 +273,30 @@ export default function EssaysPage() {
                       {new Date(essay.lastModified).toLocaleDateString()}
                     </CardDescription>
                   </div>
-                  <Select
-                    value={essay.status}
-                    onValueChange={(value: Essay["status"]) => updateEssayStatus(essay.id, value)}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Not Started">Not Started</SelectItem>
-                      <SelectItem value="In Progress">In Progress</SelectItem>
-                      <SelectItem value="Draft Complete">Draft Complete</SelectItem>
-                      <SelectItem value="Final">Final</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center space-x-2">
+                    <Select
+                      value={essay.status}
+                      onValueChange={(value: any) => updateEssayStatus(essay.id, value)}
+                    >
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Not Started">Not Started</SelectItem>
+                        <SelectItem value="In Progress">In Progress</SelectItem>
+                        <SelectItem value="Draft Complete">Draft Complete</SelectItem>
+                        <SelectItem value="Final">Final</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteEssay(essay.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">

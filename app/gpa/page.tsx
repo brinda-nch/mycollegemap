@@ -18,42 +18,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, TrendingUp, BarChart3, Calculator } from "lucide-react"
-
-interface GPAEntry {
-  id: string
-  semester: string
-  year: number
-  gpa: number
-  weightedGpa?: number
-  credits?: number
-  classRank?: number
-  classSize?: number
-}
+import { Plus, TrendingUp, BarChart3, Calculator, Trash2 } from "lucide-react"
+import { useData } from "@/lib/data-context"
 
 export default function GPAPage() {
-  const [gpaEntries, setGpaEntries] = useState<GPAEntry[]>([
-    {
-      id: "1",
-      semester: "Fall",
-      year: 2023,
-      gpa: 3.85,
-      weightedGpa: 4.12,
-      credits: 6,
-      classRank: 25,
-      classSize: 350,
-    },
-    {
-      id: "2",
-      semester: "Spring",
-      year: 2024,
-      gpa: 3.92,
-      weightedGpa: 4.18,
-      credits: 6,
-      classRank: 22,
-      classSize: 350,
-    },
-  ])
+  const { gpaEntries, addGpaEntry, deleteGpaEntry } = useData()
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [newEntry, setNewEntry] = useState({
@@ -98,8 +67,7 @@ export default function GPAPage() {
   const handleAddEntry = () => {
     if (!newEntry.semester || !newEntry.gpa) return
 
-    const entry: GPAEntry = {
-      id: Date.now().toString(),
+    addGpaEntry({
       semester: newEntry.semester,
       year: newEntry.year,
       gpa: Number.parseFloat(newEntry.gpa),
@@ -107,9 +75,8 @@ export default function GPAPage() {
       credits: newEntry.credits ? Number.parseInt(newEntry.credits) : undefined,
       classRank: newEntry.classRank ? Number.parseInt(newEntry.classRank) : undefined,
       classSize: newEntry.classSize ? Number.parseInt(newEntry.classSize) : undefined,
-    }
+    })
 
-    setGpaEntries([...gpaEntries, entry])
     setNewEntry({
       semester: "",
       year: new Date().getFullYear(),
@@ -128,7 +95,7 @@ export default function GPAPage() {
   const latestClassSize = getLatestClassSize()
 
   return (
-    <div className="p-6 max-w-7xl mx-auto lg:ml-64">
+    <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">GPA Tracking</h1>
         <p className="text-gray-600">Monitor your academic performance across semesters</p>
@@ -308,6 +275,7 @@ export default function GPAPage() {
                   <TableHead>Weighted GPA</TableHead>
                   <TableHead>Credits</TableHead>
                   <TableHead>Class Rank</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -340,6 +308,16 @@ export default function GPAPage() {
                       ) : (
                         <span className="text-gray-400">N/A</span>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteGpaEntry(entry.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

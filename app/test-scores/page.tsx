@@ -17,44 +17,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, FileText, Trophy, Target } from "lucide-react"
-
-interface TestScore {
-  id: string
-  testType: string
-  subject?: string
-  score: number
-  maxScore?: number
-  testDate?: string
-}
+import { Plus, FileText, Trophy, Target, Trash2 } from "lucide-react"
+import { useData } from "@/lib/data-context"
 
 export default function TestScoresPage() {
-  const [testScores, setTestScores] = useState<TestScore[]>([
-    {
-      id: "1",
-      testType: "SAT",
-      subject: "Math",
-      score: 750,
-      maxScore: 800,
-      testDate: "2024-03-15",
-    },
-    {
-      id: "2",
-      testType: "SAT",
-      subject: "Reading & Writing",
-      score: 700,
-      maxScore: 800,
-      testDate: "2024-03-15",
-    },
-    {
-      id: "3",
-      testType: "AP",
-      subject: "Calculus BC",
-      score: 5,
-      maxScore: 5,
-      testDate: "2024-05-10",
-    },
-  ])
+  const { testScores, addTestScore, deleteTestScore } = useData()
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [newScore, setNewScore] = useState({
@@ -68,16 +35,14 @@ export default function TestScoresPage() {
   const handleAddScore = () => {
     if (!newScore.testType || !newScore.score) return
 
-    const score: TestScore = {
-      id: Date.now().toString(),
+    addTestScore({
       testType: newScore.testType,
       subject: newScore.subject || undefined,
       score: Number.parseInt(newScore.score),
       maxScore: newScore.maxScore ? Number.parseInt(newScore.maxScore) : undefined,
       testDate: newScore.testDate || undefined,
-    }
+    })
 
-    setTestScores([...testScores, score])
     setNewScore({
       testType: "",
       subject: "",
@@ -101,7 +66,7 @@ export default function TestScoresPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto lg:ml-64">
+    <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Test Scores</h1>
         <p className="text-gray-600">Track your standardized test performance</p>
@@ -255,6 +220,7 @@ export default function TestScoresPage() {
                   <TableHead>Subject</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -276,6 +242,16 @@ export default function TestScoresPage() {
                       ) : (
                         <span className="text-gray-400">N/A</span>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteTestScore(score.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

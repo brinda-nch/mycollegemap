@@ -8,56 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Users, Clock, Award } from "lucide-react"
-
-interface Activity {
-  id: string
-  name: string
-  category: string
-  role: string
-  description: string
-  hoursPerWeek: number
-  weeksPerYear: number
-  yearsParticipated: number
-  achievements: string
-}
+import { Plus, Users, Clock, Award, Trash2 } from "lucide-react"
+import { useData } from "@/lib/data-context"
 
 export default function ExtracurricularsPage() {
-  const [activities, setActivities] = useState<Activity[]>([
-    {
-      id: "1",
-      name: "Student Government",
-      category: "Leadership",
-      role: "Vice President",
-      description: "Led student initiatives and represented student body in school decisions",
-      hoursPerWeek: 8,
-      weeksPerYear: 36,
-      yearsParticipated: 2,
-      achievements: "Organized school-wide fundraiser raising $5,000 for local charity",
-    },
-    {
-      id: "2",
-      name: "Varsity Soccer",
-      category: "Sports",
-      role: "Team Captain",
-      description: "Competed at varsity level and led team training sessions",
-      hoursPerWeek: 15,
-      weeksPerYear: 20,
-      yearsParticipated: 4,
-      achievements: "Led team to regional championships, All-State honorable mention",
-    },
-    {
-      id: "3",
-      name: "National Honor Society",
-      category: "Academic",
-      role: "Member",
-      description: "Participated in community service and academic excellence programs",
-      hoursPerWeek: 3,
-      weeksPerYear: 36,
-      yearsParticipated: 2,
-      achievements: "Completed 100+ hours of community service",
-    },
-  ])
+  const { activities, addActivity, deleteActivity } = useData()
 
   const [newActivity, setNewActivity] = useState({
     name: "",
@@ -70,15 +25,17 @@ export default function ExtracurricularsPage() {
     achievements: "",
   })
 
-  const addActivity = () => {
+  const handleAddActivity = () => {
     if (newActivity.name && newActivity.category && newActivity.role) {
-      setActivities([
-        ...activities,
-        {
-          ...newActivity,
-          id: Date.now().toString(),
-        },
-      ])
+      addActivity({
+        activityName: newActivity.name,
+        category: newActivity.category,
+        description: newActivity.description,
+        leadershipPosition: newActivity.role,
+        hoursPerWeek: newActivity.hoursPerWeek,
+        weeksPerYear: newActivity.weeksPerYear,
+        yearsParticipated: newActivity.yearsParticipated,
+      })
       setNewActivity({
         name: "",
         category: "",
@@ -110,9 +67,7 @@ export default function ExtracurricularsPage() {
     return colors[category] || "outline"
   }
 
-  const removeActivity = (id: string) => {
-    setActivities(activities.filter((activity) => activity.id !== id))
-  }
+
 
   return (
     <div className="p-6">
@@ -165,6 +120,58 @@ export default function ExtracurricularsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Analysis Section */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Award className="h-5 w-5 mr-2" />
+            AI Activity Analysis
+          </CardTitle>
+          <CardDescription>
+            Get AI-powered insights to strengthen your extracurricular activities
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="bg-blue-100 dark:bg-blue-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Award className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="font-semibold mb-2">2. Get AI Analysis</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Our AI evaluates each activity using real admissions criteria: leadership, impact, commitment, and uniqueness.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-green-100 dark:bg-green-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="font-semibold mb-2">3. See Your Score</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Each activity gets a 0-10 rating with detailed feedback on strengths and areas for improvement.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-purple-100 dark:bg-purple-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="font-semibold mb-2">4. Improve & Optimize</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Use the feedback to strengthen your actual activities or improve how you describe them in applications.
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-6 text-center">
+            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+              Analyze My Activities
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Add New Activity */}
       <Card className="mb-8">
@@ -268,7 +275,7 @@ export default function ExtracurricularsPage() {
               />
             </div>
           </div>
-          <Button onClick={addActivity}>
+          <Button onClick={handleAddActivity}>
             <Plus className="h-4 w-4 mr-2" />
             Add Activity
           </Button>
@@ -327,10 +334,10 @@ export default function ExtracurricularsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => removeActivity(activity.id)}
-                  className="text-red-600 hover:text-red-700"
+                  onClick={() => deleteActivity(activity.id)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
-                  <Award className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             ))}

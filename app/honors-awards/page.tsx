@@ -9,74 +9,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Trash2, Award, Trophy, Star } from "lucide-react"
-
-interface Honor {
-  id: string
-  name: string
-  category: string
-  level: string
-  date: string
-  description: string
-  organization: string
-}
+import { useData } from "@/lib/data-context"
 
 export default function HonorsAwardsPage() {
-  const [honors, setHonors] = useState<Honor[]>([
-    {
-      id: "1",
-      name: "National Merit Semifinalist",
-      category: "Academic",
-      level: "National",
-      date: "2024-09-15",
-      description: "Recognized for outstanding performance on the PSAT/NMSQT",
-      organization: "National Merit Scholarship Corporation",
-    },
-    {
-      id: "2",
-      name: "AP Scholar with Distinction",
-      category: "Academic",
-      level: "National",
-      date: "2024-07-01",
-      description: "Earned average score of 3.5+ on 5 or more AP exams",
-      organization: "College Board",
-    },
-    {
-      id: "3",
-      name: "State Championship - Soccer",
-      category: "Athletic",
-      level: "State",
-      date: "2023-11-01",
-      description: "Led varsity soccer team to state championship victory",
-      organization: "State Athletic Association",
-    },
-    {
-      id: "4",
-      name: "Presidential Volunteer Service Award",
-      category: "Community Service",
-      level: "National",
-      date: "2023-06-15",
-      description: "Completed 100+ hours of community service",
-      organization: "Corporation for National and Community Service",
-    },
-    {
-      id: "5",
-      name: "Regional Science Fair - 1st Place",
-      category: "Academic",
-      level: "State",
-      date: "2024-03-15",
-      description: "First place in Environmental Science category",
-      organization: "Regional Science Fair Association",
-    },
-    {
-      id: "6",
-      name: "Principal's Honor Roll",
-      category: "Academic",
-      level: "School",
-      date: "2024-06-15",
-      description: "Maintained 4.0 GPA throughout junior year",
-      organization: "Lincoln High School",
-    },
-  ])
+  const { honorsAwards, addHonorAward, deleteHonorAward } = useData()
 
   const [newHonor, setNewHonor] = useState({
     name: "",
@@ -87,9 +23,14 @@ export default function HonorsAwardsPage() {
     organization: "",
   })
 
-  const addHonor = () => {
+  const handleAddHonor = () => {
     if (newHonor.name && newHonor.category && newHonor.level && newHonor.date) {
-      setHonors([...honors, { ...newHonor, id: Date.now().toString() }])
+      addHonorAward({
+        title: newHonor.name,
+        description: newHonor.description,
+        level: newHonor.level,
+        dateReceived: newHonor.date,
+      })
       setNewHonor({
         name: "",
         category: "",
@@ -155,21 +96,7 @@ export default function HonorsAwardsPage() {
     }
   }
 
-  const getHonorsByCategory = () => {
-    const categories = honors.reduce(
-      (acc, honor) => {
-        if (!acc[honor.category]) {
-          acc[honor.category] = []
-        }
-        acc[honor.category].push(honor)
-        return acc
-      },
-      {} as { [key: string]: Honor[] },
-    )
-    return categories
-  }
 
-  const honorsByCategory = getHonorsByCategory()
 
   return (
     <div className="p-6">
@@ -186,7 +113,7 @@ export default function HonorsAwardsPage() {
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{honors.length}</div>
+            <div className="text-2xl font-bold">{honorsAwards.length}</div>
             <p className="text-xs text-muted-foreground">Honors received</p>
           </CardContent>
         </Card>
@@ -198,7 +125,7 @@ export default function HonorsAwardsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {honors.filter((h) => h.level === "National" || h.level === "International").length}
+              {honorsAwards.filter((h) => h.level === "National" || h.level === "International").length}
             </div>
             <p className="text-xs text-muted-foreground">National/International</p>
           </CardContent>
@@ -210,7 +137,7 @@ export default function HonorsAwardsPage() {
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{honors.filter((h) => h.category === "Academic").length}</div>
+            <div className="text-2xl font-bold">{honorsAwards.filter((h) => h.category === "Academic").length}</div>
             <p className="text-xs text-muted-foreground">Academic honors</p>
           </CardContent>
         </Card>
@@ -222,12 +149,64 @@ export default function HonorsAwardsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {honors.filter((h) => new Date(h.date).getFullYear() === 2024).length}
+              {honorsAwards.filter((h) => new Date(h.dateReceived || '').getFullYear() === 2024).length}
             </div>
             <p className="text-xs text-muted-foreground">Awards in 2024</p>
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Analysis Section */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Award className="h-5 w-5 mr-2" />
+            AI Honors Analysis
+          </CardTitle>
+          <CardDescription>
+            Get AI-powered insights to strengthen your honors and awards
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="bg-blue-100 dark:bg-blue-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Award className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="font-semibold mb-2">2. Get AI Analysis</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Our AI evaluates each honor using real admissions criteria: leadership, impact, commitment, and uniqueness.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-green-100 dark:bg-green-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Star className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <h3 className="font-semibold mb-2">3. See Your Score</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Each honor gets a 0-10 rating with detailed feedback on strengths and areas for improvement.
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="bg-purple-100 dark:bg-purple-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Trophy className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h3 className="font-semibold mb-2">4. Improve & Optimize</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Use the feedback to strengthen your actual honors or improve how you describe them in applications.
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-6 text-center">
+            <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+              Analyze My Honors
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Add New Honor */}
       <Card className="mb-8">
@@ -310,59 +289,65 @@ export default function HonorsAwardsPage() {
               rows={3}
             />
           </div>
-          <Button onClick={addHonor}>
+          <Button onClick={handleAddHonor}>
             <Plus className="h-4 w-4 mr-2" />
             Add Honor/Award
           </Button>
         </CardContent>
       </Card>
 
-      {/* Honors List by Category */}
-      <div className="space-y-6">
-        {Object.entries(honorsByCategory).map(([category, categoryHonors]) => (
-          <Card key={category}>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Award className="h-5 w-5 mr-2" />
-                {category} ({categoryHonors.length})
-              </CardTitle>
-              <CardDescription>Your {category.toLowerCase()} achievements</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {categoryHonors
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                  .map((honor) => (
-                    <div key={honor.id} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{honor.name}</h3>
-                          <p className="text-sm text-gray-600">{honor.organization}</p>
-                          <p className="text-sm text-gray-500">{new Date(honor.date).toLocaleDateString()}</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant={getLevelColor(honor.level)} className="flex items-center">
-                            {getLevelIcon(honor.level)}
-                            <span className="ml-1">{honor.level}</span>
+      {/* Honors List */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Award className="h-5 w-5 mr-2" />
+            Your Honors & Awards ({honorsAwards.length})
+          </CardTitle>
+          <CardDescription>All your achievements and recognitions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {honorsAwards.length > 0 ? (
+            <div className="space-y-4">
+              {honorsAwards
+                .sort((a, b) => new Date(b.dateReceived || '').getTime() - new Date(a.dateReceived || '').getTime())
+                .map((honor) => (
+                  <div key={honor.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg">{honor.title}</h3>
+                        {honor.level && (
+                          <Badge variant="outline" className="mt-1">
+                            {honor.level}
                           </Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeHonor(honor.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        )}
+                        {honor.dateReceived && (
+                          <p className="text-sm text-gray-500 mt-1">
+                            {new Date(honor.dateReceived).toLocaleDateString()}
+                          </p>
+                        )}
                       </div>
-                      {honor.description && <p className="text-gray-700 text-sm">{honor.description}</p>}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteHonorAward(honor.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                    {honor.description && <p className="text-gray-700 text-sm">{honor.description}</p>}
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No honors or awards yet</h3>
+              <p className="text-gray-500">Add your first honor or award to start building your achievements list.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

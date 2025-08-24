@@ -1,92 +1,65 @@
 "use client"
 
 import { useSession } from "next-auth/react"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { GraduationCap, BookOpen, Trophy, FileText, Target, TrendingUp, Calendar, Award } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { GraduationCap, BookOpen, Trophy, FileText, Target, TrendingUp, Calendar, Award, Plus } from "lucide-react"
+import { useData } from "@/lib/data-context"
+import Link from "next/link"
 
 export default function DashboardPage() {
   const { data: session } = useSession()
+  const { getDashboardStats, getRecentActivities, getUpcomingDeadlines, gpaEntries, testScores, activities, essays, collegeApplications } = useData()
+  const router = useRouter()
 
+  // Check if user is new (no data) and redirect to onboarding
+  const isNewUser = gpaEntries.length === 0 && testScores.length === 0 && activities.length === 0 && essays.length === 0 && collegeApplications.length === 0
+  
+  useEffect(() => {
+    if (isNewUser && session?.user?.email !== 'demo@example.com') {
+      router.push('/onboarding')
+    }
+  }, [isNewUser, session?.user?.email, router])
+
+  const dashboardStats = getDashboardStats()
+  
   const stats = [
     {
       title: "Current GPA",
-      value: "3.85",
-      description: "Weighted GPA",
+      value: dashboardStats.currentGPA,
+      description: gpaEntries.length > 0 ? "Weighted GPA" : "No GPA data",
       icon: GraduationCap,
       color: "text-green-600",
     },
     {
       title: "SAT Score",
-      value: "1450",
-      description: "Latest attempt",
+      value: dashboardStats.satScore,
+      description: testScores.length > 0 ? "Latest attempt" : "No test scores",
       icon: BookOpen,
       color: "text-blue-600",
     },
     {
       title: "Applications",
-      value: "8",
-      description: "In progress",
+      value: dashboardStats.applicationsCount,
+      description: collegeApplications.length > 0 ? "In progress" : "No applications",
       icon: FileText,
       color: "text-purple-600",
     },
     {
       title: "Essays",
-      value: "12",
-      description: "Completed",
+      value: dashboardStats.essaysCount,
+      description: essays.length > 0 ? "Completed" : "No essays",
       icon: Trophy,
       color: "text-orange-600",
     },
   ]
 
-  const recentActivities = [
-    {
-      title: "Updated Common App Essay",
-      description: "Personal statement draft completed",
-      time: "2 hours ago",
-      type: "essay",
-    },
-    {
-      title: "Added SAT Score",
-      description: "Math: 750, Reading: 700",
-      time: "1 day ago",
-      type: "test",
-    },
-    {
-      title: "Submitted Stanford Application",
-      description: "Early Action deadline met",
-      time: "3 days ago",
-      type: "application",
-    },
-    {
-      title: "Added Extracurricular",
-      description: "Debate Team Captain",
-      time: "1 week ago",
-      type: "activity",
-    },
-  ]
-
-  const upcomingDeadlines = [
-    {
-      college: "Harvard University",
-      deadline: "Jan 1, 2024",
-      type: "Regular Decision",
-      status: "pending",
-    },
-    {
-      college: "MIT",
-      deadline: "Jan 1, 2024",
-      type: "Regular Decision",
-      status: "pending",
-    },
-    {
-      college: "UC Berkeley",
-      deadline: "Nov 30, 2023",
-      type: "UC Application",
-      status: "urgent",
-    },
-  ]
+  const recentActivities = getRecentActivities()
+  const upcomingDeadlines = getUpcomingDeadlines()
 
   return (
     <div className="space-y-8">
@@ -112,6 +85,47 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+
+      {/* Empty State for New Users */}
+      {gpaEntries.length === 0 && testScores.length === 0 && activities.length === 0 && essays.length === 0 && collegeApplications.length === 0 && (
+        <Card className="border-dashed border-2 border-gray-300 dark:border-gray-600">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <GraduationCap className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Welcome to your College Application Tracker!</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                Start building your college application profile by adding your academic information, test scores, activities, and more.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button asChild variant="outline" className="flex flex-col items-center p-4 h-auto">
+                  <Link href="/gpa">
+                    <GraduationCap className="h-6 w-6 mb-2" />
+                    <span className="text-sm">Add GPA</span>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="flex flex-col items-center p-4 h-auto">
+                  <Link href="/test-scores">
+                    <BookOpen className="h-6 w-6 mb-2" />
+                    <span className="text-sm">Add Test Scores</span>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="flex flex-col items-center p-4 h-auto">
+                  <Link href="/extracurriculars">
+                    <Trophy className="h-6 w-6 mb-2" />
+                    <span className="text-sm">Add Activities</span>
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="flex flex-col items-center p-4 h-auto">
+                  <Link href="/essays">
+                    <FileText className="h-6 w-6 mb-2" />
+                    <span className="text-sm">Add Essays</span>
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         {/* Recent Activities */}

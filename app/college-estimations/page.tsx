@@ -1,307 +1,208 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { GraduationCap, Target, TrendingUp, MapPin, DollarSign } from "lucide-react"
+import { GraduationCap, Target, TrendingUp, MapPin, DollarSign, Search, Plus, Trash2 } from "lucide-react"
+import { useData } from "@/lib/data-context"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
-interface College {
-  id: string
+interface CollegeSearchResult {
   name: string
   location: string
   acceptanceRate: number
   avgGPA: number
   avgSAT: number
+  avgACT: number
   tuition: number
-  matchLevel: "Safety" | "Target" | "Reach"
-  applied: boolean
+  type: string
+  state: string
 }
 
 export default function CollegeEstimationsPage() {
-  const [colleges] = useState<College[]>([
-    {
-      id: "1",
-      name: "Stanford University",
-      location: "Stanford, CA",
-      acceptanceRate: 4.3,
-      avgGPA: 3.96,
-      avgSAT: 1505,
-      tuition: 56169,
-      matchLevel: "Reach",
-      applied: true,
-    },
-    {
-      id: "2",
-      name: "University of California, Berkeley",
-      location: "Berkeley, CA",
-      acceptanceRate: 14.5,
-      avgGPA: 3.89,
-      avgSAT: 1415,
-      tuition: 14226,
-      matchLevel: "Target",
-      applied: true,
-    },
-    {
-      id: "3",
-      name: "UCLA",
-      location: "Los Angeles, CA",
-      acceptanceRate: 12.3,
-      avgGPA: 3.9,
-      avgSAT: 1405,
-      tuition: 13249,
-      matchLevel: "Target",
-      applied: false,
-    },
-    {
-      id: "4",
-      name: "UC San Diego",
-      location: "San Diego, CA",
-      acceptanceRate: 23.7,
-      avgGPA: 3.87,
-      avgSAT: 1370,
-      tuition: 14648,
-      matchLevel: "Safety",
-      applied: true,
-    },
-    {
-      id: "5",
-      name: "MIT",
-      location: "Cambridge, MA",
-      acceptanceRate: 6.7,
-      avgGPA: 3.96,
-      avgSAT: 1520,
-      tuition: 53790,
-      matchLevel: "Reach",
-      applied: false,
-    },
-    {
-      id: "6",
-      name: "Cal Poly SLO",
-      location: "San Luis Obispo, CA",
-      acceptanceRate: 28.4,
-      avgGPA: 3.85,
-      avgSAT: 1350,
-      tuition: 10037,
-      matchLevel: "Safety",
-      applied: true,
-    },
-  ])
+  const { collegeApplications, addCollegeApplication, deleteCollegeApplication } = useData()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<CollegeSearchResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [selectedCollege, setSelectedCollege] = useState<CollegeSearchResult | null>(null)
 
-  const [studentStats] = useState({
-    gpa: 3.85,
-    sat: 1450,
-    act: 32,
-  })
+  const searchColleges = async (query: string) => {
+    if (query.length < 2) {
+      setSearchResults([])
+      return
+    }
+
+    setIsSearching(true)
+    try {
+      const response = await fetch(`/api/colleges/search?q=${encodeURIComponent(query)}`)
+      const data = await response.json()
+      setSearchResults(data.colleges || [])
+    } catch (error) {
+      console.error('Error searching colleges:', error)
+      setSearchResults([])
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchColleges(searchQuery)
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [searchQuery])
+
+  const handleAddCollege = (college: CollegeSearchResult) => {
+    addCollegeApplication({
+      collegeName: college.name,
+      applicationType: "Regular Decision",
+      deadline: "2025-01-01",
+      status: "planning",
+      applicationFee: 70,
+    })
+    setIsAddDialogOpen(false)
+    setSearchQuery("")
+    setSearchResults([])
+  }
+
+  const getMatchLevel = (acceptanceRate: number) => {
+    if (acceptanceRate < 15) return "Reach"
+    if (acceptanceRate < 30) return "Target"
+    return "Safety"
+  }
 
   const getMatchColor = (matchLevel: string) => {
     switch (matchLevel) {
       case "Safety":
-        return "default"
+        return "bg-green-100 text-green-800"
       case "Target":
-        return "secondary"
+        return "bg-yellow-100 text-yellow-800"
       case "Reach":
-        return "destructive"
+        return "bg-red-100 text-red-800"
       default:
-        return "outline"
+        return "bg-gray-100 text-gray-800"
     }
   }
-
-  const calculateAdmissionChance = (college: College) => {
-    let chance = 50 // Base chance
-
-    // GPA factor
-    if (studentStats.gpa >= college.avgGPA) {
-      chance += 20
-    } else if (studentStats.gpa >= college.avgGPA - 0.1) {
-      chance += 10
-    } else {
-      chance -= 15
-    }
-
-    // SAT factor
-    if (studentStats.sat >= college.avgSAT) {
-      chance += 20
-    } else if (studentStats.sat >= college.avgSAT - 50) {
-      chance += 10
-    } else {
-      chance -= 15
-    }
-
-    // Acceptance rate factor
-    if (college.acceptanceRate > 30) {
-      chance += 15
-    } else if (college.acceptanceRate > 15) {
-      chance += 5
-    } else if (college.acceptanceRate < 10) {
-      chance -= 20
-    }
-
-    return Math.max(5, Math.min(95, chance))
-  }
-
-  const appliedColleges = colleges.filter((c) => c.applied)
-  const safetySchools = colleges.filter((c) => c.matchLevel === "Safety")
-  const targetSchools = colleges.filter((c) => c.matchLevel === "Target")
-  const reachSchools = colleges.filter((c) => c.matchLevel === "Reach")
 
   return (
     <div className="p-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">College Estimations</h1>
-        <p className="text-gray-600 mt-2">Analyze your chances at different colleges and universities</p>
+        <h1 className="text-3xl font-bold text-gray-900">College List</h1>
+        <p className="text-gray-600 mt-2">Search and add colleges to your application list</p>
       </div>
 
-      {/* Student Profile */}
+      {/* Add College Section */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Your Academic Profile</CardTitle>
-          <CardDescription>Your current stats used for college matching</CardDescription>
+          <CardTitle>Add College</CardTitle>
+          <CardDescription>Search for colleges and add them to your list</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{studentStats.gpa}</div>
-              <p className="text-sm text-gray-600">Cumulative GPA</p>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search for colleges (e.g., Stanford, Harvard, UCLA)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{studentStats.sat}</div>
-              <p className="text-sm text-gray-600">SAT Score</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{studentStats.act}</div>
-              <p className="text-sm text-gray-600">ACT Score</p>
-            </div>
+
+            {isSearching && (
+              <div className="text-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+                <p className="text-sm text-gray-600 mt-2">Searching colleges...</p>
+              </div>
+            )}
+
+            {searchResults.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium text-gray-700">Search Results:</h3>
+                {searchResults.map((college, index) => (
+                  <div
+                    key={index}
+                    className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handleAddCollege(college)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h4 className="font-medium">{college.name}</h4>
+                        <p className="text-sm text-gray-600">{college.location}</p>
+                        <div className="flex gap-4 mt-2 text-sm">
+                          <span>Acceptance: {college.acceptanceRate}%</span>
+                          <span>Avg GPA: {college.avgGPA}</span>
+                          <span>Avg SAT: {college.avgSAT}</span>
+                          <span>Tuition: ${college.tuition.toLocaleString()}</span>
+                          <span className="text-blue-600 font-medium">{college.type}</span>
+                        </div>
+                      </div>
+                      <Badge className={getMatchColor(getMatchLevel(college.acceptanceRate))}>
+                        {getMatchLevel(college.acceptanceRate)}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Application Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Applied</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{appliedColleges.length}</div>
-            <p className="text-xs text-muted-foreground">Applications submitted</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Safety Schools</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{safetySchools.length}</div>
-            <p className="text-xs text-muted-foreground">Safety options</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Target Schools</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{targetSchools.length}</div>
-            <p className="text-xs text-muted-foreground">Target matches</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Reach Schools</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{reachSchools.length}</div>
-            <p className="text-xs text-muted-foreground">Reach schools</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* College List */}
+      {/* Your College List */}
       <Card>
         <CardHeader>
-          <CardTitle>College List & Admission Chances</CardTitle>
-          <CardDescription>Your personalized college list with estimated admission probabilities</CardDescription>
+          <CardTitle>Your College List</CardTitle>
+          <CardDescription>Colleges you've added to your application list</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            {colleges.map((college) => {
-              const admissionChance = calculateAdmissionChance(college)
-              return (
-                <div key={college.id} className="border rounded-lg p-6">
-                  <div className="flex items-start justify-between mb-4">
+          {collegeApplications.length > 0 ? (
+            <div className="space-y-4">
+              {collegeApplications.map((college) => (
+                <div key={college.id} className="border rounded-lg p-4">
+                  <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-semibold">{college.name}</h3>
-                        <Badge variant={getMatchColor(college.matchLevel)}>{college.matchLevel}</Badge>
-                        {college.applied && <Badge variant="outline">Applied</Badge>}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600 mb-2">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {college.location}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <DollarSign className="h-4 w-4 mr-1" />${college.tuition.toLocaleString()} tuition
-                      </div>
+                      <h4 className="font-medium">{college.collegeName}</h4>
+                      <p className="text-sm text-gray-600">
+                        {college.applicationType} • {college.status} • Due: {college.deadline}
+                      </p>
+                      {college.applicationFee && (
+                        <p className="text-sm text-gray-600">Fee: ${college.applicationFee}</p>
+                      )}
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-blue-600 mb-1">{admissionChance}%</div>
-                      <p className="text-xs text-gray-500">Admission chance</p>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Admission Probability</span>
-                      <span>{admissionChance}%</span>
-                    </div>
-                    <Progress value={admissionChance} className="h-2" />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Acceptance Rate:</span>
-                      <p className="text-gray-600">{college.acceptanceRate}%</p>
-                    </div>
-                    <div>
-                      <span className="font-medium">Average GPA:</span>
-                      <p className="text-gray-600">{college.avgGPA}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium">Average SAT:</span>
-                      <p className="text-gray-600">{college.avgSAT}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex justify-between items-center">
-                    <div className="text-sm">
-                      <span className="font-medium">Your Stats vs Average:</span>
-                      <div className="flex space-x-4 mt-1">
-                        <span className={`${studentStats.gpa >= college.avgGPA ? "text-green-600" : "text-red-600"}`}>
-                          GPA: {studentStats.gpa >= college.avgGPA ? "✓" : "✗"}
-                        </span>
-                        <span className={`${studentStats.sat >= college.avgSAT ? "text-green-600" : "text-red-600"}`}>
-                          SAT: {studentStats.sat >= college.avgSAT ? "✓" : "✗"}
-                        </span>
-                      </div>
-                    </div>
-                    {!college.applied && (
-                      <Button variant="outline" size="sm">
-                        Add to Application List
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteCollegeApplication(college.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-              )
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <GraduationCap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No colleges added yet</h3>
+              <p className="text-gray-500">Search for colleges above to start building your application list.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
