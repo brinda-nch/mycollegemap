@@ -38,6 +38,8 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    alert("Signup form submitted! Email: " + formData.email)
+    console.log("Signup form submitted with:", formData)
     setError("")
 
     if (formData.password !== formData.confirmPassword) {
@@ -53,6 +55,7 @@ export default function SignupPage() {
     setIsLoading(true)
 
     try {
+      console.log("Sending signup request...")
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
@@ -68,13 +71,16 @@ export default function SignupPage() {
         }),
       })
 
+      console.log("Signup response status:", response.status)
       const data = await response.json()
+      console.log("Signup response data:", data)
 
       if (!response.ok) {
         setError(data.error || "An error occurred during signup")
         return
       }
 
+      console.log("Signup successful, redirecting to login...")
       // Redirect to login page with success message
       router.push("/auth/login?message=Account created successfully. Please sign in.")
     } catch (error) {

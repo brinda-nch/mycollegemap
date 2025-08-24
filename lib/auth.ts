@@ -1,6 +1,5 @@
 import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import GoogleProvider from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
 import { supabase, isDemoMode } from "./supabase"
 
@@ -61,12 +60,6 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    ...(isDemoMode ? [] : [
-      GoogleProvider({
-        clientId: process.env.GOOGLE_CLIENT_ID || "demo_client_id",
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET || "demo_client_secret",
-      }),
-    ]),
   ],
   session: {
     strategy: "jwt",

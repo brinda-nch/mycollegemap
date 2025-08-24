@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
-import { supabase } from "@/lib/supabase"
+import { supabase, isDemoMode } from "@/lib/supabase"
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +14,14 @@ export async function POST(request: NextRequest) {
 
     if (password.length < 8) {
       return NextResponse.json({ error: "Password must be at least 8 characters long" }, { status: 400 })
+    }
+
+    // In demo mode, just return success without actually creating a user
+    if (isDemoMode) {
+      return NextResponse.json({ 
+        message: "Account created successfully (demo mode)", 
+        userId: "demo-user-" + Date.now() 
+      }, { status: 201 })
     }
 
     // Check if user already exists

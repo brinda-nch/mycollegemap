@@ -9,13 +9,22 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Plus, FileText, Clock, CheckCircle, Trash2 } from "lucide-react"
+import { Plus, FileText, Clock, CheckCircle, Trash2, Edit } from "lucide-react"
 import { useData } from "@/lib/data-context"
 
 export default function EssaysPage() {
   const { essays, addEssay, deleteEssay, updateEssay } = useData()
 
   const [newEssay, setNewEssay] = useState({
+    title: "",
+    type: "",
+    college: "",
+    prompt: "",
+    wordLimit: 650,
+  })
+
+  const [editingEssay, setEditingEssay] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({
     title: "",
     type: "",
     college: "",
@@ -40,6 +49,46 @@ export default function EssaysPage() {
         wordLimit: 650,
       })
     }
+  }
+
+  const handleEditEssay = (essay: any) => {
+    setEditingEssay(essay.id)
+    setEditForm({
+      title: essay.title,
+      type: essay.type || "",
+      college: essay.college || "",
+      prompt: essay.prompt,
+      wordLimit: essay.wordCount || 650,
+    })
+  }
+
+  const handleSaveEdit = () => {
+    if (editingEssay && editForm.title && editForm.prompt) {
+      updateEssay(editingEssay, {
+        title: editForm.title,
+        prompt: editForm.prompt,
+        wordCount: editForm.wordLimit,
+      })
+      setEditingEssay(null)
+      setEditForm({
+        title: "",
+        type: "",
+        college: "",
+        prompt: "",
+        wordLimit: 650,
+      })
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingEssay(null)
+    setEditForm({
+      title: "",
+      type: "",
+      college: "",
+      prompt: "",
+      wordLimit: 650,
+    })
   }
 
   const updateEssayContent = (id: string, content: string) => {
@@ -291,6 +340,14 @@ export default function EssaysPage() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => handleEditEssay(essay)}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => deleteEssay(essay.id)}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
@@ -333,6 +390,89 @@ export default function EssaysPage() {
           )
         })}
       </div>
+
+      {/* Edit Essay Modal */}
+      {editingEssay && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Edit Essay</CardTitle>
+            <CardDescription>Update your essay information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label htmlFor="editEssayTitle">Essay Title</Label>
+                <Input
+                  id="editEssayTitle"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  placeholder="e.g., Personal Statement"
+                />
+              </div>
+              <div>
+                <Label htmlFor="editEssayType">Essay Type</Label>
+                <Select
+                  value={editForm.type}
+                  onValueChange={(value) => setEditForm({ ...editForm, type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Personal Statement">Personal Statement</SelectItem>
+                    <SelectItem value="Supplemental">Supplemental</SelectItem>
+                    <SelectItem value="Common App">Common App</SelectItem>
+                    <SelectItem value="Scholarship">Scholarship</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label htmlFor="editEssayCollege">College/University</Label>
+                <Input
+                  id="editEssayCollege"
+                  value={editForm.college}
+                  onChange={(e) => setEditForm({ ...editForm, college: e.target.value })}
+                  placeholder="e.g., Harvard University"
+                />
+              </div>
+              <div>
+                <Label htmlFor="editEssayWordLimit">Word Limit</Label>
+                <Input
+                  id="editEssayWordLimit"
+                  type="number"
+                  value={editForm.wordLimit}
+                  onChange={(e) => setEditForm({ ...editForm, wordLimit: Number(e.target.value) })}
+                  min="0"
+                  max="5000"
+                />
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <Label htmlFor="editEssayPrompt">Essay Prompt</Label>
+              <Textarea
+                id="editEssayPrompt"
+                value={editForm.prompt}
+                onChange={(e) => setEditForm({ ...editForm, prompt: e.target.value })}
+                placeholder="Enter the full essay prompt here..."
+                rows={3}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={handleSaveEdit}>
+                Save Changes
+              </Button>
+              <Button variant="outline" onClick={handleCancelEdit}>
+                Cancel
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

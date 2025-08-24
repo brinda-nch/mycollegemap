@@ -21,7 +21,7 @@ export function PngLogo({ className = "", size = "md", src = "/logo.png" }: PngL
         alt="mycollegemap logo"
         width={64}
         height={64}
-        className={`${sizeClasses[size]} object-contain`}
+        className={`${className ? '' : sizeClasses[size]} object-contain`}
         priority
       />
     </div>
