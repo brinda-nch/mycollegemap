@@ -2,7 +2,7 @@ import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
-import { supabase } from "./supabase"
+import { supabase, isDemoMode } from "./supabase"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,6 +15,22 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required")
+        }
+
+        // Demo mode authentication
+        if (isDemoMode) {
+          if (credentials.email === "demo@example.com" && credentials.password === "demo123") {
+            return {
+              id: "demo-user-id",
+              email: credentials.email,
+              name: "Demo User",
+              firstName: "Demo",
+              lastName: "User",
+              graduationYear: 2025,
+              highSchool: "Demo High School",
+            }
+          }
+          throw new Error("Invalid credentials")
         }
 
         try {
@@ -45,10 +61,12 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    ...(isDemoMode ? [] : [
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID || "demo_client_id",
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET || "demo_client_secret",
+      }),
+    ]),
   ],
   session: {
     strategy: "jwt",

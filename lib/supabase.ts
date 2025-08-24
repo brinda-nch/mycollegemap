@@ -1,17 +1,22 @@
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://demo.supabase.co"
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "demo_key"
 
-if (!supabaseUrl || !supabaseServiceKey) {
+// Check if we're using demo credentials
+const isDemo = supabaseUrl === "https://demo.supabase.co" || supabaseServiceKey === "demo_key"
+
+if (!isDemo && (!supabaseUrl || !supabaseServiceKey)) {
   throw new Error("Missing Supabase environment variables")
 }
 
-// Validate URL format
-try {
-  new URL(supabaseUrl)
-} catch (error) {
-  throw new Error("Invalid NEXT_PUBLIC_SUPABASE_URL format")
+// Validate URL format only for real URLs
+if (!isDemo) {
+  try {
+    new URL(supabaseUrl)
+  } catch (error) {
+    throw new Error("Invalid NEXT_PUBLIC_SUPABASE_URL format")
+  }
 }
 
 export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -20,6 +25,9 @@ export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     persistSession: false,
   },
 })
+
+// Add a flag to check if we're in demo mode
+export const isDemoMode = isDemo
 
 // Database types
 export interface User {
