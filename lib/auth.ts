@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs"
 import { supabase, isDemoMode } from "./supabase"
 
 export const authOptions: NextAuthOptions = {
+  // Use dynamic URL for production
+  url: process.env.NEXTAUTH_URL || (process.env.NODE_ENV === 'production' 
+    ? process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : undefined
+    : 'http://localhost:3000'),
   providers: [
     CredentialsProvider({
       name: "credentials",
