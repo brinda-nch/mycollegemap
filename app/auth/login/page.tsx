@@ -23,7 +23,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert("Form submitted! Email: " + email + ", Password: " + password)
     console.log("Form submitted with:", { email, password })
     setError("")
     setIsLoading(true)
@@ -85,6 +84,10 @@ export default function LoginPage() {
           <CardTitle className="text-2xl font-bold text-center">Sign in</CardTitle>
           <CardDescription className="text-center">
             Enter your email and password to access your account
+            <br />
+            <span className="text-sm text-muted-foreground mt-2 block">
+              Demo credentials: demo@example.com / demo123
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -38,7 +38,6 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert("Signup form submitted! Email: " + formData.email)
     console.log("Signup form submitted with:", formData)
     setError("")
 
@@ -101,6 +100,10 @@ export default function SignupPage() {
           <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
           <CardDescription className="text-center">
             Enter your information to create your college tracker account
+            <br />
+            <span className="text-sm text-muted-foreground mt-2 block">
+              Note: This is a demo application. New accounts will start with empty data.
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent>
