@@ -9,6 +9,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Next.js 15 configuration
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
