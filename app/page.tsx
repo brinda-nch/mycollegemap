@@ -12,17 +12,15 @@ export default function HomePage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (status === "authenticated") {
+    // Only redirect if explicitly authenticated
+    if (status === "authenticated" && session) {
       router.push("/dashboard")
     }
-  }, [status, router])
+  }, [status, session, router])
 
+  // Show loading state only briefly, then show content anyway
   if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F9F9F9' }}>
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{ borderColor: '#E072A4' }}></div>
-      </div>
-    )
+    // Continue to show content even if loading
   }
 
   if (status === "authenticated") {
@@ -32,8 +30,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F9F9F9' }}>
       {/* Logo in top-left corner */}
-      <div className="absolute top-8 left-16">
-        <PngLogo size="lg" className="h-[1064px] w-[1064px]" />
+      <div className="absolute top-8 left-8 z-10">
+        <PngLogo size="lg" className="h-16 w-16" />
       </div>
 
       <div className="container mx-auto px-4 py-16 max-w-6xl">
@@ -215,14 +213,19 @@ export default function HomePage() {
             >
               Join thousands of students who are already using our platform to organize their college applications.
             </p>
-            <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+            <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center relative z-20">
               <Link
                 href="/auth/signup"
-                className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer"
                 style={{ 
                   backgroundColor: '#E072A4',
                   color: 'white',
-                  border: '1px solid #E072A4'
+                  border: '1px solid #E072A4',
+                  position: 'relative',
+                  zIndex: 30
+                }}
+                onClick={() => {
+                  console.log('Create Account clicked!');
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#d06594';
@@ -244,11 +247,16 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/auth/login"
-                className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+                className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer"
                 style={{ 
                   backgroundColor: 'transparent',
                   color: '#E072A4',
-                  border: '1px solid #E072A4'
+                  border: '1px solid #E072A4',
+                  position: 'relative',
+                  zIndex: 30
+                }}
+                onClick={() => {
+                  console.log('Sign In clicked!');
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#E072A4';
