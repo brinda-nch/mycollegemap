@@ -33,28 +33,28 @@ export default function DashboardPage() {
       value: dashboardStats.currentGPA,
       description: gpaEntries.length > 0 ? "Weighted GPA" : "No GPA data",
       icon: GraduationCap,
-      color: "text-green-600",
+      color: "#f89880",
     },
     {
       title: "SAT Score",
       value: dashboardStats.satScore,
       description: testScores.length > 0 ? "Latest attempt" : "No test scores",
       icon: BookOpen,
-      color: "text-blue-600",
+      color: "#f89880",
     },
     {
       title: "Applications",
       value: dashboardStats.applicationsCount,
       description: collegeApplications.length > 0 ? "In progress" : "No applications",
       icon: FileText,
-      color: "text-purple-600",
+      color: "#f89880",
     },
     {
       title: "Essays",
       value: dashboardStats.essaysCount,
       description: essays.length > 0 ? "Completed" : "No essays",
       icon: Trophy,
-      color: "text-orange-600",
+      color: "#f89880",
     },
   ]
 
@@ -68,6 +68,17 @@ export default function DashboardPage() {
           Welcome back, {session?.user?.firstName || session?.user?.name}!
         </h1>
         <p className="text-muted-foreground">Here's an overview of your college application progress.</p>
+        <div className="mt-4">
+          <a 
+            href="https://docs.google.com/spreadsheets/d/1SM_QWHeDABAnS3aMOSVu8IzKp6_7CEB8syH6TLIC8t4/edit?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium hover:underline"
+            style={{ color: '#f89880' }}
+          >
+            Click to go to Google Sheets tracker for Programs, Internships, and College Applications
+          </a>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -76,7 +87,7 @@ export default function DashboardPage() {
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+              <stat.icon className="h-4 w-4" style={{ color: stat.color }} />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>

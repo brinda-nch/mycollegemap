@@ -75,15 +75,15 @@ export default function LoginPage() {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm border-0 shadow-xl">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <GraduationCap className="h-8 w-8 text-primary" />
+            <GraduationCap className="h-8 w-8" style={{ color: '#f89880' }} />
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Sign in</CardTitle>
-          <CardDescription className="text-center">
-            Enter your email and password to access your account
+          <CardTitle className="text-2xl font-bold text-center text-navy-800">Welcome to My College Map</CardTitle>
+          <CardDescription className="text-center text-navy-600">
+            Sign in to access your college and summer program application tracker and manage your academic journey
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -95,7 +95,7 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-navy-800">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -104,11 +104,16 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
+                     className="border-gray-300"
+                     style={{ 
+                       focusBorderColor: '#f89880',
+                       focusRingColor: '#f89880'
+                     }}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-navy-800">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -118,12 +123,17 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
+                     className="border-gray-300"
+                     style={{ 
+                       focusBorderColor: '#f89880',
+                       focusRingColor: '#f89880'
+                     }}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-navy-600"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
                 >
@@ -131,13 +141,33 @@ export default function LoginPage() {
                 </Button>
               </div>
               <div className="text-right">
-                <Link href="/auth/forgot-password" className="text-sm text-primary hover:underline">
+                <Link href="/auth/forgot-password" className="text-sm hover:underline" style={{ color: '#f89880' }}>
                   Forgot your password?
                 </Link>
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+                 <Button 
+                   type="submit" 
+                   className="w-full text-white" 
+                   disabled={isLoading}
+                   style={{ 
+                     backgroundColor: '#f89880',
+                     borderColor: '#f89880'
+                   }}
+                   onMouseEnter={(e) => {
+                     if (!isLoading) {
+                       e.currentTarget.style.backgroundColor = '#f5856b';
+                       e.currentTarget.style.borderColor = '#f5856b';
+                     }
+                   }}
+                   onMouseLeave={(e) => {
+                     if (!isLoading) {
+                       e.currentTarget.style.backgroundColor = '#f89880';
+                       e.currentTarget.style.borderColor = '#f89880';
+                     }
+                   }}
+                 >
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
@@ -145,20 +175,12 @@ export default function LoginPage() {
 
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Don't have an account? </span>
-            <Link href="/auth/signup" className="text-primary hover:underline">
+            <span className="text-navy-600">Don't have an account? </span>
+                <Link href="/auth/signup" className="hover:underline" style={{ color: '#f89880' }}>
               Sign up
             </Link>
           </div>
 
-          <div className="mt-4 p-3 bg-muted rounded-md">
-            <p className="text-sm font-medium text-center mb-2">Demo Account</p>
-            <p className="text-xs text-muted-foreground text-center">
-              Email: demo@example.com
-              <br />
-              Password: demo123
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

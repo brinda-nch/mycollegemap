@@ -91,15 +91,15 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm border-0 shadow-xl">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <GraduationCap className="h-8 w-8 text-primary" />
+            <GraduationCap className="h-8 w-8" style={{ color: '#f89880' }} />
           </div>
-          <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
-          <CardDescription className="text-center">
-            Enter your information to create your college tracker account
+          <CardTitle className="text-2xl font-bold text-center text-navy-800">Join My College Map</CardTitle>
+          <CardDescription className="text-center text-navy-600">
+            Create your account to start tracking your college applications, summer programs, internships, and academic progress
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -112,7 +112,7 @@ export default function SignupPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name *</Label>
+                <Label htmlFor="firstName" className="text-navy-800">First Name *</Label>
                 <Input
                   id="firstName"
                   placeholder="John"
@@ -120,22 +120,32 @@ export default function SignupPage() {
                   onChange={(e) => handleChange("firstName", e.target.value)}
                   required
                   disabled={isLoading}
+                       className="border-gray-300"
+                       style={{ 
+                         focusBorderColor: '#f89880',
+                         focusRingColor: '#f89880'
+                       }}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label htmlFor="lastName" className="text-navy-800">Last Name</Label>
                 <Input
                   id="lastName"
                   placeholder="Doe"
                   value={formData.lastName}
                   onChange={(e) => handleChange("lastName", e.target.value)}
                   disabled={isLoading}
+                       className="border-gray-300"
+                       style={{ 
+                         focusBorderColor: '#f89880',
+                         focusRingColor: '#f89880'
+                       }}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email" className="text-navy-800">Email *</Label>
               <Input
                 id="email"
                 type="email"
@@ -144,11 +154,16 @@ export default function SignupPage() {
                 onChange={(e) => handleChange("email", e.target.value)}
                 required
                 disabled={isLoading}
+                       className="border-gray-300"
+                       style={{ 
+                         focusBorderColor: '#f89880',
+                         focusRingColor: '#f89880'
+                       }}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
+              <Label htmlFor="password" className="text-navy-800">Password *</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -158,12 +173,17 @@ export default function SignupPage() {
                   onChange={(e) => handleChange("password", e.target.value)}
                   required
                   disabled={isLoading}
+                       className="border-gray-300"
+                       style={{ 
+                         focusBorderColor: '#f89880',
+                         focusRingColor: '#f89880'
+                       }}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-navy-600"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
                 >
@@ -173,7 +193,7 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password *</Label>
+              <Label htmlFor="confirmPassword" className="text-navy-800">Confirm Password *</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -183,12 +203,17 @@ export default function SignupPage() {
                   onChange={(e) => handleChange("confirmPassword", e.target.value)}
                   required
                   disabled={isLoading}
+                       className="border-gray-300"
+                       style={{ 
+                         focusBorderColor: '#f89880',
+                         focusRingColor: '#f89880'
+                       }}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-navy-600"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   disabled={isLoading}
                 >
@@ -198,24 +223,29 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="highSchool">High School</Label>
+              <Label htmlFor="highSchool" className="text-navy-800">High School</Label>
               <Input
                 id="highSchool"
                 placeholder="Your High School Name"
                 value={formData.highSchool}
                 onChange={(e) => handleChange("highSchool", e.target.value)}
                 disabled={isLoading}
+                       className="border-gray-300"
+                       style={{ 
+                         focusBorderColor: '#f89880',
+                         focusRingColor: '#f89880'
+                       }}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="graduationYear">Expected Graduation Year</Label>
+              <Label htmlFor="graduationYear" className="text-navy-800">Expected Graduation Year</Label>
               <Select
                 value={formData.graduationYear}
                 onValueChange={(value) => handleChange("graduationYear", value)}
                 disabled={isLoading}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-gray-300 focus:border-orange-500 focus:ring-orange-500">
                   <SelectValue placeholder="Select graduation year" />
                 </SelectTrigger>
                 <SelectContent>
@@ -228,14 +258,34 @@ export default function SignupPage() {
               </Select>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+                 <Button 
+                   type="submit" 
+                   className="w-full text-white" 
+                   disabled={isLoading}
+                   style={{ 
+                     backgroundColor: '#f89880',
+                     borderColor: '#f89880'
+                   }}
+                   onMouseEnter={(e) => {
+                     if (!isLoading) {
+                       e.currentTarget.style.backgroundColor = '#f5856b';
+                       e.currentTarget.style.borderColor = '#f5856b';
+                     }
+                   }}
+                   onMouseLeave={(e) => {
+                     if (!isLoading) {
+                       e.currentTarget.style.backgroundColor = '#f89880';
+                       e.currentTarget.style.borderColor = '#f89880';
+                     }
+                   }}
+                 >
               {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
-            <Link href="/auth/login" className="text-primary hover:underline">
+            <span className="text-navy-600">Already have an account? </span>
+                <Link href="/auth/login" className="hover:underline" style={{ color: '#f89880' }}>
               Sign in
             </Link>
           </div>
