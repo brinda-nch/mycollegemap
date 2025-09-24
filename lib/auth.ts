@@ -22,20 +22,21 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Email and password are required")
         }
 
-        // Demo mode authentication
+        // Demo mode authentication - accept any email/password
         if (isDemoMode) {
-          if (credentials.email === "demo@example.com" && credentials.password === "demo123") {
-            return {
-              id: "demo-user-id",
-              email: credentials.email,
-              name: "Demo User",
-              firstName: "Demo",
-              lastName: "User",
-              graduationYear: 2025,
-              highSchool: "Demo High School",
-            }
+          // Extract name from email for demo purposes
+          const emailName = credentials.email.split('@')[0]
+          const [firstName, lastName] = emailName.split('.')
+          
+          return {
+            id: "demo-user-" + Date.now(),
+            email: credentials.email,
+            name: firstName ? `${firstName} ${lastName || ''}`.trim() : emailName,
+            firstName: firstName || emailName,
+            lastName: lastName || null,
+            graduationYear: 2025,
+            highSchool: "Demo High School",
           }
-          throw new Error("Invalid credentials")
         }
 
         try {

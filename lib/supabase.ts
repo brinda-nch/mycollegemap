@@ -3,8 +3,11 @@ import { createClient } from "@supabase/supabase-js"
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://demo.supabase.co"
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "demo_key"
 
-// Check if we're using demo credentials
-const isDemo = supabaseUrl === "https://demo.supabase.co" || supabaseServiceKey === "demo_key"
+// Check if we're using demo credentials or no credentials are set
+const isDemo = supabaseUrl === "https://demo.supabase.co" || 
+               supabaseServiceKey === "demo_key" || 
+               !supabaseUrl || 
+               !supabaseServiceKey
 
 if (!isDemo && (!supabaseUrl || !supabaseServiceKey)) {
   throw new Error("Missing Supabase environment variables")

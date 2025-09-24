@@ -50,7 +50,9 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Supabase error:", error)
-      return NextResponse.json({ error: "Failed to create user account" }, { status: 500 })
+      return NextResponse.json({ 
+        error: "Failed to create user account. Please check your database connection and try again." 
+      }, { status: 500 })
     }
 
     return NextResponse.json({ message: "User created successfully", userId: user.id }, { status: 201 })
