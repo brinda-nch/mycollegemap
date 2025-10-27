@@ -6,7 +6,7 @@ College application tracker
 
 Your project is live at:
 
-**[https://vercel.com/brindanallanic-9239s-projects/v0-college-application-tracker](https://vercel.com/brindanallanic-9239s-projects/v0-college-application-tracker)**
+https://www.mycollegemap.net/
 
 Empowering students to map their college journey with AI-driven insights.
 
