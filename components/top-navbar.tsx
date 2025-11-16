@@ -30,12 +30,12 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { PngLogo } from "./png-logo"
+import { useSidebar } from "@/lib/sidebar-context"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Essays", href: "/essays", icon: FileText },
   { name: "Plan Upgrade", href: "/pricing", icon: Target },
-  { name: "Student Profiles", href: "/student-profiles", icon: User },
   { name: "My Profile", href: "/profile", icon: User },
 ]
 
@@ -43,7 +43,7 @@ export function TopNavbar() {
   const { data: session } = useSession()
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const { isSidebarCollapsed, toggleSidebarCollapse } = useSidebar()
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" })
@@ -81,7 +81,7 @@ export function TopNavbar() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            onClick={toggleSidebarCollapse}
             className="w-full flex items-center justify-center hover:bg-gray-100 rounded-lg"
           >
             {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
@@ -215,9 +215,6 @@ export function TopNavbar() {
           </div>
         )}
       </div>
-
-      {/* Spacer for fixed sidebar on desktop */}
-      <div className={`hidden md:block transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`} />
     </>
   )
 }

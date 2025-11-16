@@ -9,3 +9,4 @@ export default function PricingLayout({
   return <ProtectedLayout>{children}</ProtectedLayout>
 }
 
+

@@ -1,153 +1,161 @@
 import { NextResponse } from "next/server"
 import OpenAI from "openai"
 
-const SYSTEM_MESSAGE = `You are an expert U.S. college admissions reader modeled after experienced officers at highly selective institutions, including:
+const SYSTEM_MESSAGE = `You are an expert college admissions officer. Evaluate student activities/essays holistically.
 
-- Large public flagships and systems (e.g., University of California campuses, major state universities)
-- Highly selective private colleges and Ivy / Ivy-like institutions
-- Other selective regional and national universities
+KEY EVALUATION CRITERIA:
+- Impact & initiative (not just titles/hours)
+- Leadership, creativity, problem-solving
+- Context-aware assessment
+- Quality over quantity
+- Authentic voice (for essays)
 
-Your job is to read student-submitted activities and essays and evaluate them the way a thoughtful admissions officer would in a **holistic, context-aware** review.
+SCORING (provide JSON):
+1. public_flagship (1-5): Large public university lens
+2. highly_selective (1-5): Elite/Ivy institution lens  
+3. essay_quality (1-6): Only for essays
+4. overall (1-10): Holistic admissions impact
 
-============================================================
-CORE ROLE
-============================================================
-
-For each activity and/or essay the user provides, you must:
-
-1. Evaluate it through **two complementary lenses**:
-   - **Public Flagship / Broad-Selective Lens** (e.g., UC-style: large public, structured reader system, context-heavy, focus on sustained effort and contribution)
-   - **Highly Selective / Ivy-Style Lens** (e.g., Ivy / elite private: extremely competitive, holistic, emphasis on academic distinction, depth, and standout impact)
-
-2. Provide:
-   - A concise **Summary**
-   - Clear **Key Strengths**
-   - Specific **Areas to Improve**
-   - A set of **Scores** reflecting both lenses and your holistic judgment.
-
-============================================================
-HOW TO READ LIKE AN ADMISSIONS OFFICER
-============================================================
-
-Always behave like a trained reader, not a formula.
-
-A. Look Beyond Logistics
-Do NOT just count titles, hours, years, or number of activities. Instead, deeply read the **description** the student gives:
-- What did they actually do?
-- What skills or qualities did they show (initiative, leadership, persistence, creativity, empathy, problem-solving)?
-- Who or what was impacted (self, peers, school, community, broader audience)?
-- What changed because of their involvement?
-
-B. Context & Opportunity
-Always interpret achievement in context. A student who works many hours, cares for siblings, or attends a low-resource school may show as much or more strength as someone with polished, resource-heavy activities.
-
-C. Activities & "Non-Traditional" Commitments
-Treat the following as valid, meaningful activities when described well:
-- Paid work and part-time jobs
-- Family responsibilities (e.g., childcare, helping in family business)
-- Community or faith-based engagement
-- School clubs, sports, arts, research, competitions
-- Independent projects (apps, startups, art portfolios, online content, etc.)
-
-D. Quality > Quantity
-Do not reward long lists of shallow activities over a small number of deep commitments.
-
-E. Essays & Personal Insight Responses
-Focus on:
-- Clarity and specificity
-- Reflection (what did they think, feel, learn, and change?)
-- Authentic voice
-- Connection to future growth
-
-============================================================
-SCORING FRAMEWORK
-============================================================
-
-For each activity or essay, assign:
-
-1) **Public_Flagship_Impact_Score (1–5)**
-   1 = Minimal involvement; 2 = Some involvement; 3 = Solid contribution; 4 = Strong impact; 5 = Exceptional
-
-2) **Highly_Selective_Impact_Score (1–5)**
-   1 = Ordinary; 2 = Decent; 3 = Above-average; 4 = Distinctive; 5 = Standout
-
-3) **Essay_Quality_Score (1–6)** (Only if essay provided)
-   1-2 = Underdeveloped; 3-4 = Competent; 5-6 = Strong and memorable
-
-4) **Overall_Admissions_Impact_Score (1–10)**
-   Your holistic judgment combining all factors.
-
-============================================================
-OUTPUT FORMAT
-============================================================
-
-IMPORTANT: Respond ONLY with a valid JSON object in this exact format:
+OUTPUT FORMAT (JSON only):
 {
-  "summary": "2-5 sentence summary",
-  "strengths": ["strength 1", "strength 2", "strength 3"],
-  "improvements": ["improvement 1", "improvement 2", "improvement 3"],
-  "scores": {
-    "public_flagship": 3,
-    "highly_selective": 2,
-    "essay_quality": 4,
-    "overall": 6
-  }
-}
-
-Do NOT include any text before or after the JSON object. Do NOT use markdown code blocks.`
+  "summary": "2-3 sentence assessment",
+  "strengths": ["3 key strengths"],
+  "improvements": ["3 specific improvements"],
+  "scores": {"public_flagship": 3, "highly_selective": 2, "essay_quality": 4, "overall": 6}
+}`
 
 export async function POST(request: Request) {
+  const startTime = Date.now()
+  console.log('🚀 [ANALYZER] Starting analysis request...')
+  
   try {
     const { input, type } = await request.json()
+    console.log('📝 [ANALYZER] Input received:', { 
+      type, 
+      inputLength: input?.length || 0,
+      inputPreview: input?.substring(0, 100) + '...'
+    })
 
     if (!input || !type) {
+      console.error('❌ [ANALYZER] Missing input or type')
       return NextResponse.json({ error: "Missing input or type" }, { status: 400 })
     }
 
+    // Check API key
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      console.error('❌ [ANALYZER] No API key found in environment')
+      return NextResponse.json({ error: "OpenAI API key not configured. Please set OPENAI_API_KEY in .env.local" }, { status: 500 })
+    }
+
+    console.log('🔑 [ANALYZER] API key found:', {
+      prefix: apiKey.substring(0, 7),
+      length: apiKey.length,
+      format: apiKey.startsWith('sk-') ? 'Valid format' : '⚠️ Invalid format (should start with sk-)'
+    })
+
     // Initialize OpenAI with API key from environment variable
+    console.log('⚙️ [ANALYZER] Initializing OpenAI client...')
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: apiKey,
+      timeout: 30000, // 30 second timeout
     })
 
     const userMessage = type === "activity" 
-      ? `Please analyze this extracurricular activity or honor:\n\n${input}`
-      : `Please analyze this essay:\n\n${input}`
+      ? `Analyze this activity:\n\n${input}`
+      : `Analyze this essay:\n\n${input}`
 
+    console.log('📤 [ANALYZER] Sending request to OpenAI...', {
+      model: 'gpt-3.5-turbo-1106',
+      messageLength: userMessage.length,
+      maxTokens: 800
+    })
+
+    const openaiStartTime = Date.now()
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-3.5-turbo-1106",
       messages: [
         { role: "system", content: SYSTEM_MESSAGE },
         { role: "user", content: userMessage }
       ],
-      temperature: 0.7,
-      max_tokens: 2000,
+      temperature: 0.5,
+      max_tokens: 800,
+      response_format: { type: "json_object" },
+    })
+    const openaiDuration = Date.now() - openaiStartTime
+
+    console.log('✅ [ANALYZER] OpenAI response received:', {
+      duration: `${openaiDuration}ms`,
+      usage: completion.usage,
+      finishReason: completion.choices[0]?.finish_reason
     })
 
     const responseText = completion.choices[0]?.message?.content
 
     if (!responseText) {
+      console.error('❌ [ANALYZER] Empty response from OpenAI')
       throw new Error("No response from OpenAI")
     }
 
+    console.log('📥 [ANALYZER] Response content:', {
+      length: responseText.length,
+      preview: responseText.substring(0, 200) + '...'
+    })
+
     // Parse the JSON response
-    let result
-    try {
-      result = JSON.parse(responseText)
-    } catch (parseError) {
-      // Try to extract JSON from the response if it's wrapped in markdown
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        result = JSON.parse(jsonMatch[0])
-      } else {
-        throw new Error("Failed to parse JSON response")
-      }
-    }
+    const result = JSON.parse(responseText)
+    
+    const totalDuration = Date.now() - startTime
+    console.log('🎉 [ANALYZER] Analysis complete!', {
+      totalDuration: `${totalDuration}ms`,
+      openaiDuration: `${openaiDuration}ms`,
+      otherProcessing: `${totalDuration - openaiDuration}ms`
+    })
 
     return NextResponse.json({ result })
-  } catch (error) {
-    console.error("Error analyzing:", error)
+    
+  } catch (error: any) {
+    const duration = Date.now() - startTime
+    console.error('💥 [ANALYZER] Error occurred:', {
+      duration: `${duration}ms`,
+      errorType: error?.constructor?.name,
+      errorCode: error?.code,
+      errorStatus: error?.status,
+      errorMessage: error?.message,
+      fullError: error
+    })
+    
+    // More specific error messages
+    if (error?.code === 'insufficient_quota') {
+      return NextResponse.json(
+        { error: "❌ OpenAI API quota exceeded. Your API key has no credits left. Please add credits at platform.openai.com/account/billing" },
+        { status: 402 }
+      )
+    }
+    
+    if (error?.status === 401 || error?.code === 'invalid_api_key') {
+      return NextResponse.json(
+        { error: "❌ Invalid OpenAI API key. Please check your API key in .env.local file." },
+        { status: 401 }
+      )
+    }
+
+    if (error?.code === 'ENOTFOUND' || error?.code === 'ETIMEDOUT') {
+      return NextResponse.json(
+        { error: "❌ Network error: Cannot reach OpenAI API. Check your internet connection." },
+        { status: 503 }
+      )
+    }
+
+    if (error?.message?.includes('timeout')) {
+      return NextResponse.json(
+        { error: "⏱️ Request timed out. OpenAI API took too long to respond. Try again with shorter text." },
+        { status: 504 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: "Failed to analyze. Please try again." },
+      { error: `❌ ${error?.message || "Failed to analyze. Please try again."}` },
       { status: 500 }
     )
   }

@@ -54,6 +54,7 @@
     "next-auth": "latest",
     "next-themes": "latest",
     "nodemailer": "latest",
+    "openai": "^6.9.0",
     "react": "^18",
     "react-day-picker": "latest",
     "react-dom": "^18",

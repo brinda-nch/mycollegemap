@@ -29,7 +29,18 @@ export default function ExtracurricularsPage() {
 
   // Activities State
   const [isAddActivityDialogOpen, setIsAddActivityDialogOpen] = useState(false)
+  const [isEditActivityDialogOpen, setIsEditActivityDialogOpen] = useState(false)
+  const [editingActivity, setEditingActivity] = useState<any>(null)
   const [newActivity, setNewActivity] = useState({
+    name: "",
+    category: "",
+    role: "",
+    description: "",
+    hoursPerWeek: "",
+    weeksPerYear: "",
+    yearsParticipated: "",
+  })
+  const [editActivity, setEditActivity] = useState({
     name: "",
     category: "",
     role: "",
@@ -87,6 +98,46 @@ export default function ExtracurricularsPage() {
     setIsAddActivityDialogOpen(false)
   }
 
+  const handleOpenEditActivityDialog = (activity: any) => {
+    setEditingActivity(activity)
+    setEditActivity({
+      name: activity.activityName,
+      category: activity.category || "",
+      role: activity.leadershipPosition || "",
+      description: activity.description || "",
+      hoursPerWeek: activity.hoursPerWeek?.toString() || "",
+      weeksPerYear: activity.weeksPerYear?.toString() || "",
+      yearsParticipated: activity.yearsParticipated?.toString() || "",
+    })
+    setIsEditActivityDialogOpen(true)
+  }
+
+  const handleEditActivity = () => {
+    if (!editingActivity || !editActivity.name || !editActivity.category) return
+
+    updateActivity(editingActivity.id, {
+      activityName: editActivity.name,
+      category: editActivity.category,
+      description: editActivity.description || undefined,
+      leadershipPosition: editActivity.role || undefined,
+      hoursPerWeek: editActivity.hoursPerWeek ? Number.parseInt(editActivity.hoursPerWeek) : undefined,
+      weeksPerYear: editActivity.weeksPerYear ? Number.parseInt(editActivity.weeksPerYear) : undefined,
+      yearsParticipated: editActivity.yearsParticipated ? Number.parseInt(editActivity.yearsParticipated) : undefined,
+    })
+
+    setEditingActivity(null)
+    setEditActivity({
+      name: "",
+      category: "",
+      role: "",
+      description: "",
+      hoursPerWeek: "",
+      weeksPerYear: "",
+      yearsParticipated: "",
+    })
+    setIsEditActivityDialogOpen(false)
+  }
+
   const handleAddHonor = () => {
     if (!newHonor.title) return
 
@@ -140,10 +191,27 @@ export default function ExtracurricularsPage() {
   const handleAnalyze = async () => {
     if (!analyzerInput.trim()) return
 
+    const startTime = Date.now()
+    console.log('🎯 [FRONTEND] Starting analysis...', {
+      type: analyzerType,
+      inputLength: analyzerInput.length,
+      timestamp: new Date().toISOString()
+    })
+
     setIsAnalyzing(true)
     setAnalyzerResult(null)
 
+    // Create timeout controller
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      console.error('⏱️ [FRONTEND] Request timed out after 45 seconds')
+      controller.abort()
+    }, 45000) // 45 second timeout
+
     try {
+      console.log('📤 [FRONTEND] Sending request to API...')
+      const fetchStartTime = Date.now()
+      
       const response = await fetch("/api/analyze-activities", {
         method: "POST",
         headers: {
@@ -153,19 +221,55 @@ export default function ExtracurricularsPage() {
           input: analyzerInput,
           type: analyzerType,
         }),
+        signal: controller.signal,
       })
 
+      const fetchDuration = Date.now() - fetchStartTime
+      console.log('📥 [FRONTEND] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        duration: `${fetchDuration}ms`,
+        ok: response.ok
+      })
+
+      clearTimeout(timeoutId)
+
       if (!response.ok) {
-        throw new Error("Analysis failed")
+        const errorData = await response.json()
+        console.error('❌ [FRONTEND] API returned error:', {
+          status: response.status,
+          error: errorData.error
+        })
+        throw new Error(errorData.error || "Analysis failed")
       }
 
       const data = await response.json()
+      console.log('✅ [FRONTEND] Analysis successful:', {
+        hasResult: !!data.result,
+        resultKeys: data.result ? Object.keys(data.result) : [],
+        totalDuration: `${Date.now() - startTime}ms`
+      })
+      
       setAnalyzerResult(data.result)
-    } catch (error) {
-      console.error("Error analyzing:", error)
-      alert("Failed to analyze. Please try again.")
+      
+    } catch (error: any) {
+      const duration = Date.now() - startTime
+      console.error('💥 [FRONTEND] Error caught:', {
+        duration: `${duration}ms`,
+        errorName: error.name,
+        errorMessage: error.message,
+        fullError: error
+      })
+      
+      if (error.name === 'AbortError') {
+        alert("⏱️ Analysis timed out (45 seconds).\n\nPossible causes:\n- OpenAI API is slow\n- Your text is too long\n- Network issues\n\nTry with shorter text or check your internet connection.")
+      } else {
+        alert(`❌ Analysis failed:\n\n${error.message}\n\nCheck the browser console for more details.`)
+      }
     } finally {
+      clearTimeout(timeoutId)
       setIsAnalyzing(false)
+      console.log('🏁 [FRONTEND] Analysis process completed')
     }
   }
 
@@ -419,14 +523,24 @@ export default function ExtracurricularsPage() {
                               : "N/A"}
                           </TableCell>
                           <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteActivity(activity.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenEditActivityDialog(activity)}
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteActivity(activity.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -625,6 +739,124 @@ export default function ExtracurricularsPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Activity Dialog */}
+      <Dialog open={isEditActivityDialogOpen} onOpenChange={setIsEditActivityDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+              Edit Activity
+            </DialogTitle>
+            <DialogDescription className="text-base">Update your extracurricular activity or leadership role.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-activity-name">Activity Name *</Label>
+              <Input
+                id="edit-activity-name"
+                placeholder="e.g., Student Government"
+                value={editActivity.name}
+                onChange={(e) => setEditActivity({ ...editActivity, name: e.target.value })}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-category">Category *</Label>
+                <Select value={editActivity.category} onValueChange={(value) => setEditActivity({ ...editActivity, category: value })}>
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Leadership">Leadership</SelectItem>
+                    <SelectItem value="Sports">Sports</SelectItem>
+                    <SelectItem value="Arts">Arts</SelectItem>
+                    <SelectItem value="Community Service">Community Service</SelectItem>
+                    <SelectItem value="Academic">Academic</SelectItem>
+                    <SelectItem value="Work Experience">Work Experience</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-role">Leadership Position</Label>
+                <Input
+                  id="edit-role"
+                  placeholder="e.g., President"
+                  value={editActivity.role}
+                  onChange={(e) => setEditActivity({ ...editActivity, role: e.target.value })}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                placeholder="Describe your involvement and achievements"
+                value={editActivity.description}
+                onChange={(e) => setEditActivity({ ...editActivity, description: e.target.value })}
+                className="rounded-xl"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-hours">Hours/Week</Label>
+                <Input
+                  id="edit-hours"
+                  type="number"
+                  placeholder="10"
+                  value={editActivity.hoursPerWeek}
+                  onChange={(e) => setEditActivity({ ...editActivity, hoursPerWeek: e.target.value })}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-weeks">Weeks/Year</Label>
+                <Input
+                  id="edit-weeks"
+                  type="number"
+                  placeholder="40"
+                  value={editActivity.weeksPerYear}
+                  onChange={(e) => setEditActivity({ ...editActivity, weeksPerYear: e.target.value })}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-years">Years</Label>
+                <Input
+                  id="edit-years"
+                  type="number"
+                  placeholder="3"
+                  value={editActivity.yearsParticipated}
+                  onChange={(e) => setEditActivity({ ...editActivity, yearsParticipated: e.target.value })}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-3">
+            <Button variant="outline" onClick={() => setIsEditActivityDialogOpen(false)} className="h-12 rounded-xl px-6">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditActivity}
+              disabled={!editActivity.name || !editActivity.category}
+              className="h-12 rounded-xl px-6 text-white font-semibold"
+              style={{ backgroundColor: "#60a5fa" }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Honor Dialog */}
       <Dialog open={isEditHonorDialogOpen} onOpenChange={setIsEditHonorDialogOpen}>

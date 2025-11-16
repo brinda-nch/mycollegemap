@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { DataProvider } from "@/lib/data-context"
+import { SidebarProvider } from "@/lib/sidebar-context"
 import { Toaster } from "@/components/ui/sonner"
 
 const dmSans = DM_Sans({ subsets: ["latin"] })
@@ -26,10 +27,12 @@ export default function RootLayout({
       <body className={dmSans.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>
-            <DataProvider>
-              {children}
-              <Toaster />
-            </DataProvider>
+            <SidebarProvider>
+              <DataProvider>
+                {children}
+                <Toaster />
+              </DataProvider>
+            </SidebarProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
