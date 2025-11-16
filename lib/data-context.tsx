@@ -35,6 +35,7 @@ export interface Activity {
   yearsParticipated?: number
   startDate?: string
   endDate?: string
+  createdAt?: string
 }
 
 export interface HonorAward {
@@ -43,6 +44,7 @@ export interface HonorAward {
   description?: string
   level?: string
   dateReceived?: string
+  createdAt?: string
 }
 
 export interface Essay {
@@ -54,6 +56,15 @@ export interface Essay {
   status: string
 }
 
+export interface ApplicationTask {
+  id: string
+  title: string
+  category: 'essays' | 'letters' | 'transcripts' | 'tests' | 'application' | 'financial' | 'other'
+  completed: boolean
+  dueDate?: string
+  notes?: string
+}
+
 export interface CollegeApplication {
   id: string
   collegeName: string
@@ -62,6 +73,7 @@ export interface CollegeApplication {
   status: string
   applicationFee?: number
   notes?: string
+  tasks?: ApplicationTask[]
 }
 
 interface DataContextType {
@@ -100,6 +112,10 @@ interface DataContextType {
   addCollegeApplication: (application: Omit<CollegeApplication, 'id'>) => void
   updateCollegeApplication: (id: string, application: Partial<CollegeApplication>) => void
   deleteCollegeApplication: (id: string) => void
+  addTaskToApplication: (applicationId: string, task: Omit<ApplicationTask, 'id'>) => void
+  updateTask: (applicationId: string, taskId: string, task: Partial<ApplicationTask>) => void
+  deleteTask: (applicationId: string, taskId: string) => void
+  toggleTaskComplete: (applicationId: string, taskId: string) => void
   
   // Utility functions
   getDashboardStats: () => {
@@ -302,7 +318,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   // Activity functions
   const addActivity = (activity: Omit<Activity, 'id'>) => {
-    const newActivity = { ...activity, id: Date.now().toString() }
+    const newActivity = { ...activity, id: Date.now().toString(), createdAt: new Date().toISOString() }
     setActivities(prev => {
       const updated = [...prev, newActivity]
       if (session?.user?.email && session.user.email !== 'demo@example.com') {
@@ -336,7 +352,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   // Honor Award functions
   const addHonorAward = (award: Omit<HonorAward, 'id'>) => {
-    const newAward = { ...award, id: Date.now().toString() }
+    const newAward = { ...award, id: Date.now().toString(), createdAt: new Date().toISOString() }
     setHonorsAwards(prev => {
       const updated = [...prev, newAward]
       if (session?.user?.email && session.user.email !== 'demo@example.com') {
@@ -436,6 +452,84 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
+  // Task management functions
+  const addTaskToApplication = (applicationId: string, task: Omit<ApplicationTask, 'id'>) => {
+    setCollegeApplications(prev => {
+      const updated = prev.map(app => {
+        if (app.id === applicationId) {
+          const newTask = { ...task, id: Date.now().toString() }
+          return {
+            ...app,
+            tasks: [...(app.tasks || []), newTask]
+          }
+        }
+        return app
+      })
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('collegeApplications'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const updateTask = (applicationId: string, taskId: string, task: Partial<ApplicationTask>) => {
+    setCollegeApplications(prev => {
+      const updated = prev.map(app => {
+        if (app.id === applicationId) {
+          return {
+            ...app,
+            tasks: (app.tasks || []).map(t => 
+              t.id === taskId ? { ...t, ...task } : t
+            )
+          }
+        }
+        return app
+      })
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('collegeApplications'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const deleteTask = (applicationId: string, taskId: string) => {
+    setCollegeApplications(prev => {
+      const updated = prev.map(app => {
+        if (app.id === applicationId) {
+          return {
+            ...app,
+            tasks: (app.tasks || []).filter(t => t.id !== taskId)
+          }
+        }
+        return app
+      })
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('collegeApplications'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const toggleTaskComplete = (applicationId: string, taskId: string) => {
+    setCollegeApplications(prev => {
+      const updated = prev.map(app => {
+        if (app.id === applicationId) {
+          return {
+            ...app,
+            tasks: (app.tasks || []).map(t => 
+              t.id === taskId ? { ...t, completed: !t.completed } : t
+            )
+          }
+        }
+        return app
+      })
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('collegeApplications'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
   // Dashboard utility functions
   const getDashboardStats = () => {
     const currentGPA = gpaEntries.length > 0 
@@ -457,21 +551,102 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getRecentActivities = () => {
-    // This would be populated from actual user activity
-    return []
+    // Combine activities and honors/awards with their creation timestamps
+    const recentItems: Array<{
+      title: string
+      description: string
+      time: string
+      type: string
+      createdAt: string
+    }> = []
+
+    // Add recent activities
+    activities.forEach(activity => {
+      if (activity.createdAt) {
+        const timeAgo = getTimeAgo(activity.createdAt)
+        recentItems.push({
+          title: activity.activityName,
+          description: activity.leadershipPosition 
+            ? `${activity.category || 'Activity'} - ${activity.leadershipPosition}`
+            : activity.category || 'Activity',
+          time: timeAgo,
+          type: 'activity',
+          createdAt: activity.createdAt
+        })
+      }
+    })
+
+    // Add recent honors/awards
+    honorsAwards.forEach(honor => {
+      if (honor.createdAt) {
+        const timeAgo = getTimeAgo(honor.createdAt)
+        recentItems.push({
+          title: honor.title,
+          description: `${honor.level || 'Honor/Award'}${honor.description ? `: ${honor.description.substring(0, 50)}...` : ''}`,
+          time: timeAgo,
+          type: 'honor',
+          createdAt: honor.createdAt
+        })
+      }
+    })
+
+    // Sort by creation date (most recent first) and return top 5
+    return recentItems
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5)
   }
 
   const getUpcomingDeadlines = () => {
+    const now = new Date()
+    
     return collegeApplications
-      .filter(app => app.deadline)
-      .map(app => ({
-        college: app.collegeName,
-        deadline: app.deadline!,
-        type: app.applicationType || "Regular Decision",
-        status: app.status,
-      }))
-      .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+      .filter(app => app.deadline) // Only apps with deadlines
+      .map(app => {
+        const deadlineDate = new Date(app.deadline!)
+        const daysUntil = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        
+        let status = 'upcoming'
+        if (daysUntil < 0) {
+          status = 'overdue'
+        } else if (daysUntil <= 7) {
+          status = 'urgent'
+        } else if (daysUntil <= 30) {
+          status = 'soon'
+        }
+
+        return {
+          college: app.collegeName,
+          deadline: formatDeadline(app.deadline!),
+          type: app.applicationType || "Regular Decision",
+          status: status,
+          daysUntil: daysUntil
+        }
+      })
+      .sort((a, b) => a.daysUntil - b.daysUntil) // Sort by closest deadline first
       .slice(0, 5)
+  }
+
+  // Helper function to format time ago
+  const getTimeAgo = (dateString: string): string => {
+    const now = new Date()
+    const past = new Date(dateString)
+    const diffMs = now.getTime() - past.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) > 1 ? 's' : ''} ago`
+    return `${Math.floor(diffDays / 30)} month${Math.floor(diffDays / 30) > 1 ? 's' : ''} ago`
+  }
+
+  // Helper function to format deadline
+  const formatDeadline = (dateString: string): string => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   const value: DataContextType = {
@@ -499,6 +674,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     addCollegeApplication,
     updateCollegeApplication,
     deleteCollegeApplication,
+    addTaskToApplication,
+    updateTask,
+    deleteTask,
+    toggleTaskComplete,
     getDashboardStats,
     getRecentActivities,
     getUpcomingDeadlines,

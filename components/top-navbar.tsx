@@ -26,23 +26,24 @@ import {
   Menu,
   X,
   User,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { PngLogo } from "./png-logo"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "GPA", href: "/gpa", icon: GraduationCap },
-  { name: "Test Scores", href: "/test-scores", icon: BookOpen },
-  { name: "Activities", href: "/extracurriculars", icon: Trophy },
   { name: "Essays", href: "/essays", icon: FileText },
-  { name: "Colleges", href: "/college-estimations", icon: Target },
-  { name: "Honors", href: "/honors-awards", icon: Trophy },
+  { name: "Plan Upgrade", href: "/pricing", icon: Target },
+  { name: "Student Profiles", href: "/student-profiles", icon: User },
+  { name: "My Profile", href: "/profile", icon: User },
 ]
 
 export function TopNavbar() {
   const { data: session } = useSession()
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" })
@@ -57,104 +58,152 @@ export function TopNavbar() {
   }
 
   return (
-    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo and Brand */}
-          <div className="flex items-center">
+    <>
+      {/* Sidebar */}
+      <div className={`fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 z-50 hidden md:flex flex-col shadow-xl transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        {/* Logo */}
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          {!isSidebarCollapsed && (
             <Link href="/dashboard" className="flex items-center">
               <PngLogo size="lg" />
               <span className="ml-3 text-xl font-bold" style={{ color: '#364652' }}>mycollegemap</span>
             </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
-                  style={{ color: isActive ? undefined : '#364652' }}
-                >
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.name}
-                </Link>
-              )
-            })}
-          </div>
-
-          {/* User Menu */}
-          <div className="flex items-center space-x-4">
-            {session?.user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
-                      <AvatarFallback>
-                        {session.user.name ? getInitials(session.user.name) : <User className="h-4 w-4" />}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{session.user.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-
-            {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden"
-            >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </div>
+          )}
+          {isSidebarCollapsed && (
+            <Link href="/dashboard" className="mx-auto">
+              <PngLogo size="md" />
+            </Link>
+          )}
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Toggle Button */}
+        <div className="px-4 py-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="w-full flex items-center justify-center hover:bg-gray-100 rounded-lg"
+          >
+            {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          </Button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {navigation.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center ${isSidebarCollapsed ? 'justify-center px-2' : 'px-4'} py-3 text-base font-medium rounded-xl transition-all ${
+                  isActive
+                    ? "text-white shadow-lg"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                }`}
+                style={{ 
+                  backgroundColor: isActive ? '#f89880' : undefined,
+                }}
+                title={isSidebarCollapsed ? item.name : undefined}
+              >
+                <item.icon className={`h-5 w-5 ${!isSidebarCollapsed ? 'mr-3' : ''}`} />
+                {!isSidebarCollapsed && item.name}
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* User Section */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          {session?.user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className={`w-full ${isSidebarCollapsed ? 'justify-center px-2' : 'justify-start'} p-2 hover:bg-gray-100`}>
+                  <Avatar className={`h-8 w-8 ${!isSidebarCollapsed ? 'mr-3' : ''}`}>
+                    <AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
+                    <AvatarFallback>
+                      {session.user.name ? getInitials(session.user.name) : <User className="h-4 w-4" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  {!isSidebarCollapsed && (
+                    <div className="flex-1 text-left">
+                      <p className="text-sm font-medium">{session.user.name}</p>
+                      <p className="text-xs text-muted-foreground">{session.user.email}</p>
+                    </div>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{session.user.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard" className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Top Bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-50">
+        <div className="flex justify-between items-center px-4 py-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2"
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+
+          <Link href="/dashboard" className="flex items-center">
+            <PngLogo size="md" />
+            <span className="ml-2 text-lg font-bold" style={{ color: '#364652' }}>mycollegemap</span>
+          </Link>
+
+          {session?.user && (
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
+              <AvatarFallback>
+                {session.user.name ? getInitials(session.user.name) : <User className="h-4 w-4" />}
+              </AvatarFallback>
+            </Avatar>
+          )}
+        </div>
+
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-700">
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+            <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors ${
+                    className={`flex items-center px-4 py-3 text-base font-medium rounded-xl transition-colors ${
                       isActive
-                        ? "bg-primary text-primary-foreground"
+                        ? "text-white"
                         : "hover:bg-gray-100 dark:hover:bg-gray-800"
                     }`}
-                    style={{ color: isActive ? undefined : '#364652' }}
+                    style={{ 
+                      backgroundColor: isActive ? '#f89880' : undefined,
+                      color: isActive ? 'white' : '#364652' 
+                    }}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <item.icon className="mr-3 h-5 w-5" />
@@ -166,6 +215,9 @@ export function TopNavbar() {
           </div>
         )}
       </div>
-    </nav>
+
+      {/* Spacer for fixed sidebar on desktop */}
+      <div className={`hidden md:block transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`} />
+    </>
   )
 }

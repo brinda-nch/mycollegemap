@@ -1,29 +1,17 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
-import { GraduationCap, BookOpen, Trophy, FileText, Target, TrendingUp, Calendar, Award, Plus } from "lucide-react"
+import { GraduationCap, BookOpen, Trophy, FileText, Target, TrendingUp, Calendar, Award, ArrowRight, Sparkles, BarChart3, CheckCircle2, Clock } from "lucide-react"
 import { useData } from "@/lib/data-context"
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 export default function DashboardPage() {
   const { data: session } = useSession()
   const { getDashboardStats, getRecentActivities, getUpcomingDeadlines, gpaEntries, testScores, activities, essays, collegeApplications } = useData()
-  const router = useRouter()
-
-  // Check if user is new (no data) and redirect to onboarding
-  const isNewUser = gpaEntries.length === 0 && testScores.length === 0 && activities.length === 0 && essays.length === 0 && collegeApplications.length === 0
-  
-  useEffect(() => {
-    if (isNewUser && session?.user?.email !== 'demo@example.com') {
-      router.push('/onboarding')
-    }
-  }, [isNewUser, session?.user?.email, router])
 
   const dashboardStats = getDashboardStats()
   
@@ -34,27 +22,58 @@ export default function DashboardPage() {
       description: gpaEntries.length > 0 ? "Weighted GPA" : "No GPA data",
       icon: GraduationCap,
       color: "#f89880",
+      gradient: "from-red-100 to-orange-100",
     },
     {
       title: "SAT Score",
       value: dashboardStats.satScore,
       description: testScores.length > 0 ? "Latest attempt" : "No test scores",
       icon: BookOpen,
-      color: "#f89880",
+      color: "#60a5fa",
+      gradient: "from-blue-100 to-cyan-100",
     },
     {
       title: "Applications",
       value: dashboardStats.applicationsCount,
       description: collegeApplications.length > 0 ? "In progress" : "No applications",
-      icon: FileText,
-      color: "#f89880",
+      icon: Target,
+      color: "#a78bfa",
+      gradient: "from-purple-100 to-pink-100",
     },
     {
       title: "Essays",
       value: dashboardStats.essaysCount,
       description: essays.length > 0 ? "Completed" : "No essays",
-      icon: Trophy,
+      icon: FileText,
+      color: "#34d399",
+      gradient: "from-green-100 to-emerald-100",
+    },
+  ]
+
+  const quickActions = [
+    {
+      title: "Academics",
+      description: "Track your GPA and test scores",
+      icon: BarChart3,
+      href: "/gpa",
       color: "#f89880",
+      gradient: "from-red-50 to-orange-50",
+    },
+    {
+      title: "Extracurriculars",
+      description: "Manage activities, honors, and awards",
+      icon: Trophy,
+      href: "/extracurriculars",
+      color: "#60a5fa",
+      gradient: "from-blue-50 to-cyan-50",
+    },
+    {
+      title: "Application Tracking",
+      description: "Manage college applications",
+      icon: Target,
+      href: "/college-estimations",
+      color: "#a78bfa",
+      gradient: "from-purple-50 to-pink-50",
     },
   ]
 
@@ -62,180 +81,266 @@ export default function DashboardPage() {
   const upcomingDeadlines = getUpcomingDeadlines()
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {session?.user?.firstName || session?.user?.name}!
-        </h1>
-        <p className="text-muted-foreground">Here's an overview of your college application progress.</p>
-        <div className="mt-4">
-          <a 
-            href="https://docs.google.com/spreadsheets/d/1SM_QWHeDABAnS3aMOSVu8IzKp6_7CEB8syH6TLIC8t4/edit?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium hover:underline"
-            style={{ color: '#f89880' }}
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-[#f89880] to-[#60a5fa] text-white">
+        <div className="container mx-auto px-6 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            Click to go to Google Sheets tracker for Programs, Internships, and College Applications
-          </a>
+            <div className="flex items-center gap-3 mb-4">
+              <Sparkles className="h-8 w-8" />
+              <h1 className="text-4xl md:text-5xl font-bold">
+                Welcome back, {session?.user?.firstName || session?.user?.name}!
+              </h1>
+            </div>
+            <p className="text-xl text-white/90 max-w-2xl">
+              Here's your college application journey at a glance
+            </p>
+          </motion.div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4" style={{ color: stat.color }} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8"
+        >
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 + index * 0.1 }}
+              whileHover={{ y: -5, scale: 1.02 }}
+            >
+              <Card className={`bg-gradient-to-br ${stat.gradient} border-2 border-transparent hover:border-gray-300 transition-all shadow-lg hover:shadow-xl`}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-700">{stat.title}</CardTitle>
+                  <stat.icon className="h-6 w-6" style={{ color: stat.color }} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold" style={{ color: stat.color }}>
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">{stat.description}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
 
-      {/* Empty State for New Users */}
-      {gpaEntries.length === 0 && testScores.length === 0 && activities.length === 0 && essays.length === 0 && collegeApplications.length === 0 && (
-        <Card className="border-dashed border-2 border-gray-300 dark:border-gray-600">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <GraduationCap className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Welcome to your College Application Tracker!</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                Start building your college application profile by adding your academic information, test scores, activities, and more.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button asChild variant="outline" className="flex flex-col items-center p-4 h-auto">
-                  <Link href="/gpa">
-                    <GraduationCap className="h-6 w-6 mb-2" />
-                    <span className="text-sm">Add GPA</span>
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="flex flex-col items-center p-4 h-auto">
-                  <Link href="/test-scores">
-                    <BookOpen className="h-6 w-6 mb-2" />
-                    <span className="text-sm">Add Test Scores</span>
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="flex flex-col items-center p-4 h-auto">
-                  <Link href="/extracurriculars">
-                    <Trophy className="h-6 w-6 mb-2" />
-                    <span className="text-sm">Add Activities</span>
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="flex flex-col items-center p-4 h-auto">
-                  <Link href="/essays">
-                    <FileText className="h-6 w-6 mb-2" />
-                    <span className="text-sm">Add Essays</span>
-                  </Link>
-                </Button>
-              </div>
+        {/* Quick Actions Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-3xl font-bold" style={{ color: "#0f172a" }}>
+                Quick Actions
+              </h2>
+              <p className="text-gray-600 mt-1">Manage your college application materials</p>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        {/* Recent Activities */}
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Recent Activities
-            </CardTitle>
-            <CardDescription>Your latest updates and achievements</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-4">
-                  <div className="flex-shrink-0">
-                    {activity.type === "essay" && <FileText className="h-4 w-4 text-purple-600" />}
-                    {activity.type === "test" && <BookOpen className="h-4 w-4 text-blue-600" />}
-                    {activity.type === "application" && <Target className="h-4 w-4 text-green-600" />}
-                    {activity.type === "activity" && <Award className="h-4 w-4 text-orange-600" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{activity.title}</p>
-                    <p className="text-sm text-muted-foreground">{activity.description}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
-                  </div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {quickActions.map((action, index) => (
+              <motion.div
+                key={action.title}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <Link href={action.href}>
+                  <Card className={`bg-gradient-to-br ${action.gradient} border-2 border-transparent hover:border-gray-300 transition-all shadow-lg hover:shadow-2xl group cursor-pointer h-full`}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div
+                              className="p-3 rounded-xl"
+                              style={{ backgroundColor: `${action.color}20` }}
+                            >
+                              <action.icon className="h-6 w-6" style={{ color: action.color }} />
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                                {action.title}
+                              </h3>
+                            </div>
+                          </div>
+                          <p className="text-gray-600 mb-4">{action.description}</p>
+                          <div className="flex items-center gap-2 text-sm font-medium" style={{ color: action.color }}>
+                            <span>Manage</span>
+                            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        <div className="grid gap-6 md:grid-cols-2 mb-8">
+          {/* Recent Activities */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
+            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200 h-full">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" style={{ color: "#f89880" }} />
+                  <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                    Recent Activities
+                  </CardTitle>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <CardDescription className="text-base">Your latest updates and achievements</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {recentActivities.length > 0 ? (
+                  <div className="space-y-3">
+                    {recentActivities.map((activity, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
+                        className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="p-2 rounded-lg" style={{ backgroundColor: activity.type === "activity" ? "#fef3c7" : "#e9d5ff" }}>
+                          {activity.type === "activity" && <Trophy className="h-4 w-4 text-yellow-600" />}
+                          {activity.type === "honor" && <Award className="h-4 w-4 text-purple-600" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900">{activity.title}</p>
+                          <p className="text-xs text-gray-600">{activity.description}</p>
+                          <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {activity.time}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-sm text-gray-600">No recent activities yet</p>
+                    <p className="text-xs text-gray-400 mt-1">Add activities or honors to see them here</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
 
-        {/* Upcoming Deadlines */}
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Upcoming Deadlines
-            </CardTitle>
-            <CardDescription>Don't miss these important dates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {upcomingDeadlines.map((deadline, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{deadline.college}</p>
-                    <p className="text-xs text-muted-foreground">{deadline.type}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{deadline.deadline}</p>
-                    <Badge variant={deadline.status === "urgent" ? "destructive" : "secondary"} className="text-xs">
-                      {deadline.status}
-                    </Badge>
-                  </div>
+          {/* Upcoming Deadlines */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
+            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200 h-full">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" style={{ color: "#60a5fa" }} />
+                  <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                    Upcoming Deadlines
+                  </CardTitle>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                <CardDescription className="text-base">Don't miss these important dates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {upcomingDeadlines.length > 0 ? (
+                  <div className="space-y-3">
+                    {upcomingDeadlines.map((deadline, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-900">{deadline.college}</p>
+                          <p className="text-xs text-gray-600">{deadline.type}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-gray-900 mb-1">{deadline.deadline}</p>
+                          <Badge
+                            variant={
+                              deadline.status === "overdue"
+                                ? "destructive"
+                                : deadline.status === "urgent"
+                                ? "destructive"
+                                : deadline.status === "soon"
+                                ? "default"
+                                : "secondary"
+                            }
+                            className="text-xs"
+                          >
+                            {deadline.status === "overdue"
+                              ? "Overdue"
+                              : deadline.status === "urgent"
+                              ? "Due Soon"
+                              : deadline.status === "soon"
+                              ? "This Month"
+                              : "Upcoming"}
+                          </Badge>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-sm text-gray-600">No upcoming deadlines</p>
+                    <p className="text-xs text-gray-400 mt-1">Add college applications with deadlines to track them here</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
 
-      {/* Progress Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Application Progress</CardTitle>
-          <CardDescription>Track your progress across different application components</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Common Application</span>
-              <span>85%</span>
-            </div>
-            <Progress value={85} className="h-2" />
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Essays Completed</span>
-              <span>75%</span>
-            </div>
-            <Progress value={75} className="h-2" />
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Recommendation Letters</span>
-              <span>100%</span>
-            </div>
-            <Progress value={100} className="h-2" />
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Test Scores Submitted</span>
-              <span>90%</span>
-            </div>
-            <Progress value={90} className="h-2" />
-          </div>
-        </CardContent>
-      </Card>
+        {/* Getting Started Guide for New Users */}
+        {gpaEntries.length === 0 && testScores.length === 0 && activities.length === 0 && essays.length === 0 && collegeApplications.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.2 }}
+          >
+            <Card className="bg-gradient-to-br from-[#f89880]/10 to-[#60a5fa]/10 border-2 border-dashed border-[#f89880]">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ backgroundColor: "#f89880" }}>
+                    <Sparkles className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2" style={{ color: "#0f172a" }}>
+                    Welcome to MyCollegeMap! 🎉
+                  </h3>
+                  <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                    Start your college application journey by adding your information. Use the Quick Actions above to get started!
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </div>
     </div>
   )
 }

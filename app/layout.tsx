@@ -11,7 +11,7 @@ const dmSans = DM_Sans({ subsets: ["latin"] })
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "College Application Tracker",
+  title: "MCM",
   description: "Track your college applications, essays, and academic progress",
     generator: 'v0.app'
 }

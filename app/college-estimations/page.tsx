@@ -4,18 +4,46 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { GraduationCap, Target, TrendingUp, MapPin, DollarSign, Search, Plus, Trash2 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  GraduationCap,
+  Target,
+  Search,
+  Plus,
+  Trash2,
+  FileText,
+  Mail,
+  FileCheck,
+  ClipboardList,
+  DollarSign,
+  MoreHorizontal,
+  CheckCircle2,
+  Circle,
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react"
 import { useData } from "@/lib/data-context"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface CollegeSearchResult {
   name: string
@@ -29,13 +57,61 @@ interface CollegeSearchResult {
   state: string
 }
 
-export default function CollegeEstimationsPage() {
-  const { collegeApplications, addCollegeApplication, deleteCollegeApplication } = useData()
+const categoryIcons = {
+  essays: FileText,
+  letters: Mail,
+  transcripts: FileCheck,
+  tests: ClipboardList,
+  application: Target,
+  financial: DollarSign,
+  other: MoreHorizontal,
+}
+
+const categoryLabels = {
+  essays: "Essays",
+  letters: "Letters of Recommendation",
+  transcripts: "Transcripts",
+  tests: "Test Scores",
+  application: "Application Form",
+  financial: "Financial Aid",
+  other: "Other",
+}
+
+export default function ApplicationTrackingPage() {
+  const {
+    collegeApplications,
+    addCollegeApplication,
+    deleteCollegeApplication,
+    updateCollegeApplication,
+    addTaskToApplication,
+    updateTask,
+    deleteTask,
+    toggleTaskComplete,
+  } = useData()
+
+  const [activeTab, setActiveTab] = useState<"college" | "programs">("college")
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<CollegeSearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [selectedCollege, setSelectedCollege] = useState<CollegeSearchResult | null>(null)
+  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false)
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null)
+  const [expandedApplications, setExpandedApplications] = useState<Set<string>>(new Set())
+
+  // Add application form state
+  const [newApplication, setNewApplication] = useState({
+    collegeName: "",
+    applicationType: "Regular Decision",
+    deadline: "",
+  })
+
+  // Add task form state
+  const [newTask, setNewTask] = useState({
+    title: "",
+    category: "essays" as const,
+    dueDate: "",
+    notes: "",
+  })
 
   const searchColleges = async (query: string) => {
     if (query.length < 2) {
@@ -49,7 +125,7 @@ export default function CollegeEstimationsPage() {
       const data = await response.json()
       setSearchResults(data.colleges || [])
     } catch (error) {
-      console.error('Error searching colleges:', error)
+      console.error("Error searching colleges:", error)
       setSearchResults([])
     } finally {
       setIsSearching(false)
@@ -64,147 +140,574 @@ export default function CollegeEstimationsPage() {
     return () => clearTimeout(timeoutId)
   }, [searchQuery])
 
-  const handleAddCollege = (college: CollegeSearchResult) => {
-    addCollegeApplication({
+  const handleSelectCollege = (college: CollegeSearchResult) => {
+    setNewApplication({
+      ...newApplication,
       collegeName: college.name,
-      applicationType: "Regular Decision",
-      deadline: "2025-01-01",
-      status: "planning",
-      applicationFee: 70,
     })
-    setIsAddDialogOpen(false)
     setSearchQuery("")
     setSearchResults([])
   }
 
-  const getMatchLevel = (acceptanceRate: number) => {
-    if (acceptanceRate < 15) return "Reach"
-    if (acceptanceRate < 30) return "Target"
-    return "Safety"
+  const handleAddApplication = () => {
+    if (!newApplication.collegeName || !newApplication.deadline) return
+
+    addCollegeApplication({
+      collegeName: newApplication.collegeName,
+      applicationType: newApplication.applicationType,
+      deadline: newApplication.deadline,
+      status: "planning",
+      tasks: [],
+    })
+
+    setNewApplication({
+      collegeName: "",
+      applicationType: "Regular Decision",
+      deadline: "",
+    })
+    setIsAddDialogOpen(false)
   }
 
-  const getMatchColor = (matchLevel: string) => {
-    switch (matchLevel) {
-      case "Safety":
-        return "bg-green-100 text-green-800"
-      case "Target":
-        return "bg-yellow-100 text-yellow-800"
-      case "Reach":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
+  const handleAddTask = () => {
+    if (!selectedApplicationId || !newTask.title) return
+
+    addTaskToApplication(selectedApplicationId, {
+      title: newTask.title,
+      category: newTask.category,
+      completed: false,
+      dueDate: newTask.dueDate || undefined,
+      notes: newTask.notes || undefined,
+    })
+
+    setNewTask({
+      title: "",
+      category: "essays",
+      dueDate: "",
+      notes: "",
+    })
+    setIsAddTaskDialogOpen(false)
+  }
+
+  const toggleExpanded = (applicationId: string) => {
+    setExpandedApplications((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(applicationId)) {
+        newSet.delete(applicationId)
+      } else {
+        newSet.add(applicationId)
+      }
+      return newSet
+    })
+  }
+
+  const getTaskProgress = (tasks: any[] = []) => {
+    if (tasks.length === 0) return 0
+    const completed = tasks.filter((t) => t.completed).length
+    return Math.round((completed / tasks.length) * 100)
+  }
+
+  const getTasksByCategory = (tasks: any[] = []) => {
+    const categories: { [key: string]: any[] } = {}
+    tasks.forEach((task) => {
+      if (!categories[task.category]) {
+        categories[task.category] = []
+      }
+      categories[task.category].push(task)
+    })
+    return categories
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">College List</h1>
-        <p className="text-gray-600 mt-2">Search and add colleges to your application list</p>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
+      {/* Header */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
+              Application Tracking
+            </h1>
+            <p className="text-lg text-slate-600">
+              Manage your applications and track your to-do items
+            </p>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Add College Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Add College</CardTitle>
-          <CardDescription>Search for colleges and add them to your list</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Tabs */}
+        <div className="flex border-b border-gray-200 mb-8">
+          <Button
+            variant="ghost"
+            className={`px-6 py-3 text-lg font-medium rounded-t-lg transition-colors ${
+              activeTab === "college"
+                ? "border-b-2 border-[#a78bfa] text-[#a78bfa]"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+            onClick={() => setActiveTab("college")}
+          >
+            College Applications
+          </Button>
+          <Button
+            variant="ghost"
+            className={`px-6 py-3 text-lg font-medium rounded-t-lg transition-colors ${
+              activeTab === "programs"
+                ? "border-b-2 border-[#60a5fa] text-[#60a5fa]"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+            onClick={() => setActiveTab("programs")}
+          >
+            Programs & Internships
+          </Button>
+        </div>
+
+        {/* College Applications Tab */}
+        {activeTab === "college" && (
+          <div>
+            {/* Add Application Button */}
+            <div className="mb-6">
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    className="text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105"
+                    style={{ backgroundColor: "#a78bfa" }}
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Add College Application
+                  </Button>
+                </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                Add College Application
+              </DialogTitle>
+              <DialogDescription className="text-base">
+                Search for a college and enter the application deadline.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6 py-4">
+              {/* College Search */}
+              <div className="space-y-2">
+                <Label htmlFor="college-search" className="text-sm font-medium">
+                  Search College *
+                </Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="college-search"
+                    placeholder="Type to search for colleges..."
+                    value={newApplication.collegeName || searchQuery}
+                    onChange={(e) => {
+                      if (!newApplication.collegeName) {
+                        setSearchQuery(e.target.value)
+                      } else {
+                        setNewApplication({ ...newApplication, collegeName: e.target.value })
+                      }
+                    }}
+                    className="h-12 rounded-xl pl-10"
+                  />
+                </div>
+
+                {/* Search Results */}
+                {searchResults.length > 0 && !newApplication.collegeName && (
+                  <div className="mt-2 max-h-60 overflow-y-auto border border-gray-200 rounded-xl bg-white shadow-lg">
+                    {searchResults.map((college, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSelectCollege(college)}
+                        className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b last:border-b-0"
+                      >
+                        <div className="font-medium" style={{ color: "#0f172a" }}>
+                          {college.name}
+                        </div>
+                        <div className="text-sm text-gray-500">{college.location}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {isSearching && (
+                  <p className="text-sm text-gray-500 mt-2">Searching...</p>
+                )}
+              </div>
+
+              {/* Application Type */}
+              <div className="space-y-2">
+                <Label htmlFor="app-type" className="text-sm font-medium">
+                  Application Type *
+                </Label>
+                <Select
+                  value={newApplication.applicationType}
+                  onValueChange={(value) =>
+                    setNewApplication({ ...newApplication, applicationType: value })
+                  }
+                >
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Early Decision">Early Decision</SelectItem>
+                    <SelectItem value="Early Action">Early Action</SelectItem>
+                    <SelectItem value="Regular Decision">Regular Decision</SelectItem>
+                    <SelectItem value="Rolling Admission">Rolling Admission</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Deadline */}
+              <div className="space-y-2">
+                <Label htmlFor="deadline" className="text-sm font-medium">
+                  Application Deadline *
+                </Label>
                 <Input
-                  placeholder="Search for colleges (e.g., Stanford, Harvard, UCLA)..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  id="deadline"
+                  type="date"
+                  value={newApplication.deadline}
+                  onChange={(e) =>
+                    setNewApplication({ ...newApplication, deadline: e.target.value })
+                  }
+                  className="h-12 rounded-xl"
                 />
               </div>
             </div>
+            <DialogFooter className="gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsAddDialogOpen(false)}
+                className="h-12 rounded-xl px-6"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddApplication}
+                disabled={!newApplication.collegeName || !newApplication.deadline}
+                className="h-12 rounded-xl px-6 text-white font-semibold"
+                style={{ backgroundColor: "#f89880" }}
+              >
+                Add Application
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-            {isSearching && (
-              <div className="text-center py-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
-                <p className="text-sm text-gray-600 mt-2">Searching colleges...</p>
+      {/* Applications List */}
+      {collegeApplications.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+            <CardContent className="text-center py-16">
+              <div
+                className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-6"
+                style={{ backgroundColor: "rgba(248, 152, 128, 0.1)" }}
+              >
+                <Target className="h-12 w-12" style={{ color: "#f89880" }} />
               </div>
-            )}
+              <h3 className="text-2xl font-bold mb-3" style={{ color: "#0f172a" }}>
+                No Applications Yet
+              </h3>
+              <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+                Start tracking your college applications by adding your first one.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <div className="space-y-6">
+          <AnimatePresence>
+            {collegeApplications.map((application, index) => {
+              const isExpanded = expandedApplications.has(application.id)
+              const progress = getTaskProgress(application.tasks)
+              const tasksByCategory = getTasksByCategory(application.tasks)
+              const totalTasks = application.tasks?.length || 0
+              const completedTasks = application.tasks?.filter((t) => t.completed).length || 0
 
-            {searchResults.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-700">Search Results:</h3>
-                {searchResults.map((college, index) => (
-                  <div
-                    key={index}
-                    className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => handleAddCollege(college)}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h4 className="font-medium">{college.name}</h4>
-                        <p className="text-sm text-gray-600">{college.location}</p>
-                        <div className="flex gap-4 mt-2 text-sm">
-                          <span>Acceptance: {college.acceptanceRate}%</span>
-                          <span>Avg GPA: {college.avgGPA}</span>
-                          <span>Avg SAT: {college.avgSAT}</span>
-                          <span>Tuition: ${college.tuition.toLocaleString()}</span>
-                          <span className="text-blue-600 font-medium">{college.type}</span>
+              return (
+                <motion.div
+                  key={application.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-all">
+                    {/* Application Header */}
+                    <CardHeader
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => toggleExpanded(application.id)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <GraduationCap className="h-6 w-6" style={{ color: "#f89880" }} />
+                            <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                              {application.collegeName}
+                            </CardTitle>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-slate-600">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              <span>
+                                {application.deadline
+                                  ? new Date(application.deadline).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })
+                                  : "No deadline"}
+                              </span>
+                            </div>
+                            <Badge variant="secondary">{application.applicationType}</Badge>
+                            <span className="font-medium">
+                              {completedTasks}/{totalTasks} tasks completed
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <div className="text-3xl font-bold mb-1" style={{ color: "#0f172a" }}>
+                              {progress}%
+                            </div>
+                            <Progress value={progress} className="w-24 h-2" />
+                          </div>
+                          <Button variant="ghost" size="sm">
+                            {isExpanded ? (
+                              <ChevronUp className="h-5 w-5" />
+                            ) : (
+                              <ChevronDown className="h-5 w-5" />
+                            )}
+                          </Button>
                         </div>
                       </div>
-                      <Badge className={getMatchColor(getMatchLevel(college.acceptanceRate))}>
-                        {getMatchLevel(college.acceptanceRate)}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                    </CardHeader>
 
-      {/* Your College List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your College List</CardTitle>
-          <CardDescription>Colleges you've added to your application list</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {collegeApplications.length > 0 ? (
-            <div className="space-y-4">
-              {collegeApplications.map((college) => (
-                <div key={college.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h4 className="font-medium">{college.collegeName}</h4>
-                      <p className="text-sm text-gray-600">
-                        {college.applicationType} • {college.status} • Due: {college.deadline}
-                      </p>
-                      {college.applicationFee && (
-                        <p className="text-sm text-gray-600">Fee: ${college.applicationFee}</p>
-                      )}
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteCollegeApplication(college.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                    {/* Expanded Content - Task List */}
+                    {isExpanded && (
+                      <CardContent className="pt-0">
+                        <div className="space-y-6">
+                          {/* Add Task Button */}
+                          <div className="flex justify-between items-center border-t pt-4">
+                            <Dialog
+                              open={isAddTaskDialogOpen && selectedApplicationId === application.id}
+                              onOpenChange={(open) => {
+                                setIsAddTaskDialogOpen(open)
+                                if (open) setSelectedApplicationId(application.id)
+                              }}
+                            >
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-xl"
+                                  onClick={() => setSelectedApplicationId(application.id)}
+                                >
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Add Task
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                                    Add Task
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    Add a new task to track for this application.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="task-title">Task Title *</Label>
+                                    <Input
+                                      id="task-title"
+                                      placeholder="e.g., Write personal statement"
+                                      value={newTask.title}
+                                      onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                                      className="h-12 rounded-xl"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label htmlFor="task-category">Category *</Label>
+                                    <Select
+                                      value={newTask.category}
+                                      onValueChange={(value: any) =>
+                                        setNewTask({ ...newTask, category: value })
+                                      }
+                                    >
+                                      <SelectTrigger className="h-12 rounded-xl">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="essays">Essays</SelectItem>
+                                        <SelectItem value="letters">Letters of Recommendation</SelectItem>
+                                        <SelectItem value="transcripts">Transcripts</SelectItem>
+                                        <SelectItem value="tests">Test Scores</SelectItem>
+                                        <SelectItem value="application">Application Form</SelectItem>
+                                        <SelectItem value="financial">Financial Aid</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label htmlFor="task-due-date">Due Date (Optional)</Label>
+                                    <Input
+                                      id="task-due-date"
+                                      type="date"
+                                      value={newTask.dueDate}
+                                      onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                                      className="h-12 rounded-xl"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label htmlFor="task-notes">Notes (Optional)</Label>
+                                    <Input
+                                      id="task-notes"
+                                      placeholder="Any additional notes"
+                                      value={newTask.notes}
+                                      onChange={(e) => setNewTask({ ...newTask, notes: e.target.value })}
+                                      className="h-12 rounded-xl"
+                                    />
+                                  </div>
+                                </div>
+                                <DialogFooter className="gap-3">
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => setIsAddTaskDialogOpen(false)}
+                                    className="h-12 rounded-xl px-6"
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    onClick={handleAddTask}
+                                    disabled={!newTask.title}
+                                    className="h-12 rounded-xl px-6 text-white font-semibold"
+                                    style={{ backgroundColor: "#f89880" }}
+                                  >
+                                    Add Task
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteCollegeApplication(application.id)}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Application
+                            </Button>
+                          </div>
+
+                          {/* Tasks by Category */}
+                          {totalTasks === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                              <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                              <p>No tasks yet. Add your first task to get started!</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-6">
+                              {Object.entries(tasksByCategory).map(([category, tasks]: [string, any[]]) => {
+                                const Icon = categoryIcons[category as keyof typeof categoryIcons]
+                                const label = categoryLabels[category as keyof typeof categoryLabels]
+
+                                return (
+                                  <div key={category} className="space-y-3">
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <Icon className="h-5 w-5" style={{ color: "#f89880" }} />
+                                      <h4 className="font-semibold text-lg" style={{ color: "#0f172a" }}>
+                                        {label}
+                                      </h4>
+                                    </div>
+
+                                    <div className="space-y-2 pl-7">
+                                      {tasks.map((task) => (
+                                        <div
+                                          key={task.id}
+                                          className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                        >
+                                          <Checkbox
+                                            checked={task.completed}
+                                            onCheckedChange={() =>
+                                              toggleTaskComplete(application.id, task.id)
+                                            }
+                                            className="mt-0.5"
+                                          />
+                                          <div className="flex-1">
+                                            <p
+                                              className={`font-medium ${
+                                                task.completed ? "line-through text-gray-400" : ""
+                                              }`}
+                                            >
+                                              {task.title}
+                                            </p>
+                                            {task.dueDate && (
+                                              <p className="text-xs text-gray-500 mt-1">
+                                                Due: {new Date(task.dueDate).toLocaleDateString()}
+                                              </p>
+                                            )}
+                                            {task.notes && (
+                                              <p className="text-sm text-gray-600 mt-1">{task.notes}</p>
+                                            )}
+                                          </div>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => deleteTask(application.id, task.id)}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50"
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </div>
+      )}
+          </div>
+        )}
+
+        {/* Programs & Internships Tab */}
+        {activeTab === "programs" && (
+          <div>
+            <div className="text-center py-16">
+              <div
+                className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-6"
+                style={{ backgroundColor: "rgba(96, 165, 250, 0.1)" }}
+              >
+                <Target className="h-12 w-12" style={{ color: "#60a5fa" }} />
+              </div>
+              <h3 className="text-2xl font-bold mb-3" style={{ color: "#0f172a" }}>
+                Programs & Internships
+              </h3>
+              <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+                Track your program and internship applications separately. Coming soon!
+              </p>
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <GraduationCap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No colleges added yet</h3>
-              <p className="text-gray-500">Search for colleges above to start building your application list.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -14,8 +14,8 @@ export function ProtectedLayout({ children }: ProtectedLayoutProps) {
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <TopNavbar />
-        <main className="pt-16">
-          <div className="container mx-auto px-6 py-8 max-w-6xl">
+        <main className="pt-0 md:pt-0">
+          <div className="md:p-0 pt-16 md:pt-0">
             {children}
           </div>
         </main>
