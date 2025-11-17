@@ -103,7 +103,7 @@ export default function DashboardPage() {
     },
     {
       title: "Application Tracking",
-      description: "Manage college applications",
+      description: "Manage all your applications",
       icon: Target,
       href: "/college-estimations",
       color: "#a78bfa",
