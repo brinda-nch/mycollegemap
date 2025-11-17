@@ -3,9 +3,16 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import Stripe from "stripe"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-11-20.acacia",
-})
+// Lazy initialization to avoid build errors when key is missing
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) {
+    throw new Error("STRIPE_SECRET_KEY is not configured")
+  }
+  return new Stripe(key, {
+    apiVersion: "2024-11-20.acacia",
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,6 +38,9 @@ export async function POST(request: NextRequest) {
       successUrl: `${baseUrl}/dashboard?subscription=success`,
       cancelUrl: `${baseUrl}/pricing?canceled=true`
     })
+
+    // Initialize Stripe
+    const stripe = getStripe()
 
     // Create or retrieve Stripe customer
     const customer = await stripe.customers.create({

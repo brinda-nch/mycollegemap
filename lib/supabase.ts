@@ -19,9 +19,8 @@ if (process.env.NODE_ENV === 'development') {
 // Use anon key by default since it's safer and RLS is disabled
 const supabaseKey = supabaseAnonKey || supabaseServiceKey
 
-// Validate key format
-if (supabaseKey && supabaseKey !== 'demo_key') {
-  const keyPrefix = supabaseKey.substring(0, 7)
+// Validate key format (only in development, not during build)
+if (process.env.NODE_ENV === 'development' && supabaseKey && supabaseKey !== 'demo_key') {
   if (!supabaseKey.startsWith('eyJ') && !supabaseKey.startsWith('sb-')) {
     console.warn('⚠️ Supabase key format looks incorrect. Should start with "eyJ" (JWT) or "sb-"')
   }

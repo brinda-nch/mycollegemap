@@ -4,9 +4,16 @@ import { authOptions } from "@/lib/auth"
 import Stripe from "stripe"
 import { supabase } from "@/lib/supabase"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-11-20.acacia",
-})
+// Lazy initialization to avoid build errors when key is missing
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) {
+    throw new Error("STRIPE_SECRET_KEY is not configured")
+  }
+  return new Stripe(key, {
+    apiVersion: "2024-11-20.acacia",
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,6 +54,7 @@ export async function POST(request: NextRequest) {
     
     if (!customerId) {
       console.log('⚠️ No customer ID in database, searching Stripe by email...')
+      const stripe = getStripe()
       const customers = await stripe.customers.list({
         email: session.user.email,
         limit: 1
@@ -77,6 +85,7 @@ export async function POST(request: NextRequest) {
     console.log('🔗 Creating portal with return URL:', returnUrl)
 
     // Create Stripe Customer Portal session
+    const stripe = getStripe()
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: returnUrl,
