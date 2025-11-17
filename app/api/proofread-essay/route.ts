@@ -38,8 +38,11 @@ export async function POST(request: NextRequest) {
       format: apiKey.startsWith('sk-') ? 'Valid format' : '⚠️ Invalid format'
     })
 
-    // Initialize OpenAI client
-    const openai = new OpenAI({ apiKey })
+    // Initialize OpenAI client with timeout
+    const openai = new OpenAI({ 
+      apiKey,
+      timeout: 30000, // 30 second timeout
+    })
 
     // Count words
     const wordCount = essay.trim().split(/\s+/).filter((w: string) => w.length > 0).length
@@ -80,7 +83,6 @@ Respond ONLY with valid JSON in this exact format:
       response_format: { type: "json_object" },
       temperature: 0.3,
       max_tokens: 1500,
-      timeout: 30000, // 30 second timeout
     })
 
     const openaiDuration = Date.now() - openaiStartTime
