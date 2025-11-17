@@ -170,6 +170,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [honorsAwards, setHonorsAwards] = useState<HonorAward[]>([])
   const [essays, setEssays] = useState<Essay[]>([])
   const [collegeApplications, setCollegeApplications] = useState<CollegeApplication[]>([])
+  const [programsInternships, setProgramsInternships] = useState<ProgramInternship[]>([])
 
   // Helper function to get user-specific storage key
   const getUserStorageKey = (key: string) => {
