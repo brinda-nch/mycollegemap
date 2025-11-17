@@ -451,7 +451,7 @@ export default function MyProfilePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-bold mb-2" style={{ color: "#0f172a" }}>
-                      AI-Powered Profile Analysis
+                      Profile Analysis
                     </h3>
                     <p className="text-slate-600">
                       Get comprehensive analysis of your activities, honors, GPA, test scores, and essays to identify your academic spike, recommended majors, and strategic next steps.
@@ -499,7 +499,7 @@ export default function MyProfilePage() {
                         Your Academic Spike
                       </CardTitle>
                       <CardDescription className="text-base mt-1">
-                        AI-analyzed based on your complete profile
+                        Analyzed based on your complete profile
                       </CardDescription>
                     </div>
                   </div>
