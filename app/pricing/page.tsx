@@ -10,46 +10,18 @@ import { PlanSelectorModal } from "@/components/plan-selector-modal"
 
 const pricingPlans = [
   {
-    name: "Free",
-    price: "$0",
-    period: "forever",
-    description: "MyCollegeMap's free version gives you the essentials: organized tracking, progress monitoring, and easy updates to your application profile.",
-    features: [
-      "GPA Tracking",
-      "Application Tracking",
-      "Extra-Curricular & Awards Tracking",
-      "Test Score Tracking"
-    ],
-    color: "#64748b",
-    highlighted: false
-  },
-  {
     name: "Standard",
-    price: "$2.99",
-    period: "per month",
-    description: "Unlock your strongest application with the Standard Plan. It includes powerful features designed to give you the clarity, structure, and strategic edge that traditional counselors charge thousands for. If you're serious about standing out, this is where your journey starts.",
-    features: [
-      "Student Profile Generation (Spike Analysis)",
-      "Essay Proofreader",
-      "Activities and Awards Analyzer",
-      "Student Profile Examples"
-    ],
-    color: "#f89880",
-    highlighted: true
-  },
-  {
-    name: "Premium",
     price: "$5.99",
     period: "per month",
-    description: "The Premium Plan gives you the highest level of guidance MyCollegeMap offers. Gain exclusive access to insights from admissions officers, tools to shape a compelling application narrative, curated opportunities to strengthen your profile, and personalized major-matching support. Designed for students aiming for top-tier schools, the Premium experience delivers expert strategy, deeper personalization, and the kind of targeted advice usually found only through expensive private counselors.",
+    description: "The Standard Plan gives you the highest level of guidance MyCollegeMap offers. Gain exclusive access to insights from admissions officers, tools to shape a compelling application narrative, curated opportunities to strengthen your profile, and personalized major-matching support. Designed for students aiming for top-tier schools, the Standard experience delivers expert strategy, deeper personalization, and the kind of targeted advice usually found only through expensive private counselors.",
     features: [
       "Advice from Admissions Officers",
       "Application Narrative Tool",
       "Access Opportunities to Grow",
       "Find which major is best for you"
     ],
-    color: "#a78bfa",
-    highlighted: false
+    color: "#f89880",
+    highlighted: true
   }
 ]
 
@@ -119,7 +91,7 @@ export default function PricingPage() {
             <span style={{ color: '#f89880' }}>Pricing</span>
           </h1>
           <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-3xl mx-auto">
-            Choose the plan that fits your college journey. All plans include unlimited updates and access to your profile anytime.
+            Choose the plan that fits your college journey. Plan includes unlimited updates and access to your profile anytime.
           </p>
         </motion.div>
       </section>
@@ -127,7 +99,7 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <section className="pb-20 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-1 gap-8 max-w-2xl mx-auto">
             {pricingPlans.map((plan, index) => (
               <motion.div
                 key={index}
@@ -220,7 +192,7 @@ export default function PricingPage() {
           transition={{ duration: 0.7 }}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#0f172a' }}>
-            All plans include
+            Plan includes
           </h2>
           <div className="grid md:grid-cols-3 gap-8 mt-12">
             {[
@@ -257,7 +229,7 @@ export default function PricingPage() {
             transition={{ duration: 0.7 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#0f172a' }}>
-              MyCollegeMap Premium vs
+              MyCollegeMap Standard vs
               <br />
               <span style={{ color: '#f89880' }}>Traditional College Counseling</span>
             </h2>
@@ -366,10 +338,10 @@ export default function PricingPage() {
               </div>
             </motion.div>
 
-            {/* MyCollegeMap Premium */}
+            {/* MyCollegeMap Standard */}
             <motion.div
               className="rounded-3xl border-4 overflow-hidden shadow-2xl relative"
-              style={{ borderColor: '#a78bfa' }}
+              style={{ borderColor: '#f89880' }}
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -380,72 +352,72 @@ export default function PricingPage() {
                 98% Savings
               </div>
 
-              <div className="text-white py-6 px-8 text-center" style={{ backgroundColor: '#a78bfa' }}>
-                <h3 className="text-2xl font-bold mb-2">MyCollegeMap Premium</h3>
+              <div className="text-white py-6 px-8 text-center" style={{ backgroundColor: '#f89880' }}>
+                <h3 className="text-2xl font-bold mb-2">MyCollegeMap Standard</h3>
                 <div className="text-5xl font-bold mb-2">$5.99</div>
-                <p className="text-purple-100 mb-2">per month</p>
-                <p className="text-sm text-purple-200">Only $71.88/year</p>
+                <p className="text-orange-100 mb-2">per month</p>
+                <p className="text-sm text-orange-200">Only $71.88/year</p>
               </div>
               
               <div className="p-8 bg-white">
                 <p className="font-semibold mb-6" style={{ color: '#0f172a' }}>Everything you need:</p>
                 <div className="space-y-3 text-sm text-slate-700">
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Strategic planning tools</strong> for course selection & activities</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Application tracking system</strong> with deadline management</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>College list builder</strong> with data-driven recommendations</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Profile generation & spike analysis</strong> to identify your unique strengths</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Activities optimizer</strong> with 150-char description help</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Essay proofreader</strong> with grammar & structure feedback</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Application narrative tool</strong> to craft your story</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Advice from admissions officers</strong> (insider tips)</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Major discovery tools</strong> aligned with your goals</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Summer program database</strong> & internship finder</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Student profile examples</strong> from successful applicants</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>24/7 access</strong> from any device</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#a78bfa' }} />
+                    <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#f89880' }} />
                     <span><strong>Unlimited updates</strong> throughout your journey</span>
                   </div>
                 </div>
 
-                <div className="mt-8 p-4 rounded-xl" style={{ backgroundColor: '#f3f0ff' }}>
-                  <p className="text-center font-bold text-lg mb-2" style={{ color: '#a78bfa' }}>
+                <div className="mt-8 p-4 rounded-xl" style={{ backgroundColor: '#fff5f2' }}>
+                  <p className="text-center font-bold text-lg mb-2" style={{ color: '#f89880' }}>
                     Save $3,928+ per year
                   </p>
                   <p className="text-center text-sm text-slate-700">
@@ -456,9 +428,9 @@ export default function PricingPage() {
                 <Link
                   href="/auth/signup"
                   className="block w-full mt-6 py-4 px-6 rounded-full text-center font-bold text-white transition-all hover:shadow-xl hover:scale-105"
-                  style={{ backgroundColor: '#a78bfa' }}
+                  style={{ backgroundColor: '#f89880' }}
                 >
-                  Start Premium Free Trial
+                  Start Standard Free Trial
                 </Link>
               </div>
             </motion.div>
