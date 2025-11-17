@@ -187,8 +187,16 @@ export default function EssaysPage() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to proofread essay")
+        let errorMessage = "Failed to proofread essay"
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
+        } catch (parseError) {
+          // If response is not JSON, try to get text
+          const textError = await response.text()
+          errorMessage = textError || `HTTP ${response.status}: ${response.statusText}`
+        }
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
@@ -200,14 +208,23 @@ export default function EssaysPage() {
         totalDuration: `${Date.now() - startTime}ms`
       })
 
+      if (!data.result) {
+        throw new Error("No result returned from proofreading API")
+      }
+
       setProofreadResults(data.result)
       setShowProofreadPanel(true)
     } catch (error: any) {
       console.error('❌ [PROOFREADER UI] Error:', {
         error: error.message,
-        duration: `${Date.now() - startTime}ms`
+        errorName: error.name,
+        duration: `${Date.now() - startTime}ms`,
+        stack: error.stack
       })
-      alert(`Proofreading failed: ${error.message}`)
+      
+      // Show more detailed error message
+      const errorMessage = error.message || "Failed to proofread essay. Please try again."
+      alert(`Proofreading failed: ${errorMessage}`)
     } finally {
       setIsProofreading(false)
     }
