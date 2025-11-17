@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,7 @@ import {
   X,
 } from "lucide-react"
 import { useData } from "@/lib/data-context"
+import { FeatureGate } from "@/components/feature-gate"
 import {
   Dialog,
   DialogContent,
@@ -37,7 +39,19 @@ import {
 } from "@/components/ui/dialog"
 
 export default function EssaysPage() {
+  const { data: session } = useSession()
   const { essays, addEssay, deleteEssay, updateEssay } = useData()
+
+  // If no session, show loading
+  if (!session?.user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  const userId = (session.user as any).id
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -49,6 +63,11 @@ export default function EssaysPage() {
   const [editorContent, setEditorContent] = useState("")
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [canClose, setCanClose] = useState(false)
+  
+  // Proofreading state
+  const [isProofreading, setIsProofreading] = useState(false)
+  const [proofreadResults, setProofreadResults] = useState<any>(null)
+  const [showProofreadPanel, setShowProofreadPanel] = useState(false)
   
   // New essay form state
   const [newEssay, setNewEssay] = useState({
@@ -123,6 +142,74 @@ export default function EssaysPage() {
       setCurrentEssay(null)
       setEditorContent("")
       setCanClose(false)
+      setProofreadResults(null)
+      setShowProofreadPanel(false)
+    }
+  }
+
+  const handleProofread = async () => {
+    if (!editorContent || editorContent.trim().length === 0) {
+      alert("Please write some content before proofreading.")
+      return
+    }
+
+    setIsProofreading(true)
+    setProofreadResults(null)
+
+    const startTime = Date.now()
+    console.log('📝 [PROOFREADER UI] Starting proofreading...', {
+      contentLength: editorContent.length,
+      wordLimit: currentEssay?.wordCount,
+      timestamp: new Date().toISOString()
+    })
+
+    try {
+      console.log('📤 [PROOFREADER UI] Sending request to API...')
+      const fetchStartTime = Date.now()
+
+      const response = await fetch("/api/proofread-essay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          essay: editorContent,
+          wordLimit: currentEssay?.wordCount || null,
+        }),
+      })
+
+      const fetchDuration = Date.now() - fetchStartTime
+      console.log('📥 [PROOFREADER UI] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        duration: `${fetchDuration}ms`,
+        ok: response.ok
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to proofread essay")
+      }
+
+      const data = await response.json()
+      
+      console.log('✅ [PROOFREADER UI] Proofreading successful:', {
+        hasResult: !!data.result,
+        issuesCount: data.result?.issues?.length || 0,
+        overallScore: data.result?.overallScore,
+        totalDuration: `${Date.now() - startTime}ms`
+      })
+
+      setProofreadResults(data.result)
+      setShowProofreadPanel(true)
+    } catch (error: any) {
+      console.error('❌ [PROOFREADER UI] Error:', {
+        error: error.message,
+        duration: `${Date.now() - startTime}ms`
+      })
+      alert(`Proofreading failed: ${error.message}`)
+    } finally {
+      setIsProofreading(false)
     }
   }
 
@@ -184,7 +271,8 @@ export default function EssaysPage() {
   const totalWords = essays.reduce((sum, e) => sum + (getWordCount(e.content || "")), 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
+    <FeatureGate userId={userId} featureName="Essay Proofreader">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-6">
@@ -637,6 +725,24 @@ export default function EssaysPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Button
+                    onClick={handleProofread}
+                    disabled={isProofreading || !editorContent || editorContent.trim().length === 0}
+                    className="h-10 rounded-xl px-6 text-white font-semibold"
+                    style={{ backgroundColor: "#a78bfa" }}
+                  >
+                    {isProofreading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Proofreading...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Proofread
+                      </>
+                    )}
+                  </Button>
+                  <Button
                     onClick={handleDiscardChanges}
                     variant="outline"
                     className="h-10 rounded-xl px-6 border-2"
@@ -772,10 +878,169 @@ export default function EssaysPage() {
                   </span>
                 </p>
               </div>
+
+              {/* Proofreading Results */}
+              {showProofreadPanel && proofreadResults && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="mt-8"
+                >
+                  <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-2xl font-bold flex items-center gap-3" style={{ color: "#0f172a" }}>
+                          <Sparkles className="h-6 w-6" style={{ color: "#a78bfa" }} />
+                          Proofreading Results
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowProofreadPanel(false)}
+                          className="h-8 w-8"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <CardDescription>
+                        AI-powered feedback on grammar, style, and college essay best practices
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {/* Overall Score */}
+                      <div className="flex items-center gap-4 p-4 rounded-xl bg-white border-2 border-purple-200">
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-600 mb-1">Overall Score</p>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-bold" style={{ color: "#a78bfa" }}>
+                              {proofreadResults.overallScore}
+                            </span>
+                            <span className="text-xl text-gray-500">/100</span>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-600 mb-1">Word Count</p>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold text-gray-800">
+                              {proofreadResults.wordCount}
+                            </span>
+                            {currentEssay.wordCount && (
+                              <span className="text-sm text-gray-500">/ {currentEssay.wordCount}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-600 mb-1">Tone</p>
+                          <Badge 
+                            className={`text-sm ${
+                              proofreadResults.tone === 'authentic' 
+                                ? 'bg-green-100 text-green-800 border-green-300'
+                                : proofreadResults.tone === 'generic'
+                                ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                                : 'bg-blue-100 text-blue-800 border-blue-300'
+                            }`}
+                          >
+                            {proofreadResults.tone}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Summary */}
+                      {proofreadResults.summary && (
+                        <div className="p-4 rounded-xl bg-white border-2 border-gray-200">
+                          <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <BookOpen className="h-4 w-4" />
+                            Summary
+                          </h3>
+                          <p className="text-gray-800">{proofreadResults.summary}</p>
+                        </div>
+                      )}
+
+                      {/* Issues Found */}
+                      {proofreadResults.issues && proofreadResults.issues.length > 0 && (
+                        <div className="p-4 rounded-xl bg-white border-2 border-orange-200">
+                          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <AlignLeft className="h-4 w-4" />
+                            Issues Found ({proofreadResults.issues.length})
+                          </h3>
+                          <div className="space-y-3">
+                            {proofreadResults.issues.map((issue: any, index: number) => (
+                              <div key={index} className="p-3 rounded-lg bg-orange-50 border border-orange-200">
+                                <div className="flex items-start justify-between mb-2">
+                                  <Badge 
+                                    className={`text-xs ${
+                                      issue.type === 'grammar' 
+                                        ? 'bg-red-100 text-red-800 border-red-300'
+                                        : issue.type === 'style'
+                                        ? 'bg-blue-100 text-blue-800 border-blue-300'
+                                        : 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                                    }`}
+                                  >
+                                    {issue.type}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-gray-700 mb-2">
+                                  <span className="font-medium">Found: </span>
+                                  <span className="line-through text-red-600">"{issue.text}"</span>
+                                </p>
+                                <p className="text-sm text-gray-700 mb-2">
+                                  <span className="font-medium">Suggestion: </span>
+                                  <span className="text-green-600 font-medium">"{issue.suggestion}"</span>
+                                </p>
+                                <p className="text-xs text-gray-600 italic">
+                                  {issue.explanation}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Strengths */}
+                      {proofreadResults.strengths && proofreadResults.strengths.length > 0 && (
+                        <div className="p-4 rounded-xl bg-white border-2 border-green-200">
+                          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            Strengths
+                          </h3>
+                          <ul className="space-y-2">
+                            {proofreadResults.strengths.map((strength: string, index: number) => (
+                              <li key={index} className="flex items-start gap-2 text-sm text-gray-800">
+                                <span className="text-green-600 mt-0.5">✓</span>
+                                <span>{strength}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Improvements */}
+                      {proofreadResults.improvements && proofreadResults.improvements.length > 0 && (
+                        <div className="p-4 rounded-xl bg-white border-2 border-blue-200">
+                          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4 text-blue-600" />
+                            Suggested Improvements
+                          </h3>
+                          <ul className="space-y-2">
+                            {proofreadResults.improvements.map((improvement: string, index: number) => (
+                              <li key={index} className="flex items-start gap-2 text-sm text-gray-800">
+                                <span className="text-blue-600 mt-0.5">→</span>
+                                <span>{improvement}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </FeatureGate>
   )
 }

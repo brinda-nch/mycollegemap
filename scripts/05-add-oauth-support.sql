@@ -14,3 +14,4 @@ CREATE INDEX IF NOT EXISTS idx_users_oauth_id ON users(oauth_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oauth_unique ON users(oauth_provider, oauth_id) WHERE oauth_provider IS NOT NULL;
 
 
+

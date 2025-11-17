@@ -370,3 +370,4 @@ GOOGLE_CLIENT_SECRET=your-secret
 **Your trial system is complete and ready to use!** 🚀
 
 
+

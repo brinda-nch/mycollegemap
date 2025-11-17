@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Plus, Trophy, Award, Trash2, Edit, Clock, Users, BookOpen, Sparkles, Target, FileText } from "lucide-react"
 import { useData } from "@/lib/data-context"
+import { FeatureGate } from "@/components/feature-gate"
 import {
   Dialog,
   DialogContent,
@@ -23,6 +25,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export default function ExtracurricularsPage() {
+  const { data: session } = useSession()
   const { activities, addActivity, deleteActivity, updateActivity, honorsAwards, addHonorAward, deleteHonorAward, updateHonorAward } = useData()
 
   const [activeTab, setActiveTab] = useState<"activities" | "honors" | "analyzer">("activities")
@@ -940,8 +943,9 @@ export default function ExtracurricularsPage() {
       </Dialog>
 
       {/* Analyzer Tab */}
-      {activeTab === "analyzer" && (
-        <div className="space-y-6">
+      {activeTab === "analyzer" && session?.user?.id && (
+        <FeatureGate userId={session.user.id} featureName="Activities & Essays Analyzer">
+          <div className="space-y-6">
           <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
             <CardHeader>
               <CardTitle className="text-2xl font-bold flex items-center gap-3" style={{ color: "#0f172a" }}>
@@ -1112,7 +1116,8 @@ export default function ExtracurricularsPage() {
               )}
             </CardContent>
           </Card>
-        </div>
+          </div>
+        </FeatureGate>
       )}
     </div>
   )

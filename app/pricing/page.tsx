@@ -1,8 +1,12 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Check } from "lucide-react"
+import { PlanSelectorModal } from "@/components/plan-selector-modal"
 
 const pricingPlans = [
   {
@@ -50,6 +54,16 @@ const pricingPlans = [
 ]
 
 export default function PricingPage() {
+  const { data: session } = useSession()
+  const searchParams = useSearchParams()
+  const isTrialExpired = searchParams?.get('expired') === 'true'
+
+  // If user is logged in, show plan selector instead
+  if (session?.user?.id) {
+    return <PlanSelectorModal userId={session.user.id} isTrialExpired={isTrialExpired} />
+  }
+
+  // Otherwise show marketing page for non-logged-in users
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-100 via-orange-50 to-blue-100">
       {/* Navigation */}

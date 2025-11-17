@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AlertCircle, Clock, X } from "lucide-react"
-import { getUserTrialStatus, type TrialStatus, getTrialMessage } from "@/lib/trial-utils"
+import { type TrialStatus, getTrialMessage } from "@/lib/trial-utils"
 
 interface TrialBannerProps {
   userId: string
@@ -18,18 +18,27 @@ export function TrialBanner({ userId, onDismiss }: TrialBannerProps) {
 
   useEffect(() => {
     async function checkTrialStatus() {
-      const status = await getUserTrialStatus(userId)
-      if (status) {
-        setTrialStatus(status)
-        
-        // Show banner if:
-        // 1. Trial is expiring soon (3 days or less)
-        // 2. Trial has expired and no plan selected
-        const shouldShow = (
-          (status.isTrialing && status.daysRemaining <= 3) ||
-          status.needsPlanSelection
-        )
-        setIsVisible(shouldShow && !isDismissed)
+      try {
+        const response = await fetch('/api/trial/status')
+        if (!response.ok) {
+          console.error('Failed to fetch trial status:', response.status)
+          return
+        }
+        const { status } = await response.json()
+        if (status) {
+          setTrialStatus(status)
+          
+          // Show banner if:
+          // 1. Trial is expiring soon (3 days or less)
+          // 2. Trial has expired and no plan selected
+          const shouldShow = (
+            (status.isTrialing && status.daysRemaining <= 3) ||
+            status.needsPlanSelection
+          )
+          setIsVisible(shouldShow && !isDismissed)
+        }
+      } catch (error) {
+        console.error('Error checking trial status:', error)
       }
     }
 
@@ -170,5 +179,6 @@ export function TrialCountdown({ userId }: { userId: string }) {
     </div>
   )
 }
+
 
 
