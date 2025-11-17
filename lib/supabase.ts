@@ -1,16 +1,40 @@
 import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://demo.supabase.co"
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "demo_key"
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "demo_key"
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+// Log which key we're using (for debugging - remove in production)
+if (process.env.NODE_ENV === 'development') {
+  console.log('🔑 Supabase Config:', {
+    url: supabaseUrl?.substring(0, 30) + '...',
+    hasAnonKey: !!supabaseAnonKey && supabaseAnonKey !== 'demo_key',
+    hasServiceKey: !!supabaseServiceKey,
+    usingKey: supabaseServiceKey ? 'SERVICE_ROLE' : 'ANON'
+  })
+}
+
+// For server-side operations, prefer service role key (bypasses RLS)
+// But since RLS is disabled, anon key should work fine
+// Use anon key by default since it's safer and RLS is disabled
+const supabaseKey = supabaseAnonKey || supabaseServiceKey
+
+// Validate key format
+if (supabaseKey && supabaseKey !== 'demo_key') {
+  const keyPrefix = supabaseKey.substring(0, 7)
+  if (!supabaseKey.startsWith('eyJ') && !supabaseKey.startsWith('sb-')) {
+    console.warn('⚠️ Supabase key format looks incorrect. Should start with "eyJ" (JWT) or "sb-"')
+  }
+}
 
 // Check if we're using demo credentials or no credentials are set
 const isDemo = supabaseUrl === "https://demo.supabase.co" || 
-               supabaseServiceKey === "demo_key" || 
+               supabaseKey === "demo_key" || 
                !supabaseUrl || 
-               !supabaseServiceKey
+               !supabaseKey
 
-if (!isDemo && (!supabaseUrl || !supabaseServiceKey)) {
-  throw new Error("Missing Supabase environment variables")
+if (!isDemo && (!supabaseUrl || !supabaseKey)) {
+  console.warn("Missing Supabase environment variables - using anon key")
 }
 
 // Validate URL format only for real URLs
@@ -22,7 +46,7 @@ if (!isDemo) {
   }
 }
 
-export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false,

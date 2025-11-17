@@ -6,7 +6,10 @@ import { UserCircle, Sparkles, Trophy, Award, Target, Lightbulb, BookOpen, Trend
 import { motion } from "framer-motion"
 import { useData } from "@/lib/data-context"
 import { useSession } from "next-auth/react"
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+// Trial status is fetched via API route
+import { Settings, CreditCard } from "lucide-react"
 
 interface SpikeAnalysis {
   primarySpike: {
@@ -72,6 +75,56 @@ const CATEGORY_TO_MAJORS: Record<string, Array<{ major: string; icon: any }>> = 
 export default function MyProfilePage() {
   const { data: session } = useSession()
   const { activities, honorsAwards } = useData()
+  const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null)
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false)
+
+  useEffect(() => {
+    async function fetchStatus() {
+      if (session?.user) {
+        try {
+          const response = await fetch('/api/trial/status')
+          if (response.ok) {
+            const { status } = await response.json()
+            setSubscriptionStatus(status)
+          }
+        } catch (error) {
+          console.error('Error fetching subscription status:', error)
+        }
+      }
+    }
+    fetchStatus()
+  }, [session])
+
+  const handleManageSubscription = async () => {
+    setIsLoadingPortal(true)
+    try {
+      console.log('🔄 Opening subscription portal...')
+      const response = await fetch("/api/stripe/create-portal", {
+        method: "POST",
+      })
+
+      console.log('📥 Portal response:', { status: response.status, ok: response.ok })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('❌ Portal error:', errorData)
+        throw new Error(errorData.error || "Failed to open subscription portal")
+      }
+
+      const { url } = await response.json()
+      console.log('✅ Portal URL received, redirecting...', url)
+      
+      if (url) {
+        window.location.href = url
+      } else {
+        throw new Error("No portal URL received")
+      }
+    } catch (error: any) {
+      console.error('❌ Error opening portal:', error)
+      alert(`Error: ${error.message || 'Failed to open subscription portal. Please make sure you have an active subscription.'}`)
+      setIsLoadingPortal(false)
+    }
+  }
 
   // Analyze student's spike
   const analysis: SpikeAnalysis = useMemo(() => {
@@ -280,6 +333,70 @@ export default function MyProfilePage() {
             Your personalized academic profile and recommendations
           </p>
         </motion.div>
+
+        {/* Subscription Management */}
+        {subscriptionStatus && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mb-8"
+          >
+            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-6 w-6" style={{ color: "#f89880" }} />
+                    <div>
+                      <CardTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                        Subscription
+                      </CardTitle>
+                      <CardDescription>
+                        {subscriptionStatus.subscriptionTier === 'standard' 
+                          ? 'MyCollegeMap Standard - Active'
+                          : subscriptionStatus.isTrialing
+                          ? `${subscriptionStatus.daysRemaining} days left in your free trial`
+                          : 'Trial expired - Subscribe to continue'}
+                      </CardDescription>
+                    </div>
+                  </div>
+                  {subscriptionStatus.subscriptionTier === 'standard' && (
+                    <Button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        console.log('🔘 Button clicked!', { isLoadingPortal, subscriptionStatus })
+                        handleManageSubscription()
+                      }}
+                      disabled={isLoadingPortal}
+                      className="flex items-center gap-2 cursor-pointer"
+                      style={{ backgroundColor: isLoadingPortal ? "#ccc" : "#f89880" }}
+                    >
+                      {isLoadingPortal ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          <Settings className="h-4 w-4" />
+                          Manage Subscription
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              {subscriptionStatus.subscriptionTier === 'standard' && (
+                <CardContent>
+                  <p className="text-sm text-slate-600">
+                    Manage your subscription, update payment methods, view invoices, or cancel anytime.
+                  </p>
+                </CardContent>
+              )}
+            </Card>
+          </motion.div>
+        )}
 
         {!analysis.primarySpike ? (
           // Empty state

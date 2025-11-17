@@ -1,17 +1,51 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { GraduationCap, BookOpen, Trophy, FileText, Target, TrendingUp, Calendar, Award, ArrowRight, Sparkles, BarChart3, CheckCircle2, Clock } from "lucide-react"
+import { GraduationCap, BookOpen, Trophy, FileText, Target, TrendingUp, Calendar, Award, ArrowRight, Sparkles, BarChart3, CheckCircle2, Clock, X, CheckCircle } from "lucide-react"
 import { useData } from "@/lib/data-context"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function DashboardPage() {
   const { data: session } = useSession()
   const { getDashboardStats, getRecentActivities, getUpcomingDeadlines, gpaEntries, testScores, activities, essays, collegeApplications } = useData()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false)
+  const [bannerMessage, setBannerMessage] = useState<{ title: string; message: string } | null>(null)
+
+  useEffect(() => {
+    const subscriptionParam = searchParams?.get('subscription')
+    
+    if (subscriptionParam === 'success') {
+      setBannerMessage({
+        title: '🎉 Subscription Activated!',
+        message: 'Welcome to MyCollegeMap Standard. You now have full access to all features!'
+      })
+      setShowSuccessBanner(true)
+      // Remove query param from URL
+      router.replace('/dashboard', { scroll: false })
+      // Hide banner after 5 seconds
+      const timer = setTimeout(() => setShowSuccessBanner(false), 5000)
+      return () => clearTimeout(timer)
+    } else if (subscriptionParam === 'updated') {
+      setBannerMessage({
+        title: '✅ Subscription Updated',
+        message: 'Your subscription changes have been saved. Your access will update accordingly.'
+      })
+      setShowSuccessBanner(true)
+      // Remove query param from URL
+      router.replace('/dashboard', { scroll: false })
+      // Hide banner after 5 seconds
+      const timer = setTimeout(() => setShowSuccessBanner(false), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [searchParams, router])
 
   const dashboardStats = getDashboardStats()
   
@@ -82,6 +116,36 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
+      {/* Success Banner */}
+      <AnimatePresence>
+        {showSuccessBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg"
+          >
+            <div className="container mx-auto px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-6 w-6" />
+                  <div>
+                    <p className="font-bold text-lg">{bannerMessage?.title || '🎉 Subscription Activated!'}</p>
+                    <p className="text-sm text-green-100">{bannerMessage?.message || 'Welcome to MyCollegeMap Standard. You now have full access to all features!'}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowSuccessBanner(false)}
+                  className="hover:bg-white/20 rounded-full p-1 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-[#f89880] to-[#60a5fa] text-white">
         <div className="container mx-auto px-6 py-12">
