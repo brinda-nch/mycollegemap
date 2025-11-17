@@ -25,8 +25,10 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
+  ArrowLeft,
 } from "lucide-react"
 import { useData } from "@/lib/data-context"
+import Link from "next/link"
 import {
   Dialog,
   DialogContent,
@@ -308,6 +310,13 @@ export default function ApplicationTrackingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 transition-colors group"
+            >
+              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">Back to Dashboard</span>
+            </Link>
             <h1 className="text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
               Application Tracking
             </h1>

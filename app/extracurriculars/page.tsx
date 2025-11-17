@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Trophy, Award, Trash2, Edit, Clock, Users, BookOpen, Sparkles, Target, FileText, BookMarked } from "lucide-react"
+import { Plus, Trophy, Award, Trash2, Edit, Clock, Users, BookOpen, Sparkles, Target, FileText, BookMarked, ArrowLeft } from "lucide-react"
 import { useData } from "@/lib/data-context"
+import Link from "next/link"
 import { FeatureGate } from "@/components/feature-gate"
 import {
   Dialog,
@@ -291,6 +292,13 @@ export default function ExtracurricularsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 transition-colors group"
+            >
+              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">Back to Dashboard</span>
+            </Link>
             <h1 className="text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
               Extracurriculars
             </h1>

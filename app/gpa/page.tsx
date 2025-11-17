@@ -18,8 +18,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, TrendingUp, TrendingDown, BarChart3, Calculator, Trash2, Award, Target, Sparkles, ChevronRight, Pencil, FileText, Trophy, BookOpen } from "lucide-react"
+import { Plus, TrendingUp, TrendingDown, BarChart3, Calculator, Trash2, Award, Target, Sparkles, ChevronRight, Pencil, FileText, Trophy, BookOpen, ArrowLeft } from "lucide-react"
 import { useData } from "@/lib/data-context"
+import Link from "next/link"
 
 export default function AcademicsPage() {
   const { 
@@ -224,6 +225,13 @@ export default function AcademicsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 transition-colors group"
+            >
+              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">Back to Dashboard</span>
+            </Link>
             <h1 className="text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
               Academics
             </h1>
