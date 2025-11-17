@@ -151,10 +151,11 @@ interface DataContextType {
     type: string
   }>
   getUpcomingDeadlines: () => Array<{
-    college: string
+    name: string
     deadline: string
     type: string
     status: string
+    category: 'college' | 'program'
   }>
 }
 
@@ -730,10 +731,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const getUpcomingDeadlines = () => {
     const now = new Date()
+    const deadlines: Array<{
+      name: string
+      deadline: string
+      type: string
+      status: string
+      category: 'college' | 'program'
+      daysUntil: number
+    }> = []
     
-    return collegeApplications
-      .filter(app => app.deadline) // Only apps with deadlines
-      .map(app => {
+    // Add college application deadlines
+    collegeApplications
+      .filter(app => app.deadline)
+      .forEach(app => {
         const deadlineDate = new Date(app.deadline!)
         const daysUntil = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
         
@@ -746,16 +756,46 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           status = 'soon'
         }
 
-        return {
-          college: app.collegeName,
+        deadlines.push({
+          name: app.collegeName,
           deadline: formatDeadline(app.deadline!),
           type: app.applicationType || "Regular Decision",
           status: status,
+          category: 'college',
           daysUntil: daysUntil
-        }
+        })
       })
+
+    // Add program/internship deadlines
+    programsInternships
+      .filter(program => program.deadline)
+      .forEach(program => {
+        const deadlineDate = new Date(program.deadline!)
+        const daysUntil = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        
+        let status = 'upcoming'
+        if (daysUntil < 0) {
+          status = 'overdue'
+        } else if (daysUntil <= 7) {
+          status = 'urgent'
+        } else if (daysUntil <= 30) {
+          status = 'soon'
+        }
+
+        deadlines.push({
+          name: program.title,
+          deadline: formatDeadline(program.deadline!),
+          type: "Program/Internship",
+          status: status,
+          category: 'program',
+          daysUntil: daysUntil
+        })
+      })
+    
+    return deadlines
       .sort((a, b) => a.daysUntil - b.daysUntil) // Sort by closest deadline first
       .slice(0, 5)
+      .map(({ daysUntil, ...rest }) => rest) // Remove daysUntil from final output
   }
 
   // Helper function to format time ago

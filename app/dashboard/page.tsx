@@ -339,7 +339,19 @@ export default function DashboardPage() {
                         className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors"
                       >
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-gray-900">{deadline.college}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-sm font-semibold text-gray-900">{deadline.name}</p>
+                            <Badge
+                              variant="outline"
+                              className={`text-xs ${
+                                deadline.category === 'college'
+                                  ? 'border-purple-300 text-purple-700 bg-purple-50'
+                                  : 'border-blue-300 text-blue-700 bg-blue-50'
+                              }`}
+                            >
+                              {deadline.category === 'college' ? 'College' : 'Program'}
+                            </Badge>
+                          </div>
                           <p className="text-xs text-gray-600">{deadline.type}</p>
                         </div>
                         <div className="text-right">
@@ -372,7 +384,7 @@ export default function DashboardPage() {
                   <div className="text-center py-8">
                     <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                     <p className="text-sm text-gray-600">No upcoming deadlines</p>
-                    <p className="text-xs text-gray-400 mt-1">Add college applications with deadlines to track them here</p>
+                    <p className="text-xs text-gray-400 mt-1">Add college applications or programs/internships with deadlines to track them here</p>
                   </div>
                 )}
               </CardContent>
