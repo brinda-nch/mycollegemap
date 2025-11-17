@@ -481,7 +481,7 @@ export default function MyProfilePage() {
           </motion.div>
         )}
 
-        {/* Display AI Analysis if available */}
+        {/* Display AI Analysis if available, otherwise show basic analysis or empty state */}
         {aiAnalysis ? (
           <div className="space-y-6">
             {/* Academic Spike */}
@@ -764,9 +764,7 @@ export default function MyProfilePage() {
               </motion.div>
             )}
           </div>
-        )}
-
-        {!analysis.primarySpike && !aiAnalysis ? (
+        ) : !analysis.primarySpike ? (
           // Empty state
           <motion.div
             initial={{ opacity: 0, y: 20 }}
