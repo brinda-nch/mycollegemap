@@ -87,6 +87,14 @@ export default function ApplicationTrackingPage() {
     updateTask,
     deleteTask,
     toggleTaskComplete,
+    programsInternships,
+    addProgramInternship,
+    deleteProgramInternship,
+    updateProgramInternship,
+    addTaskToProgram,
+    updateProgramTask,
+    deleteProgramTask,
+    toggleProgramTaskComplete,
   } = useData()
 
   const [activeTab, setActiveTab] = useState<"college" | "programs">("college")
@@ -97,6 +105,12 @@ export default function ApplicationTrackingPage() {
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false)
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null)
   const [expandedApplications, setExpandedApplications] = useState<Set<string>>(new Set())
+  
+  // Programs & Internships state
+  const [isAddProgramDialogOpen, setIsAddProgramDialogOpen] = useState(false)
+  const [isAddProgramTaskDialogOpen, setIsAddProgramTaskDialogOpen] = useState(false)
+  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null)
+  const [expandedPrograms, setExpandedPrograms] = useState<Set<string>>(new Set())
 
   // Add application form state
   const [newApplication, setNewApplication] = useState({
@@ -107,6 +121,21 @@ export default function ApplicationTrackingPage() {
 
   // Add task form state
   const [newTask, setNewTask] = useState({
+    title: "",
+    category: "essays" as const,
+    dueDate: "",
+    notes: "",
+  })
+
+  // Add program form state
+  const [newProgram, setNewProgram] = useState({
+    title: "",
+    deadline: "",
+    tuition: "",
+  })
+
+  // Add program task form state
+  const [newProgramTask, setNewProgramTask] = useState({
     title: "",
     category: "essays" as const,
     dueDate: "",
@@ -215,6 +244,58 @@ export default function ApplicationTrackingPage() {
       categories[task.category].push(task)
     })
     return categories
+  }
+
+  // Programs & Internships handlers
+  const handleAddProgram = () => {
+    if (!newProgram.title || !newProgram.deadline) return
+
+    addProgramInternship({
+      title: newProgram.title,
+      deadline: newProgram.deadline,
+      tuition: newProgram.tuition ? parseFloat(newProgram.tuition) : undefined,
+      status: "planning",
+      tasks: [],
+    })
+
+    setNewProgram({
+      title: "",
+      deadline: "",
+      tuition: "",
+    })
+    setIsAddProgramDialogOpen(false)
+  }
+
+  const handleAddProgramTask = () => {
+    if (!selectedProgramId || !newProgramTask.title) return
+
+    addTaskToProgram(selectedProgramId, {
+      title: newProgramTask.title,
+      category: newProgramTask.category,
+      completed: false,
+      dueDate: newProgramTask.dueDate || undefined,
+      notes: newProgramTask.notes || undefined,
+    })
+
+    setNewProgramTask({
+      title: "",
+      category: "essays",
+      dueDate: "",
+      notes: "",
+    })
+    setIsAddProgramTaskDialogOpen(false)
+  }
+
+  const toggleProgramExpanded = (programId: string) => {
+    setExpandedPrograms((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(programId)) {
+        newSet.delete(programId)
+      } else {
+        newSet.add(programId)
+      }
+      return newSet
+    })
   }
 
   return (
@@ -691,20 +772,394 @@ export default function ApplicationTrackingPage() {
         {/* Programs & Internships Tab */}
         {activeTab === "programs" && (
           <div>
-            <div className="text-center py-16">
-              <div
-                className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-6"
-                style={{ backgroundColor: "rgba(96, 165, 250, 0.1)" }}
-              >
-                <Target className="h-12 w-12" style={{ color: "#60a5fa" }} />
-              </div>
-              <h3 className="text-2xl font-bold mb-3" style={{ color: "#0f172a" }}>
-                Programs & Internships
-              </h3>
-              <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
-                Track your program and internship applications separately. Coming soon!
-              </p>
+            {/* Add Program Button */}
+            <div className="mb-6">
+              <Dialog open={isAddProgramDialogOpen} onOpenChange={setIsAddProgramDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    className="text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105"
+                    style={{ backgroundColor: "#60a5fa" }}
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Add Program or Internship
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                      Add Program or Internship
+                    </DialogTitle>
+                    <DialogDescription className="text-base">
+                      Enter the program title, deadline, and tuition information.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-6 py-4">
+                    {/* Program Title */}
+                    <div className="space-y-2">
+                      <Label htmlFor="program-title" className="text-sm font-medium">
+                        Program Title *
+                      </Label>
+                      <Input
+                        id="program-title"
+                        placeholder="e.g., MIT Summer Research Program"
+                        value={newProgram.title}
+                        onChange={(e) =>
+                          setNewProgram({ ...newProgram, title: e.target.value })
+                        }
+                        className="h-12 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Deadline */}
+                    <div className="space-y-2">
+                      <Label htmlFor="program-deadline" className="text-sm font-medium">
+                        Application Deadline *
+                      </Label>
+                      <Input
+                        id="program-deadline"
+                        type="date"
+                        value={newProgram.deadline}
+                        onChange={(e) =>
+                          setNewProgram({ ...newProgram, deadline: e.target.value })
+                        }
+                        className="h-12 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Tuition */}
+                    <div className="space-y-2">
+                      <Label htmlFor="program-tuition" className="text-sm font-medium">
+                        Tuition (Optional)
+                      </Label>
+                      <Input
+                        id="program-tuition"
+                        type="number"
+                        placeholder="e.g., 5000"
+                        value={newProgram.tuition}
+                        onChange={(e) =>
+                          setNewProgram({ ...newProgram, tuition: e.target.value })
+                        }
+                        className="h-12 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter className="gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsAddProgramDialogOpen(false)}
+                      className="h-12 rounded-xl px-6"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleAddProgram}
+                      disabled={!newProgram.title || !newProgram.deadline}
+                      className="h-12 rounded-xl px-6 text-white font-semibold"
+                      style={{ backgroundColor: "#60a5fa" }}
+                    >
+                      Add Program
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
+
+            {/* Programs List */}
+            {programsInternships.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+                  <CardContent className="text-center py-16">
+                    <div
+                      className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-6"
+                      style={{ backgroundColor: "rgba(96, 165, 250, 0.1)" }}
+                    >
+                      <Target className="h-12 w-12" style={{ color: "#60a5fa" }} />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-3" style={{ color: "#0f172a" }}>
+                      No Programs Yet
+                    </h3>
+                    <p className="text-lg text-slate-600 mb-8 max-w-md mx-auto">
+                      Start tracking your summer programs and internships by adding your first one.
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ) : (
+              <div className="space-y-6">
+                <AnimatePresence>
+                  {programsInternships.map((program, index) => {
+                    const isExpanded = expandedPrograms.has(program.id)
+                    const progress = getTaskProgress(program.tasks)
+                    const tasksByCategory = getTasksByCategory(program.tasks)
+                    const totalTasks = program.tasks?.length || 0
+                    const completedTasks = program.tasks?.filter((t) => t.completed).length || 0
+
+                    return (
+                      <motion.div
+                        key={program.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                      >
+                        <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-all">
+                          {/* Program Header */}
+                          <CardHeader
+                            className="cursor-pointer hover:bg-gray-50 transition-colors"
+                            onClick={() => toggleProgramExpanded(program.id)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <Target className="h-6 w-6" style={{ color: "#60a5fa" }} />
+                                  <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                                    {program.title}
+                                  </CardTitle>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-slate-600">
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="h-4 w-4" />
+                                    <span>
+                                      {program.deadline
+                                        ? new Date(program.deadline).toLocaleDateString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                            year: "numeric",
+                                          })
+                                        : "No deadline"}
+                                    </span>
+                                  </div>
+                                  {program.tuition && (
+                                    <div className="flex items-center gap-1">
+                                      <DollarSign className="h-4 w-4" />
+                                      <span>${program.tuition.toLocaleString()}</span>
+                                    </div>
+                                  )}
+                                  <span className="font-medium">
+                                    {completedTasks}/{totalTasks} tasks completed
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                  <div className="text-3xl font-bold mb-1" style={{ color: "#0f172a" }}>
+                                    {progress}%
+                                  </div>
+                                  <Progress value={progress} className="w-24 h-2" />
+                                </div>
+                                <Button variant="ghost" size="sm">
+                                  {isExpanded ? (
+                                    <ChevronUp className="h-5 w-5" />
+                                  ) : (
+                                    <ChevronDown className="h-5 w-5" />
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          </CardHeader>
+
+                          {/* Expanded Content - Task List */}
+                          {isExpanded && (
+                            <CardContent className="pt-0">
+                              <div className="space-y-6">
+                                {/* Add Task Button */}
+                                <div className="flex justify-between items-center border-t pt-4">
+                                  <Dialog
+                                    open={isAddProgramTaskDialogOpen && selectedProgramId === program.id}
+                                    onOpenChange={(open) => {
+                                      setIsAddProgramTaskDialogOpen(open)
+                                      if (open) setSelectedProgramId(program.id)
+                                    }}
+                                  >
+                                    <DialogTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-xl"
+                                        onClick={() => setSelectedProgramId(program.id)}
+                                      >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add Task
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                      <DialogHeader>
+                                        <DialogTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                                          Add Task
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                          Add a new task to track for this program.
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <div className="space-y-4 py-4">
+                                        <div className="space-y-2">
+                                          <Label htmlFor="program-task-title">Task Title *</Label>
+                                          <Input
+                                            id="program-task-title"
+                                            placeholder="e.g., Submit application form"
+                                            value={newProgramTask.title}
+                                            onChange={(e) => setNewProgramTask({ ...newProgramTask, title: e.target.value })}
+                                            className="h-12 rounded-xl"
+                                          />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                          <Label htmlFor="program-task-category">Category *</Label>
+                                          <Select
+                                            value={newProgramTask.category}
+                                            onValueChange={(value: any) =>
+                                              setNewProgramTask({ ...newProgramTask, category: value })
+                                            }
+                                          >
+                                            <SelectTrigger className="h-12 rounded-xl">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="essays">Essays</SelectItem>
+                                              <SelectItem value="letters">Letters of Recommendation</SelectItem>
+                                              <SelectItem value="transcripts">Transcripts</SelectItem>
+                                              <SelectItem value="tests">Test Scores</SelectItem>
+                                              <SelectItem value="application">Application Form</SelectItem>
+                                              <SelectItem value="financial">Financial Aid</SelectItem>
+                                              <SelectItem value="other">Other</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                          <Label htmlFor="program-task-due-date">Due Date (Optional)</Label>
+                                          <Input
+                                            id="program-task-due-date"
+                                            type="date"
+                                            value={newProgramTask.dueDate}
+                                            onChange={(e) => setNewProgramTask({ ...newProgramTask, dueDate: e.target.value })}
+                                            className="h-12 rounded-xl"
+                                          />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                          <Label htmlFor="program-task-notes">Notes (Optional)</Label>
+                                          <Input
+                                            id="program-task-notes"
+                                            placeholder="Any additional notes"
+                                            value={newProgramTask.notes}
+                                            onChange={(e) => setNewProgramTask({ ...newProgramTask, notes: e.target.value })}
+                                            className="h-12 rounded-xl"
+                                          />
+                                        </div>
+                                      </div>
+                                      <DialogFooter className="gap-3">
+                                        <Button
+                                          variant="outline"
+                                          onClick={() => setIsAddProgramTaskDialogOpen(false)}
+                                          className="h-12 rounded-xl px-6"
+                                        >
+                                          Cancel
+                                        </Button>
+                                        <Button
+                                          onClick={handleAddProgramTask}
+                                          disabled={!newProgramTask.title}
+                                          className="h-12 rounded-xl px-6 text-white font-semibold"
+                                          style={{ backgroundColor: "#60a5fa" }}
+                                        >
+                                          Add Task
+                                        </Button>
+                                      </DialogFooter>
+                                    </DialogContent>
+                                  </Dialog>
+
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => deleteProgramInternship(program.id)}
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete Program
+                                  </Button>
+                                </div>
+
+                                {/* Tasks by Category */}
+                                {totalTasks === 0 ? (
+                                  <div className="text-center py-8 text-gray-500">
+                                    <ClipboardList className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                                    <p>No tasks yet. Add your first task to get started!</p>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-6">
+                                    {Object.entries(tasksByCategory).map(([category, tasks]: [string, any[]]) => {
+                                      const Icon = categoryIcons[category as keyof typeof categoryIcons]
+                                      const label = categoryLabels[category as keyof typeof categoryLabels]
+
+                                      return (
+                                        <div key={category} className="space-y-3">
+                                          <div className="flex items-center gap-2 mb-3">
+                                            <Icon className="h-5 w-5" style={{ color: "#60a5fa" }} />
+                                            <h4 className="font-semibold text-lg" style={{ color: "#0f172a" }}>
+                                              {label}
+                                            </h4>
+                                          </div>
+
+                                          <div className="space-y-2 pl-7">
+                                            {tasks.map((task) => (
+                                              <div
+                                                key={task.id}
+                                                className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                              >
+                                                <Checkbox
+                                                  checked={task.completed}
+                                                  onCheckedChange={() =>
+                                                    toggleProgramTaskComplete(program.id, task.id)
+                                                  }
+                                                  className="mt-0.5"
+                                                />
+                                                <div className="flex-1">
+                                                  <p
+                                                    className={`font-medium ${
+                                                      task.completed ? "line-through text-gray-400" : ""
+                                                    }`}
+                                                  >
+                                                    {task.title}
+                                                  </p>
+                                                  {task.dueDate && (
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                      Due: {new Date(task.dueDate).toLocaleDateString()}
+                                                    </p>
+                                                  )}
+                                                  {task.notes && (
+                                                    <p className="text-sm text-gray-600 mt-1">{task.notes}</p>
+                                                  )}
+                                                </div>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  onClick={() => deleteProgramTask(program.id, task.id)}
+                                                  className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                >
+                                                  <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          )}
+                        </Card>
+                      </motion.div>
+                    )
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -76,6 +76,16 @@ export interface CollegeApplication {
   tasks?: ApplicationTask[]
 }
 
+export interface ProgramInternship {
+  id: string
+  title: string
+  deadline?: string
+  status: string
+  tuition?: number
+  notes?: string
+  tasks?: ApplicationTask[]
+}
+
 interface DataContextType {
   // GPA Data
   gpaEntries: GPAEntry[]
@@ -116,6 +126,16 @@ interface DataContextType {
   updateTask: (applicationId: string, taskId: string, task: Partial<ApplicationTask>) => void
   deleteTask: (applicationId: string, taskId: string) => void
   toggleTaskComplete: (applicationId: string, taskId: string) => void
+  
+  // Programs & Internships
+  programsInternships: ProgramInternship[]
+  addProgramInternship: (program: Omit<ProgramInternship, 'id'>) => void
+  updateProgramInternship: (id: string, program: Partial<ProgramInternship>) => void
+  deleteProgramInternship: (id: string) => void
+  addTaskToProgram: (programId: string, task: Omit<ApplicationTask, 'id'>) => void
+  updateProgramTask: (programId: string, taskId: string, task: Partial<ApplicationTask>) => void
+  deleteProgramTask: (programId: string, taskId: string) => void
+  toggleProgramTaskComplete: (programId: string, taskId: string) => void
   
   // Utility functions
   getDashboardStats: () => {
@@ -227,6 +247,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         const storedHonorsAwards = localStorage.getItem(getUserStorageKey('honorsAwards'))
         const storedEssays = localStorage.getItem(getUserStorageKey('essays'))
         const storedCollegeApplications = localStorage.getItem(getUserStorageKey('collegeApplications'))
+        const storedProgramsInternships = localStorage.getItem(getUserStorageKey('programsInternships'))
 
         setGpaEntries(storedGpa ? JSON.parse(storedGpa) : [])
         setTestScores(storedTestScores ? JSON.parse(storedTestScores) : [])
@@ -234,6 +255,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setHonorsAwards(storedHonorsAwards ? JSON.parse(storedHonorsAwards) : [])
         setEssays(storedEssays ? JSON.parse(storedEssays) : [])
         setCollegeApplications(storedCollegeApplications ? JSON.parse(storedCollegeApplications) : [])
+        setProgramsInternships(storedProgramsInternships ? JSON.parse(storedProgramsInternships) : [])
       } catch (error) {
         console.error('Error loading data from localStorage:', error)
         // If there's an error, start with empty arrays
@@ -243,6 +265,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setHonorsAwards([])
         setEssays([])
         setCollegeApplications([])
+        setProgramsInternships([])
       }
     }
     // If no session, keep data as is (empty arrays)
@@ -530,6 +553,114 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
+  // Programs & Internships functions
+  const addProgramInternship = (program: Omit<ProgramInternship, 'id'>) => {
+    const newProgram = { ...program, id: Date.now().toString() }
+    setProgramsInternships(prev => {
+      const updated = [...prev, newProgram]
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('programsInternships'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const updateProgramInternship = (id: string, program: Partial<ProgramInternship>) => {
+    setProgramsInternships(prev => {
+      const updated = prev.map(p => p.id === id ? { ...p, ...program } : p)
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('programsInternships'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const deleteProgramInternship = (id: string) => {
+    setProgramsInternships(prev => {
+      const updated = prev.filter(p => p.id !== id)
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('programsInternships'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const addTaskToProgram = (programId: string, task: Omit<ApplicationTask, 'id'>) => {
+    setProgramsInternships(prev => {
+      const updated = prev.map(program => {
+        if (program.id === programId) {
+          return {
+            ...program,
+            tasks: [...(program.tasks || []), { ...task, id: Date.now().toString() }]
+          }
+        }
+        return program
+      })
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('programsInternships'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const updateProgramTask = (programId: string, taskId: string, task: Partial<ApplicationTask>) => {
+    setProgramsInternships(prev => {
+      const updated = prev.map(program => {
+        if (program.id === programId) {
+          return {
+            ...program,
+            tasks: (program.tasks || []).map(t => 
+              t.id === taskId ? { ...t, ...task } : t
+            )
+          }
+        }
+        return program
+      })
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('programsInternships'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const deleteProgramTask = (programId: string, taskId: string) => {
+    setProgramsInternships(prev => {
+      const updated = prev.map(program => {
+        if (program.id === programId) {
+          return {
+            ...program,
+            tasks: (program.tasks || []).filter(t => t.id !== taskId)
+          }
+        }
+        return program
+      })
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('programsInternships'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const toggleProgramTaskComplete = (programId: string, taskId: string) => {
+    setProgramsInternships(prev => {
+      const updated = prev.map(program => {
+        if (program.id === programId) {
+          return {
+            ...program,
+            tasks: (program.tasks || []).map(t => 
+              t.id === taskId ? { ...t, completed: !t.completed } : t
+            )
+          }
+        }
+        return program
+      })
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('programsInternships'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
   // Dashboard utility functions
   const getDashboardStats = () => {
     const currentGPA = gpaEntries.length > 0 
@@ -678,6 +809,14 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     updateTask,
     deleteTask,
     toggleTaskComplete,
+    programsInternships,
+    addProgramInternship,
+    updateProgramInternship,
+    deleteProgramInternship,
+    addTaskToProgram,
+    updateProgramTask,
+    deleteProgramTask,
+    toggleProgramTaskComplete,
     getDashboardStats,
     getRecentActivities,
     getUpcomingDeadlines,
