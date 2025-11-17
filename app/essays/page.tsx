@@ -193,8 +193,12 @@ export default function EssaysPage() {
           errorMessage = errorData.error || errorMessage
         } catch (parseError) {
           // If response is not JSON, try to get text
-          const textError = await response.text()
-          errorMessage = textError || `HTTP ${response.status}: ${response.statusText}`
+          try {
+            const textError = await response.text()
+            errorMessage = textError || `HTTP ${response.status}: ${response.statusText}`
+          } catch (textError) {
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`
+          }
         }
         throw new Error(errorMessage)
       }
@@ -216,14 +220,37 @@ export default function EssaysPage() {
       setShowProofreadPanel(true)
     } catch (error: any) {
       console.error('❌ [PROOFREADER UI] Error:', {
-        error: error.message,
-        errorName: error.name,
+        error: error,
+        errorType: typeof error,
+        errorConstructor: error?.constructor?.name,
+        errorMessage: error?.message,
+        errorName: error?.name,
         duration: `${Date.now() - startTime}ms`,
-        stack: error.stack
+        stack: error?.stack
       })
       
-      // Show more detailed error message
-      const errorMessage = error.message || "Failed to proofread essay. Please try again."
+      // Handle different error types
+      let errorMessage = "Failed to proofread essay. Please try again."
+      
+      if (error instanceof Error) {
+        errorMessage = error.message || errorMessage
+      } else if (error?.message) {
+        errorMessage = error.message
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      } else if (error?.toString && typeof error.toString === 'function') {
+        const errorString = error.toString()
+        // Don't show "[object Event]" or "[object Object]"
+        if (!errorString.includes('[object')) {
+          errorMessage = errorString
+        }
+      }
+      
+      // Check for network errors
+      if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
+        errorMessage = "Network error: Could not connect to the server. Please check your internet connection."
+      }
+      
       alert(`Proofreading failed: ${errorMessage}`)
     } finally {
       setIsProofreading(false)
