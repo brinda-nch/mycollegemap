@@ -76,6 +76,11 @@ export default function ExtracurricularsPage() {
   const [analyzerResult, setAnalyzerResult] = useState<any>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
+  // Resources State
+  const [resourcesCategory, setResourcesCategory] = useState<"tips" | "programs">("tips")
+  const [programCategory, setProgramCategory] = useState<"medical" | "cs" | "business" | "stem" | "humanities">("medical")
+  const [programSearchQuery, setProgramSearchQuery] = useState("")
+
   const handleAddActivity = () => {
     if (!newActivity.name || !newActivity.category) return
 
@@ -1146,9 +1151,36 @@ export default function ExtracurricularsPage() {
               <CardDescription className="text-base">
                 Helpful resources and guides for building strong extracurricular profiles
               </CardDescription>
+              
+              {/* Sub-tabs for Tips vs Programs */}
+              <div className="flex gap-3 mt-4">
+                <Button
+                  variant={resourcesCategory === "tips" ? "default" : "outline"}
+                  onClick={() => setResourcesCategory("tips")}
+                  className="rounded-xl"
+                  style={{
+                    backgroundColor: resourcesCategory === "tips" ? "#34d399" : "transparent",
+                    color: resourcesCategory === "tips" ? "white" : "#0f172a",
+                  }}
+                >
+                  Tips & Guides
+                </Button>
+                <Button
+                  variant={resourcesCategory === "programs" ? "default" : "outline"}
+                  onClick={() => setResourcesCategory("programs")}
+                  className="rounded-xl"
+                  style={{
+                    backgroundColor: resourcesCategory === "programs" ? "#34d399" : "transparent",
+                    color: resourcesCategory === "programs" ? "white" : "#0f172a",
+                  }}
+                >
+                  Programs & Internships
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+              {resourcesCategory === "tips" && (
+                <div className="grid md:grid-cols-2 gap-6">
                 {/* Resource Card 1 */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -1313,10 +1345,558 @@ export default function ExtracurricularsPage() {
                   </Card>
                 </motion.div>
               </div>
+              )}
+
+              {resourcesCategory === "programs" && (
+                <div className="space-y-6">
+                  {/* Category Tabs */}
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      variant={programCategory === "medical" ? "default" : "outline"}
+                      onClick={() => setProgramCategory("medical")}
+                      className="rounded-xl"
+                      style={{
+                        backgroundColor: programCategory === "medical" ? "#ef4444" : "transparent",
+                        color: programCategory === "medical" ? "white" : "#0f172a",
+                      }}
+                    >
+                      Medical Programs
+                    </Button>
+                    <Button
+                      variant={programCategory === "cs" ? "default" : "outline"}
+                      onClick={() => setProgramCategory("cs")}
+                      className="rounded-xl"
+                      style={{
+                        backgroundColor: programCategory === "cs" ? "#3b82f6" : "transparent",
+                        color: programCategory === "cs" ? "white" : "#0f172a",
+                      }}
+                    >
+                      CS Programs
+                    </Button>
+                    <Button
+                      variant={programCategory === "business" ? "default" : "outline"}
+                      onClick={() => setProgramCategory("business")}
+                      className="rounded-xl"
+                      style={{
+                        backgroundColor: programCategory === "business" ? "#10b981" : "transparent",
+                        color: programCategory === "business" ? "white" : "#0f172a",
+                      }}
+                    >
+                      Business Programs
+                    </Button>
+                    <Button
+                      variant={programCategory === "stem" ? "default" : "outline"}
+                      onClick={() => setProgramCategory("stem")}
+                      className="rounded-xl"
+                      style={{
+                        backgroundColor: programCategory === "stem" ? "#8b5cf6" : "transparent",
+                        color: programCategory === "stem" ? "white" : "#0f172a",
+                      }}
+                    >
+                      General STEM Programs
+                    </Button>
+                    <Button
+                      variant={programCategory === "humanities" ? "default" : "outline"}
+                      onClick={() => setProgramCategory("humanities")}
+                      className="rounded-xl"
+                      style={{
+                        backgroundColor: programCategory === "humanities" ? "#f59e0b" : "transparent",
+                        color: programCategory === "humanities" ? "white" : "#0f172a",
+                      }}
+                    >
+                      Humanities Programs
+                    </Button>
+                  </div>
+
+                  {/* Search Bar */}
+                  <div className="space-y-2">
+                    <Label htmlFor="program-search" className="text-sm font-medium">
+                      Search Programs
+                    </Label>
+                    <Input
+                      id="program-search"
+                      placeholder="Search by program name, university, or keyword..."
+                      value={programSearchQuery}
+                      onChange={(e) => setProgramSearchQuery(e.target.value)}
+                      className="h-12 rounded-xl"
+                    />
+                  </div>
+
+                  {/* Programs List */}
+                  <div className="max-h-[600px] overflow-y-auto space-y-2">
+                    {(() => {
+                      const programs = programsData[programCategory] || []
+                      const filtered = programSearchQuery.trim()
+                        ? programs.filter((p) => p.toLowerCase().includes(programSearchQuery.toLowerCase()))
+                        : programs
+                      return filtered.map((program, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.01 }}
+                      >
+                        <Card className="bg-white border border-gray-200 hover:shadow-md transition-all">
+                          <CardContent className="p-4">
+                            <p className="font-medium text-gray-900">{program}</p>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                      ))
+                    })()}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
       )}
     </div>
   )
+}
+
+// Programs data organized by category
+const programsData: Record<string, string[]> = {
+  medical: [
+    "Stanford CSSEC Cardiothoracic Surgical Skills",
+    "Stanford CASP Clinical Anatomy",
+    "Stanford CNI-X Neuroscience Immersion",
+    "Stanford GRIPS Genomics Research",
+    "Stanford IFSS Shadow Program",
+    "Stanford PIPS Pediatrics Internship Program",
+    "Stanford SASI Stanford Anesthesia Summer Institute",
+    "Stanford STARS Reconstructive Surgery Internship",
+    "Stanford SIMR Medicine Summer Research Program",
+    "Stanford CSI Clinical Summer Internship",
+    "Stanford EXPLORE Biomedical Research Lectures",
+    "Stanford SMYSP Medical Youth Science Program",
+    "Stanford Medicine Art and Anatomy",
+    "Stanford SHVCA Tri-Valley Clinical Academy",
+    "Stanford Neuroscience Journal Club",
+    "Stanford HARRIS Neuroscience Internship",
+    "Harvard Project Success",
+    "Harvard Hinton Scholars",
+    "Harvard HPREP",
+    "NIH Summer Internship Program",
+    "NIH Research Experience Program",
+    "NIH Academic Internship",
+    "Stony Brook Biotechnology Lab Techniques",
+    "Stony Brook SARAS",
+    "MSK HOPP Cancer Center",
+    "OldWestBury ICaRE Summer Science",
+    "UNC Rural Medicine Summer Academy",
+    "Lebanon Valley Health & Biomedical Camp",
+    "UCSD OPTIMUS Research Internship",
+    "UCSD Medicine Program",
+    "UCD Medical and Health Programs",
+    "UCI Online Research Program",
+    "UCI Summer Surgery Program",
+    "UCI Summer Healthcare Experience",
+    "UCI MedAcademy",
+    "UCSF CURE Internship",
+    "UCSF Investigation and Training in Careers in Health",
+    "UCSF SEP Intern Program",
+    "UCSF Teen Wellness Connection",
+    "UCSF Teen Wellness Summit",
+    "UCSF Cellular Construction Workshop",
+    "UCSF HealthLink",
+    "Yale Discovery to Cure Program",
+    "UIUC SpHERES",
+    "UIUC POETS",
+    "UIUC GEnYuS",
+    "Northwestern Sci-High Program",
+    "Northwestern DHC Program",
+    "Northwestern Health Professions Program",
+    "Northwestern Kimberly Querrey Research",
+    "Northwestern NM GCM Grosvenor Program",
+    "Northwestern PRISM High School Program",
+    "UMich Virtual Computational Biology Research",
+    "UMich Computational Biology Research",
+    "UMich Biotechnology Sequencing (BTS) Camp",
+    "UTA Teen Med Camp",
+    "Columbia Pre-College Enrichment Program",
+    "Columbia BrainYac",
+    "IALR Biotechnology Intern",
+    "Hutch Cancer Center High School Internship Program",
+    "Children's Hospital Summer Camp",
+    "LAPS Summer Medical Career Program",
+    "UW NeuroScience Summer Program",
+    "UConn Research Apprentice Program",
+    "UArizona Med-Start Health Program",
+    "Jackson Laboratory Summer Student Program",
+    "SanfordHealth Research Scholars Program",
+    "NIH HiSTEP Scientific Training and Enrichment Program",
+    "NIH Student Intern Program",
+    "Monell Center Apprenticeship Program",
+    "MD Anderson High School Summer Program",
+    "Magee Womens Summer Internship Program",
+    "JBEI Summer Science Intensive",
+    "George Mason ASSIP Program",
+    "Children's Hospital Summer Child Health Internship",
+    "Cincinnati Org Biomedical Research Internship",
+    "Cincinnati Org Summer Internship",
+    "City of Hope Summer Student Academy",
+    "Coriell Summer Experience",
+    "Harvard CURE - Summer Only",
+    "Harvard YES for CURE",
+    "NYU Dentistry Saturday Academy",
+    "PSU PULSE",
+    "Rice NYLF Medicine & Health Care",
+    "Rice PATHS-UP Young Scholar",
+    "Georgetown Discover the Exciting World of Surgery",
+    "Georgetown Discover Nursing and Its Vital Role in Healthcare",
+    "Georgetown Start Your Journey in Medicine Here",
+    "Georgetown Begin Your Medical Research Journey",
+    "Georgetown The Cutting-Edge of Biological Discovery",
+    "Georgetown Discover How the Systems of the Body Work Together",
+    "Georgetown 3-Week Medical Academy",
+    "Georgetown Nursing Academy",
+    "Georgetown 1-Week Medical Academy",
+    "Barnard Health and Society Institute",
+    "UNLV Nurse Camp",
+    "Boston University CityLab Biotechnology SummerLab",
+    "UMass Trapped Ions and Photonics Research",
+    "UMass Host-Microbe Mutualism",
+    "UMass Advanced Bacteriophage Therapy – An Alternative to Antibiotics",
+    "UMass Using Zebrafish to Study Brain Development Internship",
+    "UMass Antimicrobial Drug Discovery",
+    "UMass How Cells Ensure Accurate Chromosome Segregation Internship",
+    "UMass Unveiling the Sugary Armor of Mycobacterial Cells",
+    "UHawaii Medical Program",
+    "Scripps Student Research Internships",
+    "Scripps Medical Student Research Internship Program",
+    "Tufts STEM + M Connect",
+    "UND Harper Research Cures Cancer Corps",
+    "Duke Dune Neuroscience Experience",
+    "Emory NextGen High School Internship",
+    "HYPOTHEkids New York Bioforce",
+    "Yale YCCI Exposures Program",
+    "UCSF Neuroscape Research Internship",
+    "Stanford CSI (Fall) Clinical Summer Internship",
+  ],
+  cs: [
+    "Stanford AIMI Artificial Intelligence Internship",
+    "Stanford AIMI Artificial Intelligence Bootcamp",
+    "Stanford AI4ALL Artificial Intelligence Bootcamp",
+    "SMASH Smash Academy",
+    "CSSI Google CS Summer Institute",
+    "Stony Brook Della Pietra HS Program",
+    "Stony Brook Computer Science and Informatics",
+    "Stony Brook IAS Computes",
+    "Stony Brook SYCCL",
+    "Girls Who Code Self-Paced Program",
+    "Lebanon Valley Computer & Data Science Camp",
+    "UCSD FinDS Summer Program",
+    "UMich Joy of Coding",
+    "UMich R Programming & Machine Learning Camp",
+    "Princeton AI4ALL Internship",
+    "UTAUS Computer Science Summer Academics",
+    "Microsoft Discovery Program",
+    "IALR Coding and Robotics Intern",
+    "CMU AI-Scholars Pre-College",
+    "CMU Computational Biology Pre-College",
+    "CMU CS Scholars Pre-College",
+    "CMU National High School Game Academy",
+    "NYU Coding for Game Design",
+    "NYU Program for Automation Robotics and Coding",
+    "NYU Machine Learning Program",
+    "NYU Computer Science for Cyber Security",
+    "UMD Trails AI",
+    "UMD CreateTech Camp",
+    "PSU Mark Cuban Foundation AI Bootcamp",
+    "UVA Introduction to Programming Python",
+    "Georgetown Explore Cyber Threats and Security",
+    "Georgetown Artificial Intelligence Academy",
+    "UNLV GenCyber Summer Camp",
+    "UNL Raikes School Summer Camp",
+    "UMass AI, Data & Ethics: Introduction to Public Interest Technology",
+    "UChicago SCUBA Summer Coding",
+    "Kode with Klossy Coding Program",
+  ],
+  business: [
+    "Stony Brook Youth Entrepreneurship",
+    "Babson Summer Study",
+    "Barnard Pre-College",
+    "Molloy Summer Academics",
+    "SUSQU Pre-College",
+    "UPENN Global Youth Program",
+    "UCB HAAS Business",
+    "LaunchX Ann Arbor Entrepreneurship",
+    "LaunchX Bay Area Entrepreneurship",
+    "UCLA Sports Business Academy",
+    "UCLA Media & Sports Academy",
+    "UCLA Digital Marketing Academy",
+    "UCLA Innovation in Music Academy",
+    "UCSD Business Immersion",
+    "UCSD Business Research",
+    "UCD Business and Technology Programs",
+    "PSU Finance Camp",
+    "PSU Teen Entrepreneurship Challenge",
+    "PSU Business Opportunities Summer Session",
+    "Lewis & Clark High School Programming",
+    "UVA McIntire Business Program",
+    "UW Madison Business Basics",
+    "UW Madison Junior Business Badgers",
+    "Georgetown Learn How Investors Create Wealth",
+    "Georgetown Learn How Entrepreneurs Identify and Solve Problems",
+    "Georgetown Business Academy",
+    "Georgetown Economics Policy Academy",
+    "Georgetown Entrepreneurship Academy",
+    "Georgetown Marketing & Personal Branding Academy",
+    "Georgetown Bridges to Social Justice Academy",
+    "Rutgers Network For Teaching Entrepreneurship",
+    "UHouston Business Summer Institutes",
+    "CLA High School Internship",
+  ],
+  stem: [
+    "MIT Internship Lincoln Laboratory",
+    "Fermilab TARGET Summer Internship",
+    "Fermilab TECHS Technician Education",
+    "Fermilab VALOR JROTC Program",
+    "Fermilab QuarkNet Summer Research Program",
+    "SAGE Science Accelerating Girls' Engagement",
+    "Oak Ridge NGSI Internship Program",
+    "Oak Ridge NGP Computing Program",
+    "Oak Ridge ARC Stem Academy",
+    "SAGE LLNL Summer Camp LLNL",
+    "SAGE LBL Summer Camp LBL",
+    "Boston University Research in Science & Engineering Program",
+    "SEAP Apprenticeship Program",
+    "UCSC Science Internship",
+    "COSMOS Summer School for Mathematics & Science",
+    "MIT MITES Program",
+    "MIT RSI Program",
+    "NASA Internship Program",
+    "NASA CCRI - Climate Change",
+    "NASA CCRI - Land",
+    "NASA CCRI - Snow",
+    "NASA CCRI - Urban",
+    "NASA HAS Astronomy",
+    "Stanford Young Investigators",
+    "MIT Beaverworks",
+    "SSP Science Program",
+    "Waterloo Quantum School",
+    "UCD Young Scholars Program",
+    "US AEOP GEMS",
+    "US AEOP High School Internships",
+    "US AEOP UNITE",
+    "BHE Healthcare Exploration",
+    "Roswell Park Scholars Program",
+    "Roswell Park Summer Cancer Research",
+    "Stony Brook Summer Research",
+    "Stony Brook Simmons Research",
+    "Stony Brook Forensics Exploration",
+    "Hofstra SSRP",
+    "Rockefeller Neuroscience Program",
+    "Boston University High School Honors",
+    "Boston University Summer Challenge",
+    "Boston University Academic Immersion",
+    "SAME STEM Camp",
+    "USNA Summer Stem",
+    "Texas Tech Anson L. Clark Scholars Program",
+    "MSU HSHP",
+    "UIowa Belin-Blank Research Center",
+    "SPARC Quantitative Skills Program",
+    "UF CPET Science Training Program",
+    "Stevens Institute Pre-College",
+    "NYU OGStem Program",
+    "NYSA National Youth Science Camp",
+    "Lebanon Valley Actuarial Science Camp",
+    "BNL High School Research Program",
+    "UCSB Pre-College",
+    "UCSD ENLACE Summer Research",
+    "UCSD Research Experience",
+    "UCSD Science Academy",
+    "UCSD Life Sciences Research",
+    "UCSD Marine Science Research",
+    "UCSD Design Lab Program",
+    "Rosetta Institute of Biomedical Research",
+    "PARI Summer Research Experience",
+    "UCD Environmental Sciences Programs",
+    "UCSB Research Mentorship Program",
+    "Project Scientist Scholars Program",
+    "Caltech Earthquake Program",
+    "Yale Pathways Research Internship",
+    "UIUC DSAP Program",
+    "UIUC Young Scholars Research",
+    "Northwestern NURPH",
+    "UMich Math and Science Scholars",
+    "UMich Sequencing Your Genome Camp",
+    "UMich Thinkabit Summer Camp",
+    "UMich Aspirnaut Summer Research",
+    "JHU ASPIRE",
+    "JHU STEM Academy",
+    "JHU Summer Academic Research Experience",
+    "Princeton Laboratory Learning Program",
+    "PPPL Summer Internship",
+    "UTA Fab Lab: 3D Printing",
+    "UTAUS Summer Learning Academy",
+    "IALR Communications Intern",
+    "IALR Information Technology Intern",
+    "IALR AgTech Research Intern",
+    "Smith Summer Science & Engineering Program",
+    "Cooper Union Summer Stem",
+    "UNH HighTech Bound",
+    "UR Laboratory for Laser Energetics",
+    "Telluride TASS Summer Seminar",
+    "UNO AMRI Research Program",
+    "Echinacea Project Research Intern",
+    "Suny Oneonta BFS Internship",
+    "Broad Institute Summer Scholars Program",
+    "BTI High School Research Internship",
+    "NYSCamp Youth Science Camp",
+    "Duke Marine Lab Pre-College",
+    "CMU Summer Academy for Math & Science",
+    "CMU PGSS",
+    "CMU Project Ignite",
+    "UPENN Engineering, Math and Science Camp",
+    "UPENN Upward Bound Math Science",
+    "UPENN Upward Bound",
+    "TAMU AggieSTEM",
+    "NYU User Experience Design",
+    "NYU Science Explorations Program",
+    "NYU Design, Invent & Innovate",
+    "NYU GSTEM",
+    "NYU GSTEM Online Data Science",
+    "NYU XR Through Virtual Worlds",
+    "NYU Science of Smart Cities",
+    "Emory Summer Science Academy",
+    "UChicago RIBS - Research in Biological Sciences",
+    "UChicago Young Innovators Climate Program",
+    "UChicago Quantum Quickstart",
+    "UChicago Voltage Scholars",
+    "UChicago Neubauer Phoenix Scholars",
+    "UMD Bug Camp",
+    "UMD WIE Rise Summer Research",
+    "NCSU NC Youth Institute",
+    "NCSU Horticultural Science Summer Institute",
+    "NCSU CAALS3D",
+    "NCSU Poultry Summer Science Institute",
+    "NCSU Livestock Science Camp",
+    "NCSU IFAL",
+    "PSU Forensic Science Camp",
+    "PSU TechCrafters",
+    "PSU College-Bound STEM Academy",
+    "PSU Earth & Mineral Science Exposition",
+    "PSU Research Internships",
+    "Brown Stem-Rising",
+    "Vanderbilt Research Experience for High School Students",
+    "Vanderbilt Discover Biomedical Research Summer Program",
+    "Rice Aerospace Academy",
+    "Rice Tapia STEM Camps",
+    "Rice Biotech Academy",
+    "Rice STEM Academy",
+    "Rice Forensics Investigators",
+    "OHSU Ted R. Lilley CURE Program",
+    "Oregon State Food Science Camp",
+    "Oregon State \"Blender\" Camp",
+    "Oregon State Toxicology Camp",
+    "Oregon State Virtual \"Processing\" Camp",
+    "Oregon State Microbiology Camp",
+    "Oregon State Cyber Camp",
+    "ASE Apprenticeships in Science & Engineering",
+    "Oregon State Summer Academy for Math & Science",
+    "UVA Forensic Science Camp",
+    "UW Madison ARISE UWCCC Summer High School Cancer Research",
+    "Oklahoma State CEAT - Automation and Robotics Discovery",
+    "Oklahoma State Engineering Discovery for Girls",
+    "Oklahoma State Fire Protection Discovery Program",
+    "Oklahoma State OKStars Summer Research Program",
+    "Oklahoma State NSTI Summer Camp",
+    "Binghamton UBMS Summer Program",
+    "Binghamton Summer Research Immersion",
+    "Binghamton FtRi Research",
+    "Georgetown Psychology and Its Impact on Everyday Life",
+    "Georgetown Biotechnology for Science & Health Academy",
+    "Georgetown Forensic Science Academy",
+    "Barnard Sustainable Food and the City",
+    "Rutgers 4H-RU Program",
+    "Governor's School New Jersey Governor's School in the Sciences",
+    "UNH Tech Camp",
+    "UNLV Summer STEM Camp",
+    "UNLV Fall STEM Camp",
+    "UNLV Student Interactions with Science, Technology, Engineering and Mathematics",
+    "UNL Discover Actuarial Science",
+    "YNS Emergent Quantum Materials and Technologies",
+    "YNS Biomechanics at UNO",
+    "YNS Climate Science at UNL",
+    "UMass Summer Design Academy",
+    "Boston University The Artemis Project",
+    "UMass Plant Signal Transduction and Reproduction",
+    "UMass Research Intensive in Food Science.",
+    "UMass Pollinator Health and Ecology",
+    "Amherst Summer STEM Program",
+    "UCB Experience in Research",
+    "USC Bridge Undergraduate Science Jr. Program",
+    "ASDRP Aspiring Scholars Directed Research Program",
+    "GiS Ewgis Program",
+    "Duke Summer Stem Academy",
+    "Dartmouth JSEP",
+    "Georgia Tech STEM @GTRI",
+    "Bigelow Keller BLOOM Program",
+    "NSS SPUN Debate Program",
+    "3M Young Scientists Annual Challenge",
+    "USC SHINE Poster Session",
+    "Rockefeller Summer Science Research Program",
+    "KGI Summer STEM Internships",
+  ],
+  humanities: [
+    "Stanford Summer Humanities",
+    "Stanford SPICE Scholars Program",
+    "Stanford SLSI Intensive Law Program",
+    "American Museum MEEP",
+    "American Museum SRMP",
+    "UCLA Writing Project Summer Camp",
+    "UCI Summer Youth Program",
+    "Yale Summer Debate Program",
+    "Yale Summer Journalism Program",
+    "Yale Citizens Thinkers Writers",
+    "Georgia Tech College of Design Pre-College",
+    "Northwestern National High School Institute",
+    "Northwestern Journalism Institute",
+    "Northwestern Civic Leadership Institute",
+    "Northwestern Online Leadership Intensive",
+    "Princeton Summer Journalism Program",
+    "Princeton The James Madison Seminar",
+    "UTA Choir Camp",
+    "UTA Summer Concert Camp",
+    "UTA Marching Band Camp",
+    "UTA Summer Strings",
+    "UTA Speech & Debate Camp",
+    "Columbia Columbia Writing Academy: Summer",
+    "Columbia Summer Journalism Workshop",
+    "USC Annenberg Youth Academy",
+    "NSLI-Y National Security Language Initiative",
+    "Williams Pre-College",
+    "CMU Writing & Culture",
+    "UPENN Management & Technology Summer Institute",
+    "NYU Summer Journalism",
+    "NYU High School Law Institute",
+    "NYU Democracy Scholars",
+    "NYU Urban Journalism Workshop",
+    "NYU College Access Leadership Institute",
+    "NYU Collegiate Seminar Program",
+    "Emory YTI Online",
+    "UChicago Summer Language Institute",
+    "UChicago Emerging Rural Leaders I",
+    "UChicago Parrhesia Ambassador Program",
+    "UChicago Young Innovators Program",
+    "UChicago China Emerging Leaders",
+    "UChicago Emerging Rural Leaders II",
+    "Rutgers Building Leadership Strategies Summer Academy",
+    "Rutgers Pre-Law and Mock Trial Summer Academy",
+    "Rutgers Language Summer Academy",
+    "UNLV Civic Engagement Leadership Academy",
+    "Boston University Center for English Language and Orientation Programs",
+    "Boston University Summer Journalism Academy",
+    "Boston University Summer Preview Program",
+    "Amherst Summer Humanities and Social Science Program",
+    "Debate Speech & Debate",
+    "US Senate Senate Page Program",
+    "Stanford SPICE Stanford E-Japan Program",
+    "Stanford SPICE Sejong Korea Scholars Program",
+    "Stanford SPICE Stanford E-China Program",
+    "Stanford SPICE China Scholars Program",
+    "Stanford SPICE Reischhauer Program",
+  ],
 }
