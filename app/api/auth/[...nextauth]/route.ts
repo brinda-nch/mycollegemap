@@ -4,9 +4,21 @@ import { NextRequest, NextResponse } from "next/server"
 
 // Validate required environment variables
 const missingVars: string[] = []
+// Check NEXTAUTH_SECRET - log what we actually have for debugging
 if (!process.env.NEXTAUTH_SECRET) {
   missingVars.push('NEXTAUTH_SECRET')
-  console.error('❌ NEXTAUTH_SECRET is missing! This will cause authentication to fail.')
+  console.error('❌ NEXTAUTH_SECRET is missing!', {
+    hasSecret: !!process.env.NEXTAUTH_SECRET,
+    secretLength: process.env.NEXTAUTH_SECRET?.length || 0,
+    nodeEnv: process.env.NODE_ENV,
+    allEnvKeys: Object.keys(process.env).filter(k => k.includes('NEXTAUTH') || k.includes('AUTH'))
+  })
+} else {
+  console.log('✅ NEXTAUTH_SECRET is set', {
+    hasSecret: true,
+    secretLength: process.env.NEXTAUTH_SECRET.length,
+    nodeEnv: process.env.NODE_ENV
+  })
 }
 
 // Create error handler for missing configuration
