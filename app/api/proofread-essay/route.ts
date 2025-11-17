@@ -90,7 +90,29 @@ Respond ONLY with valid JSON in this exact format:
       finishReason: completion.choices[0]?.finish_reason
     })
 
-    const result = JSON.parse(completion.choices[0]?.message?.content || '{}')
+    const responseContent = completion.choices[0]?.message?.content
+    
+    if (!responseContent) {
+      console.error('❌ [PROOFREADER] No content in OpenAI response')
+      return NextResponse.json(
+        { error: "OpenAI returned an empty response. Please try again." },
+        { status: 500 }
+      )
+    }
+
+    let result
+    try {
+      result = JSON.parse(responseContent)
+    } catch (parseError: any) {
+      console.error('❌ [PROOFREADER] JSON parse error:', {
+        error: parseError.message,
+        contentPreview: responseContent.substring(0, 200)
+      })
+      return NextResponse.json(
+        { error: "Failed to parse OpenAI response. Please try again." },
+        { status: 500 }
+      )
+    }
 
     const totalDuration = Date.now() - startTime
     console.log('🎉 [PROOFREADER] Proofreading complete:', {
@@ -106,18 +128,21 @@ Respond ONLY with valid JSON in this exact format:
     console.error('❌ [PROOFREADER] Error:', {
       duration: `${duration}ms`,
       error: error.message,
-      stack: error.stack
+      errorName: error.name,
+      errorCode: error.code,
+      errorStatus: error.status,
+      stack: error.stack?.substring(0, 500)
     })
 
     // Handle specific OpenAI errors
-    if (error.code === 'insufficient_quota') {
+    if (error.code === 'insufficient_quota' || error.status === 429) {
       return NextResponse.json(
         { error: "OpenAI API quota exceeded. Please check your API key billing." },
         { status: 429 }
       )
     }
 
-    if (error.code === 'invalid_api_key') {
+    if (error.code === 'invalid_api_key' || error.status === 401) {
       return NextResponse.json(
         { error: "Invalid OpenAI API key. Please check your configuration." },
         { status: 401 }
@@ -125,15 +150,34 @@ Respond ONLY with valid JSON in this exact format:
     }
 
     // Handle timeout
-    if (error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
+    if (error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND' || error.name === 'TimeoutError') {
       return NextResponse.json(
         { error: "Request timed out. Please try again." },
         { status: 504 }
       )
     }
 
+    // Handle OpenAI API errors
+    if (error.response) {
+      const status = error.response.status
+      const errorMessage = error.response.data?.error?.message || error.message
+      console.error('❌ [PROOFREADER] OpenAI API error:', {
+        status,
+        message: errorMessage
+      })
+      return NextResponse.json(
+        { error: `OpenAI API error: ${errorMessage}` },
+        { status: status || 500 }
+      )
+    }
+
+    // Generic error with more details in development
+    const errorMessage = process.env.NODE_ENV === 'development' 
+      ? `Failed to proofread essay: ${error.message}` 
+      : "Failed to proofread essay. Please try again."
+
     return NextResponse.json(
-      { error: "Failed to proofread essay. Please try again." },
+      { error: errorMessage },
       { status: 500 }
     )
   }
