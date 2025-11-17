@@ -4,13 +4,19 @@ import GoogleProvider from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
 import { supabase, isDemoMode } from "./supabase"
 
+// Validate required environment variables
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
+  console.error('⚠️ NEXTAUTH_SECRET is missing! This will cause authentication to fail.')
+}
+
 export const authOptions: NextAuthOptions = {
   // Use dynamic URL for production
-  url: process.env.NEXTAUTH_URL || (process.env.NODE_ENV === 'production' 
-    ? process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : undefined
-    : 'http://localhost:3000'),
+  // Priority: NEXTAUTH_URL > Custom domain > VERCEL_URL > localhost
+  url: process.env.NEXTAUTH_URL || 
+       (process.env.NODE_ENV === 'production' 
+         ? 'https://www.mycollegemap.net' // Custom domain override
+         : 'http://localhost:3000'),
+  secret: process.env.NEXTAUTH_SECRET, // Explicitly set secret
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
