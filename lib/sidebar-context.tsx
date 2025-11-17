@@ -4,7 +4,9 @@ import React, { createContext, useContext, useState } from 'react'
 
 interface SidebarContextType {
   isSidebarVisible: boolean
+  isSidebarCollapsed: boolean
   toggleSidebar: () => void
+  toggleSidebarCollapse: () => void
   hideSidebar: () => void
   showSidebar: () => void
 }
@@ -13,9 +15,14 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isSidebarVisible, setIsSidebarVisible] = useState(true)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible)
+  }
+
+  const toggleSidebarCollapse = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed)
   }
 
   const hideSidebar = () => {
@@ -28,7 +35,9 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 
   const value: SidebarContextType = {
     isSidebarVisible,
+    isSidebarCollapsed,
     toggleSidebar,
+    toggleSidebarCollapse,
     hideSidebar,
     showSidebar,
   }

@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useSession } from "next-auth/react"
+import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,741 +10,1114 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Users, Clock, Award, Trash2, Edit } from "lucide-react"
+import { Plus, Trophy, Award, Trash2, Edit, Clock, Users, BookOpen, Sparkles, Target, FileText } from "lucide-react"
 import { useData } from "@/lib/data-context"
+import { FeatureGate } from "@/components/feature-gate"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export default function ExtracurricularsPage() {
-  const { activities, addActivity, deleteActivity, updateActivity } = useData()
+  const { data: session } = useSession()
+  const { activities, addActivity, deleteActivity, updateActivity, honorsAwards, addHonorAward, deleteHonorAward, updateHonorAward } = useData()
 
+  const [activeTab, setActiveTab] = useState<"activities" | "honors" | "analyzer">("activities")
+
+  // Activities State
+  const [isAddActivityDialogOpen, setIsAddActivityDialogOpen] = useState(false)
+  const [isEditActivityDialogOpen, setIsEditActivityDialogOpen] = useState(false)
+  const [editingActivity, setEditingActivity] = useState<any>(null)
   const [newActivity, setNewActivity] = useState({
     name: "",
     category: "",
     role: "",
     description: "",
-    hoursPerWeek: 0,
-    weeksPerYear: 0,
-    yearsParticipated: 0,
-    achievements: "",
+    hoursPerWeek: "",
+    weeksPerYear: "",
+    yearsParticipated: "",
   })
-
-  const [editingActivity, setEditingActivity] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState({
+  const [editActivity, setEditActivity] = useState({
     name: "",
     category: "",
     role: "",
     description: "",
-    hoursPerWeek: 0,
-    weeksPerYear: 0,
-    yearsParticipated: 0,
-    achievements: "",
+    hoursPerWeek: "",
+    weeksPerYear: "",
+    yearsParticipated: "",
   })
 
-  const [aiAnalysis, setAiAnalysis] = useState<any>(null)
+  // Honors State
+  const [isAddHonorDialogOpen, setIsAddHonorDialogOpen] = useState(false)
+  const [isEditHonorDialogOpen, setIsEditHonorDialogOpen] = useState(false)
+  const [editingHonor, setEditingHonor] = useState<any>(null)
+  const [newHonor, setNewHonor] = useState({
+    title: "",
+    level: "",
+    description: "",
+    dateReceived: "",
+  })
+  const [editHonor, setEditHonor] = useState({
+    title: "",
+    level: "",
+    description: "",
+    dateReceived: "",
+  })
+
+  // Analyzer State
+  const [analyzerInput, setAnalyzerInput] = useState("")
+  const [analyzerType, setAnalyzerType] = useState<"activity" | "essay">("activity")
+  const [analyzerResult, setAnalyzerResult] = useState<any>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   const handleAddActivity = () => {
-    if (newActivity.name && newActivity.category && newActivity.role) {
-      addActivity({
-        activityName: newActivity.name,
-        category: newActivity.category,
-        description: newActivity.description,
-        leadershipPosition: newActivity.role,
-        hoursPerWeek: newActivity.hoursPerWeek,
-        weeksPerYear: newActivity.weeksPerYear,
-        yearsParticipated: newActivity.yearsParticipated,
-      })
-      setNewActivity({
-        name: "",
-        category: "",
-        role: "",
-        description: "",
-        hoursPerWeek: 0,
-        weeksPerYear: 0,
-        yearsParticipated: 0,
-        achievements: "",
-      })
-    }
-  }
+    if (!newActivity.name || !newActivity.category) return
 
-  const handleEditActivity = (activity: any) => {
-    setEditingActivity(activity.id)
-    setEditForm({
-      name: activity.name,
-      category: activity.category,
-      role: activity.role,
-      description: activity.description,
-      hoursPerWeek: activity.hoursPerWeek,
-      weeksPerYear: activity.weeksPerYear,
-      yearsParticipated: activity.yearsParticipated,
-      achievements: activity.achievements || "",
+    addActivity({
+      activityName: newActivity.name,
+      category: newActivity.category,
+      description: newActivity.description || undefined,
+      leadershipPosition: newActivity.role || undefined,
+      hoursPerWeek: newActivity.hoursPerWeek ? Number.parseInt(newActivity.hoursPerWeek) : undefined,
+      weeksPerYear: newActivity.weeksPerYear ? Number.parseInt(newActivity.weeksPerYear) : undefined,
+      yearsParticipated: newActivity.yearsParticipated ? Number.parseInt(newActivity.yearsParticipated) : undefined,
     })
-  }
 
-  const handleSaveEdit = () => {
-    if (editingActivity && editForm.name && editForm.category && editForm.role) {
-      updateActivity(editingActivity, {
-        activityName: editForm.name,
-        category: editForm.category,
-        description: editForm.description,
-        leadershipPosition: editForm.role,
-        hoursPerWeek: editForm.hoursPerWeek,
-        weeksPerYear: editForm.weeksPerYear,
-        yearsParticipated: editForm.yearsParticipated,
-      })
-      setEditingActivity(null)
-      setEditForm({
-        name: "",
-        category: "",
-        role: "",
-        description: "",
-        hoursPerWeek: 0,
-        weeksPerYear: 0,
-        yearsParticipated: 0,
-        achievements: "",
-      })
-    }
-  }
-
-  const handleCancelEdit = () => {
-    setEditingActivity(null)
-    setEditForm({
+    setNewActivity({
       name: "",
       category: "",
       role: "",
       description: "",
-      hoursPerWeek: 0,
-      weeksPerYear: 0,
-      yearsParticipated: 0,
-      achievements: "",
+      hoursPerWeek: "",
+      weeksPerYear: "",
+      yearsParticipated: "",
     })
+    setIsAddActivityDialogOpen(false)
   }
 
-  const analyzeActivities = () => {
-    if (activities.length === 0) {
-      alert("Please add some activities first before analyzing.")
-      return
-    }
+  const handleOpenEditActivityDialog = (activity: any) => {
+    setEditingActivity(activity)
+    setEditActivity({
+      name: activity.activityName,
+      category: activity.category || "",
+      role: activity.leadershipPosition || "",
+      description: activity.description || "",
+      hoursPerWeek: activity.hoursPerWeek?.toString() || "",
+      weeksPerYear: activity.weeksPerYear?.toString() || "",
+      yearsParticipated: activity.yearsParticipated?.toString() || "",
+    })
+    setIsEditActivityDialogOpen(true)
+  }
+
+  const handleEditActivity = () => {
+    if (!editingActivity || !editActivity.name || !editActivity.category) return
+
+    updateActivity(editingActivity.id, {
+      activityName: editActivity.name,
+      category: editActivity.category,
+      description: editActivity.description || undefined,
+      leadershipPosition: editActivity.role || undefined,
+      hoursPerWeek: editActivity.hoursPerWeek ? Number.parseInt(editActivity.hoursPerWeek) : undefined,
+      weeksPerYear: editActivity.weeksPerYear ? Number.parseInt(editActivity.weeksPerYear) : undefined,
+      yearsParticipated: editActivity.yearsParticipated ? Number.parseInt(editActivity.yearsParticipated) : undefined,
+    })
+
+    setEditingActivity(null)
+    setEditActivity({
+      name: "",
+      category: "",
+      role: "",
+      description: "",
+      hoursPerWeek: "",
+      weeksPerYear: "",
+      yearsParticipated: "",
+    })
+    setIsEditActivityDialogOpen(false)
+  }
+
+  const handleAddHonor = () => {
+    if (!newHonor.title) return
+
+    addHonorAward({
+      title: newHonor.title,
+      level: newHonor.level || undefined,
+      description: newHonor.description || undefined,
+      dateReceived: newHonor.dateReceived || undefined,
+    })
+
+    setNewHonor({
+      title: "",
+      level: "",
+      description: "",
+      dateReceived: "",
+    })
+    setIsAddHonorDialogOpen(false)
+  }
+
+  const handleOpenEditHonorDialog = (honor: any) => {
+    setEditingHonor(honor)
+    setEditHonor({
+      title: honor.title,
+      level: honor.level || "",
+      description: honor.description || "",
+      dateReceived: honor.dateReceived || "",
+    })
+    setIsEditHonorDialogOpen(true)
+  }
+
+  const handleEditHonor = () => {
+    if (!editingHonor || !editHonor.title) return
+
+    updateHonorAward(editingHonor.id, {
+      title: editHonor.title,
+      level: editHonor.level || undefined,
+      description: editHonor.description || undefined,
+      dateReceived: editHonor.dateReceived || undefined,
+    })
+
+    setEditingHonor(null)
+    setEditHonor({
+      title: "",
+      level: "",
+      description: "",
+      dateReceived: "",
+    })
+    setIsEditHonorDialogOpen(false)
+  }
+
+  const handleAnalyze = async () => {
+    if (!analyzerInput.trim()) return
+
+    const startTime = Date.now()
+    console.log('🎯 [FRONTEND] Starting analysis...', {
+      type: analyzerType,
+      inputLength: analyzerInput.length,
+      timestamp: new Date().toISOString()
+    })
 
     setIsAnalyzing(true)
-    
-    // Simulate AI analysis with realistic insights
-    setTimeout(() => {
-      const analysis = activities.map(activity => {
-        const totalHours = activity.hoursPerWeek * activity.weeksPerYear * activity.yearsParticipated
-        const isLeadership = activity.role && (
-          activity.role.toLowerCase().includes("president") ||
-          activity.role.toLowerCase().includes("captain") ||
-          activity.role.toLowerCase().includes("leader") ||
-          activity.role.toLowerCase().includes("director") ||
-          activity.role.toLowerCase().includes("coordinator")
-        )
-        
-        let score = 5 // Base score
-        
-        // Leadership bonus
-        if (isLeadership) score += 2
-        
-        // Time commitment bonus
-        if (totalHours > 200) score += 1
-        if (totalHours > 500) score += 1
-        
-        // Longevity bonus
-        if (activity.yearsParticipated >= 2) score += 1
-        
-        // Category bonus
-        if (activity.category === "Leadership") score += 1
-        if (activity.category === "Community Service") score += 1
-        
-        // Description quality bonus
-        if (activity.description && activity.description.length > 50) score += 1
-        
-        // Cap at 10
-        score = Math.min(score, 10)
-        
-        const strengths = []
-        const improvements = []
-        
-        if (isLeadership) strengths.push("Strong leadership position")
-        if (totalHours > 200) strengths.push("Significant time commitment")
-        if (activity.yearsParticipated >= 2) strengths.push("Long-term involvement")
-        if (activity.description && activity.description.length > 50) strengths.push("Detailed description")
-        
-        if (!isLeadership) improvements.push("Consider taking on leadership roles")
-        if (totalHours < 100) improvements.push("Increase time commitment")
-        if (activity.yearsParticipated < 2) improvements.push("Continue involvement for longer periods")
-        if (!activity.description || activity.description.length < 30) improvements.push("Add more detailed description")
-        if (!activity.achievements) improvements.push("Include specific achievements and awards")
-        
-        return {
-          id: activity.id,
-          name: activity.name,
-          score,
-          strengths,
-          improvements,
-          totalHours,
-          isLeadership
-        }
+    setAnalyzerResult(null)
+
+    // Create timeout controller
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      console.error('⏱️ [FRONTEND] Request timed out after 45 seconds')
+      controller.abort()
+    }, 45000) // 45 second timeout
+
+    try {
+      console.log('📤 [FRONTEND] Sending request to API...')
+      const fetchStartTime = Date.now()
+      
+      const response = await fetch("/api/analyze-activities", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          input: analyzerInput,
+          type: analyzerType,
+        }),
+        signal: controller.signal,
+      })
+
+      const fetchDuration = Date.now() - fetchStartTime
+      console.log('📥 [FRONTEND] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        duration: `${fetchDuration}ms`,
+        ok: response.ok
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('❌ [FRONTEND] API returned error:', {
+          status: response.status,
+          error: errorData.error
+        })
+        throw new Error(errorData.error || "Analysis failed")
+      }
+
+      const data = await response.json()
+      console.log('✅ [FRONTEND] Analysis successful:', {
+        hasResult: !!data.result,
+        resultKeys: data.result ? Object.keys(data.result) : [],
+        totalDuration: `${Date.now() - startTime}ms`
       })
       
-      const overallScore = Math.round(analysis.reduce((sum, a) => sum + a.score, 0) / analysis.length)
-      const leadershipCount = analysis.filter(a => a.isLeadership).length
-      const totalHours = analysis.reduce((sum, a) => sum + a.totalHours, 0)
+      setAnalyzerResult(data.result)
       
-      setAiAnalysis({
-        activities: analysis,
-        overallScore,
-        leadershipCount,
-        totalHours,
-        recommendations: generateRecommendations(analysis)
+    } catch (error: any) {
+      const duration = Date.now() - startTime
+      console.error('💥 [FRONTEND] Error caught:', {
+        duration: `${duration}ms`,
+        errorName: error.name,
+        errorMessage: error.message,
+        fullError: error
       })
       
+      if (error.name === 'AbortError') {
+        alert("⏱️ Analysis timed out (45 seconds).\n\nPossible causes:\n- OpenAI API is slow\n- Your text is too long\n- Network issues\n\nTry with shorter text or check your internet connection.")
+      } else {
+        alert(`❌ Analysis failed:\n\n${error.message}\n\nCheck the browser console for more details.`)
+      }
+    } finally {
+      clearTimeout(timeoutId)
       setIsAnalyzing(false)
-    }, 2000)
+      console.log('🏁 [FRONTEND] Analysis process completed')
+    }
   }
-
-  const generateRecommendations = (analysis: any[]) => {
-    const recommendations = []
-    
-    if (analysis.length < 3) {
-      recommendations.push("Consider adding more activities to show breadth of interests")
-    }
-    
-    const leadershipCount = analysis.filter(a => a.isLeadership).length
-    if (leadershipCount < 2) {
-      recommendations.push("Aim for at least 2-3 leadership positions")
-    }
-    
-    const totalHours = analysis.reduce((sum, a) => sum + a.totalHours, 0)
-    if (totalHours < 500) {
-      recommendations.push("Increase total time commitment across activities")
-    }
-    
-    const lowScoringActivities = analysis.filter(a => a.score < 6)
-    if (lowScoringActivities.length > 0) {
-      recommendations.push("Focus on strengthening activities with lower scores")
-    }
-    
-    return recommendations
-  }
-
-  const getTotalHours = () => {
-    return activities.reduce((total, activity) => {
-      return total + activity.hoursPerWeek * activity.weeksPerYear * activity.yearsParticipated
-    }, 0)
-  }
-
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      Leadership: "default",
-      Sports: "secondary",
-      Academic: "outline",
-      "Community Service": "destructive",
-      Arts: "default",
-      Work: "secondary",
-    }
-    return colors[category] || "outline"
-  }
-
-
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Extracurricular Activities</h1>
-        <p className="text-gray-600 mt-2">Document your involvement in activities outside the classroom</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
+      {/* Header */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
+              Extracurriculars
+            </h1>
+            <p className="text-lg text-slate-600">
+              Track your activities, honors, and awards
+            </p>
+          </motion.div>
 
-      {/* Activity Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Activities</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activities.length}</div>
-            <p className="text-xs text-muted-foreground">Activities recorded</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{getTotalHours().toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Hours of involvement</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Leadership Roles</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {
-                activities.filter(
-                  (a) =>
-                    a.role && a.role.toLowerCase().includes("president") ||
-                    a.role && a.role.toLowerCase().includes("captain") ||
-                    a.role && a.role.toLowerCase().includes("leader"),
-                ).length
-              }
-            </div>
-            <p className="text-xs text-muted-foreground">Leadership positions</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* AI Analysis Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Award className="h-5 w-5 mr-2" />
-            AI Activity Analysis
-          </CardTitle>
-          <CardDescription>
-            Get AI-powered insights to strengthen your extracurricular activities
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="bg-blue-100 dark:bg-blue-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <Award className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="font-semibold mb-2">2. Get AI Analysis</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Our AI evaluates each activity using real admissions criteria: leadership, impact, commitment, and uniqueness.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-green-100 dark:bg-green-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="font-semibold mb-2">3. See Your Score</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Each activity gets a 0-10 rating with detailed feedback on strengths and areas for improvement.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="bg-purple-100 dark:bg-purple-900 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="font-semibold mb-2">4. Improve & Optimize</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Use the feedback to strengthen your actual activities or improve how you describe them in applications.
-              </p>
-            </div>
-          </div>
-          
-          <div className="mt-6 text-center">
-            <Button 
-              onClick={analyzeActivities}
-              disabled={isAnalyzing}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+          {/* Tabs */}
+          <div className="flex gap-4 mt-6">
+            <button
+              onClick={() => setActiveTab("activities")}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                activeTab === "activities"
+                  ? "text-white shadow-lg"
+                  : "text-slate-600 hover:bg-white/50"
+              }`}
+              style={{ backgroundColor: activeTab === "activities" ? "#60a5fa" : "transparent" }}
             >
-              {isAnalyzing ? "Analyzing..." : "Analyze My Activities"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* AI Analysis Results */}
-      {aiAnalysis && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Award className="h-5 w-5 mr-2" />
-              AI Analysis Results
-            </CardTitle>
-            <CardDescription>
-              Your activities have been analyzed using college admissions criteria
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Overall Score */}
-            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
-                  {aiAnalysis.overallScore}/10
-                </div>
-                <div className="text-lg font-semibold mb-1">Overall Activity Score</div>
-                <div className="text-sm text-gray-600">
-                  Based on {aiAnalysis.activities.length} activities • {aiAnalysis.leadershipCount} leadership roles • {aiAnalysis.totalHours.toLocaleString()} total hours
-                </div>
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5" />
+                <span>Activities</span>
               </div>
-            </div>
-
-            {/* Individual Activity Analysis */}
-            <div className="space-y-4 mb-6">
-              <h3 className="text-lg font-semibold">Individual Activity Scores</h3>
-              {aiAnalysis.activities.map((activity: any) => (
-                <div key={activity.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <h4 className="font-semibold">{activity.name}</h4>
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-blue-600">{activity.score}/10</div>
-                      <div className="text-sm text-gray-500">{activity.totalHours} hours</div>
-                    </div>
-                  </div>
-                  
-                  {activity.strengths.length > 0 && (
-                    <div className="mb-2">
-                      <div className="text-sm font-medium text-green-700 mb-1">Strengths:</div>
-                      <ul className="text-sm text-gray-700">
-                        {activity.strengths.map((strength: string, index: number) => (
-                          <li key={index} className="flex items-center">
-                            <span className="text-green-500 mr-2">✓</span>
-                            {strength}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {activity.improvements.length > 0 && (
-                    <div>
-                      <div className="text-sm font-medium text-orange-700 mb-1">Areas for Improvement:</div>
-                      <ul className="text-sm text-gray-700">
-                        {activity.improvements.map((improvement: string, index: number) => (
-                          <li key={index} className="flex items-center">
-                            <span className="text-orange-500 mr-2">→</span>
-                            {improvement}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Recommendations */}
-            {aiAnalysis.recommendations.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Overall Recommendations</h3>
-                <div className="space-y-2">
-                  {aiAnalysis.recommendations.map((rec: string, index: number) => (
-                    <div key={index} className="flex items-start p-3 bg-yellow-50 rounded-lg">
-                      <span className="text-yellow-600 mr-2 mt-0.5">💡</span>
-                      <span className="text-sm text-gray-700">{rec}</span>
-                    </div>
-                  ))}
-                </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("honors")}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                activeTab === "honors"
+                  ? "text-white shadow-lg"
+                  : "text-slate-600 hover:bg-white/50"
+              }`}
+              style={{ backgroundColor: activeTab === "honors" ? "#a78bfa" : "transparent" }}
+            >
+              <div className="flex items-center gap-2">
+                <Award className="h-5 w-5" />
+                <span>Honors & Awards</span>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Add New Activity */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Add New Activity</CardTitle>
-          <CardDescription>Record your extracurricular involvement and achievements</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <Label htmlFor="activityName">Activity Name</Label>
-              <Input
-                id="activityName"
-                value={newActivity.name}
-                onChange={(e) => setNewActivity({ ...newActivity, name: e.target.value })}
-                placeholder="e.g., Debate Team"
-              />
-            </div>
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={newActivity.category}
-                onValueChange={(value) => setNewActivity({ ...newActivity, category: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Leadership">Leadership</SelectItem>
-                  <SelectItem value="Sports">Sports</SelectItem>
-                  <SelectItem value="Academic">Academic</SelectItem>
-                  <SelectItem value="Community Service">Community Service</SelectItem>
-                  <SelectItem value="Arts">Arts</SelectItem>
-                  <SelectItem value="Work">Work</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="role">Your Role</Label>
-              <Input
-                id="role"
-                value={newActivity.role}
-                onChange={(e) => setNewActivity({ ...newActivity, role: e.target.value })}
-                placeholder="e.g., Team Captain"
-              />
-            </div>
-            <div>
-              <Label htmlFor="hoursPerWeek">Hours per Week</Label>
-              <Input
-                id="hoursPerWeek"
-                type="number"
-                value={newActivity.hoursPerWeek || ""}
-                onChange={(e) => setNewActivity({ ...newActivity, hoursPerWeek: Number.parseInt(e.target.value) || 0 })}
-                min="0"
-              />
-            </div>
-            <div>
-              <Label htmlFor="weeksPerYear">Weeks per Year</Label>
-              <Input
-                id="weeksPerYear"
-                type="number"
-                value={newActivity.weeksPerYear || ""}
-                onChange={(e) => setNewActivity({ ...newActivity, weeksPerYear: Number.parseInt(e.target.value) || 0 })}
-                min="0"
-                max="52"
-              />
-            </div>
-            <div>
-              <Label htmlFor="yearsParticipated">Years Participated</Label>
-              <Input
-                id="yearsParticipated"
-                type="number"
-                value={newActivity.yearsParticipated || ""}
-                onChange={(e) =>
-                  setNewActivity({ ...newActivity, yearsParticipated: Number.parseInt(e.target.value) || 0 })
-                }
-                min="0"
-                max="4"
-              />
-            </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("analyzer")}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                activeTab === "analyzer"
+                  ? "text-white shadow-lg"
+                  : "text-slate-600 hover:bg-white/50"
+              }`}
+              style={{ backgroundColor: activeTab === "analyzer" ? "#f89880" : "transparent" }}
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                <span>Analyzer</span>
+              </div>
+            </button>
           </div>
-          <div className="grid grid-cols-1 gap-4 mb-4">
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={newActivity.description}
-                onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
-                placeholder="Describe your involvement and responsibilities"
-                rows={3}
-              />
-            </div>
-            <div>
-              <Label htmlFor="achievements">Achievements & Awards</Label>
-              <Textarea
-                id="achievements"
-                value={newActivity.achievements}
-                onChange={(e) => setNewActivity({ ...newActivity, achievements: e.target.value })}
-                placeholder="List any awards, recognitions, or notable achievements"
-                rows={2}
-              />
-            </div>
-          </div>
-          <Button onClick={handleAddActivity}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Activity
-          </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Activities List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Activities</CardTitle>
-          <CardDescription>All your extracurricular activities and involvement</CardDescription>
-        </CardHeader>
-        <CardContent>
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {activeTab === "activities" && (
           <div className="space-y-6">
-            {activities.map((activity) => (
-              <div key={activity.id} className="border rounded-lg p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold">{activity.name}</h3>
-                    <p className="text-sm text-gray-600">{activity.role}</p>
-                  </div>
-                  <Badge variant={getCategoryColor(activity.category)}>{activity.category}</Badge>
+            {/* Activities Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-transparent hover:border-blue-300 transition-all shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <Trophy className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <p className="text-sm font-medium text-slate-600 mb-1">Total Activities</p>
+                    <div className="text-4xl font-bold text-blue-600">{activities.length}</div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+
+            {/* Activities Table */}
+            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                    Activities
+                  </CardTitle>
+                  <CardDescription className="text-base mt-2">Your extracurricular activities and leadership roles</CardDescription>
                 </div>
+                <Dialog open={isAddActivityDialogOpen} onOpenChange={setIsAddActivityDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105"
+                      style={{ backgroundColor: "#60a5fa" }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Activity
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                        Add Activity
+                      </DialogTitle>
+                      <DialogDescription className="text-base">Add a new extracurricular activity or leadership role.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-6 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="activity-name">Activity Name *</Label>
+                        <Input
+                          id="activity-name"
+                          placeholder="e.g., Student Government"
+                          value={newActivity.name}
+                          onChange={(e) => setNewActivity({ ...newActivity, name: e.target.value })}
+                          className="h-12 rounded-xl"
+                        />
+                      </div>
 
-                <p className="text-gray-700 mb-4">{activity.description}</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="category">Category *</Label>
+                          <Select value={newActivity.category} onValueChange={(value) => setNewActivity({ ...newActivity, category: value })}>
+                            <SelectTrigger className="h-12 rounded-xl">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Leadership">Leadership</SelectItem>
+                              <SelectItem value="Sports">Sports</SelectItem>
+                              <SelectItem value="Arts">Arts</SelectItem>
+                              <SelectItem value="Community Service">Community Service</SelectItem>
+                              <SelectItem value="Academic">Academic</SelectItem>
+                              <SelectItem value="Work Experience">Work Experience</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm">
-                  <div>
-                    <span className="font-medium">Time Commitment:</span>
-                    <p className="text-gray-600">
-                      {activity.hoursPerWeek} hrs/week × {activity.weeksPerYear} weeks × {activity.yearsParticipated}{" "}
-                      years
-                    </p>
-                  </div>
-                  <div>
-                    <span className="font-medium">Total Hours:</span>
-                    <p className="text-gray-600">
-                      {(activity.hoursPerWeek * activity.weeksPerYear * activity.yearsParticipated).toLocaleString()}{" "}
-                      hours
-                    </p>
-                  </div>
-                  <div>
-                    <span className="font-medium">Duration:</span>
-                    <p className="text-gray-600">
-                      {activity.yearsParticipated} year{activity.yearsParticipated !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="role">Leadership Position</Label>
+                          <Input
+                            id="role"
+                            placeholder="e.g., President"
+                            value={newActivity.role}
+                            onChange={(e) => setNewActivity({ ...newActivity, role: e.target.value })}
+                            className="h-12 rounded-xl"
+                          />
+                        </div>
+                      </div>
 
-                {activity.achievements && (
-                  <div>
-                    <span className="font-medium text-sm">Achievements:</span>
-                    <p className="text-gray-700 text-sm mt-1">{activity.achievements}</p>
+                      <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          placeholder="Describe your involvement and achievements"
+                          value={newActivity.description}
+                          onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
+                          className="rounded-xl"
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="hours">Hours/Week</Label>
+                          <Input
+                            id="hours"
+                            type="number"
+                            placeholder="10"
+                            value={newActivity.hoursPerWeek}
+                            onChange={(e) => setNewActivity({ ...newActivity, hoursPerWeek: e.target.value })}
+                            className="h-12 rounded-xl"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="weeks">Weeks/Year</Label>
+                          <Input
+                            id="weeks"
+                            type="number"
+                            placeholder="40"
+                            value={newActivity.weeksPerYear}
+                            onChange={(e) => setNewActivity({ ...newActivity, weeksPerYear: e.target.value })}
+                            className="h-12 rounded-xl"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="years">Years</Label>
+                          <Input
+                            id="years"
+                            type="number"
+                            placeholder="3"
+                            value={newActivity.yearsParticipated}
+                            onChange={(e) => setNewActivity({ ...newActivity, yearsParticipated: e.target.value })}
+                            className="h-12 rounded-xl"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter className="gap-3">
+                      <Button variant="outline" onClick={() => setIsAddActivityDialogOpen(false)} className="h-12 rounded-xl px-6">
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleAddActivity}
+                        disabled={!newActivity.name || !newActivity.category}
+                        className="h-12 rounded-xl px-6 text-white font-semibold"
+                        style={{ backgroundColor: "#60a5fa" }}
+                      >
+                        Add Activity
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                {activities.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Activity</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Time Commitment</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {activities.map((activity) => (
+                        <TableRow key={activity.id}>
+                          <TableCell className="font-medium">{activity.activityName}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{activity.category}</Badge>
+                          </TableCell>
+                          <TableCell>{activity.leadershipPosition || "Member"}</TableCell>
+                          <TableCell>
+                            {activity.hoursPerWeek && activity.weeksPerYear
+                              ? `${activity.hoursPerWeek}h/w, ${activity.weeksPerYear}w/y`
+                              : "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenEditActivityDialog(activity)}
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteActivity(activity.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-16">
+                    <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-2xl font-bold mb-3" style={{ color: "#0f172a" }}>
+                      No activities yet
+                    </h3>
+                    <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+                      Start tracking your extracurricular activities and leadership roles.
+                    </p>
                   </div>
                 )}
-                <div className="flex gap-2 mt-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEditActivity(activity)}
-                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteActivity(activity.id)}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {/* Edit Activity Modal */}
-      {editingActivity && (
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Edit Activity</CardTitle>
-            <CardDescription>Update your activity information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <Label htmlFor="editActivityName">Activity Name</Label>
-                <Input
-                  id="editActivityName"
-                  value={editForm.name}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  placeholder="e.g., Debate Team"
-                />
-              </div>
-              <div>
-                <Label htmlFor="editCategory">Category</Label>
-                <Select
-                  value={editForm.category}
-                  onValueChange={(value) => setEditForm({ ...editForm, category: value })}
-                >
-                  <SelectTrigger>
+        {activeTab === "honors" && (
+          <div className="space-y-6">
+            {/* Honors Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-transparent hover:border-purple-300 transition-all shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <Award className="h-8 w-8 text-purple-600" />
+                    </div>
+                    <p className="text-sm font-medium text-slate-600 mb-1">Total Honors</p>
+                    <div className="text-4xl font-bold text-purple-600">{honorsAwards.length}</div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+
+            {/* Honors Table */}
+            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                    Honors & Awards
+                  </CardTitle>
+                  <CardDescription className="text-base mt-2">Academic and extracurricular achievements</CardDescription>
+                </div>
+                <Dialog open={isAddHonorDialogOpen} onOpenChange={setIsAddHonorDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      className="text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105"
+                      style={{ backgroundColor: "#a78bfa" }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Honor
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                        Add Honor or Award
+                      </DialogTitle>
+                      <DialogDescription className="text-base">Record a new academic or extracurricular achievement.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-6 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="honor-title">Title *</Label>
+                        <Input
+                          id="honor-title"
+                          placeholder="e.g., National Merit Scholar"
+                          value={newHonor.title}
+                          onChange={(e) => setNewHonor({ ...newHonor, title: e.target.value })}
+                          className="h-12 rounded-xl"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="level">Level</Label>
+                          <Select value={newHonor.level} onValueChange={(value) => setNewHonor({ ...newHonor, level: value })}>
+                            <SelectTrigger className="h-12 rounded-xl">
+                              <SelectValue placeholder="Select level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="School">School</SelectItem>
+                              <SelectItem value="Regional">Regional</SelectItem>
+                              <SelectItem value="State">State</SelectItem>
+                              <SelectItem value="National">National</SelectItem>
+                              <SelectItem value="International">International</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="date">Date Received</Label>
+                          <Input
+                            id="date"
+                            type="date"
+                            value={newHonor.dateReceived}
+                            onChange={(e) => setNewHonor({ ...newHonor, dateReceived: e.target.value })}
+                            className="h-12 rounded-xl"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="honor-description">Description</Label>
+                        <Textarea
+                          id="honor-description"
+                          placeholder="Describe the achievement and its significance"
+                          value={newHonor.description}
+                          onChange={(e) => setNewHonor({ ...newHonor, description: e.target.value })}
+                          className="rounded-xl"
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter className="gap-3">
+                      <Button variant="outline" onClick={() => setIsAddHonorDialogOpen(false)} className="h-12 rounded-xl px-6">
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleAddHonor}
+                        disabled={!newHonor.title}
+                        className="h-12 rounded-xl px-6 text-white font-semibold"
+                        style={{ backgroundColor: "#a78bfa" }}
+                      >
+                        Add Honor
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                {honorsAwards.length > 0 ? (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Level</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {honorsAwards.map((honor) => (
+                        <TableRow key={honor.id}>
+                          <TableCell className="font-medium">{honor.title}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{honor.level || "N/A"}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {honor.dateReceived ? new Date(honor.dateReceived).toLocaleDateString() : "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenEditHonorDialog(honor)}
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteHonorAward(honor.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <div className="text-center py-16">
+                    <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-2xl font-bold mb-3" style={{ color: "#0f172a" }}>
+                      No honors yet
+                    </h3>
+                    <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+                      Start documenting your academic and extracurricular achievements.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+
+      {/* Edit Activity Dialog */}
+      <Dialog open={isEditActivityDialogOpen} onOpenChange={setIsEditActivityDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+              Edit Activity
+            </DialogTitle>
+            <DialogDescription className="text-base">Update your extracurricular activity or leadership role.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-activity-name">Activity Name *</Label>
+              <Input
+                id="edit-activity-name"
+                placeholder="e.g., Student Government"
+                value={editActivity.name}
+                onChange={(e) => setEditActivity({ ...editActivity, name: e.target.value })}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-category">Category *</Label>
+                <Select value={editActivity.category} onValueChange={(value) => setEditActivity({ ...editActivity, category: value })}>
+                  <SelectTrigger className="h-12 rounded-xl">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Leadership">Leadership</SelectItem>
                     <SelectItem value="Sports">Sports</SelectItem>
-                    <SelectItem value="Academic">Academic</SelectItem>
-                    <SelectItem value="Community Service">Community Service</SelectItem>
                     <SelectItem value="Arts">Arts</SelectItem>
-                    <SelectItem value="Work">Work</SelectItem>
+                    <SelectItem value="Community Service">Community Service</SelectItem>
+                    <SelectItem value="Academic">Academic</SelectItem>
+                    <SelectItem value="Work Experience">Work Experience</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <Label htmlFor="editRole">Role/Position</Label>
+              <div className="space-y-2">
+                <Label htmlFor="edit-role">Leadership Position</Label>
                 <Input
-                  id="editRole"
-                  value={editForm.role}
-                  onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                  placeholder="e.g., President, Captain, Member"
-                />
-              </div>
-              <div>
-                <Label htmlFor="editHoursPerWeek">Hours per Week</Label>
-                <Input
-                  id="editHoursPerWeek"
-                  type="number"
-                  value={editForm.hoursPerWeek}
-                  onChange={(e) => setEditForm({ ...editForm, hoursPerWeek: Number(e.target.value) })}
-                  min="0"
-                  max="168"
+                  id="edit-role"
+                  placeholder="e.g., President"
+                  value={editActivity.role}
+                  onChange={(e) => setEditActivity({ ...editActivity, role: e.target.value })}
+                  className="h-12 rounded-xl"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <Label htmlFor="editWeeksPerYear">Weeks per Year</Label>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                placeholder="Describe your involvement and achievements"
+                value={editActivity.description}
+                onChange={(e) => setEditActivity({ ...editActivity, description: e.target.value })}
+                className="rounded-xl"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-hours">Hours/Week</Label>
                 <Input
-                  id="editWeeksPerYear"
+                  id="edit-hours"
                   type="number"
-                  value={editForm.weeksPerYear}
-                  onChange={(e) => setEditForm({ ...editForm, weeksPerYear: Number(e.target.value) })}
-                  min="0"
-                  max="52"
+                  placeholder="10"
+                  value={editActivity.hoursPerWeek}
+                  onChange={(e) => setEditActivity({ ...editActivity, hoursPerWeek: e.target.value })}
+                  className="h-12 rounded-xl"
                 />
               </div>
-              <div>
-                <Label htmlFor="editYearsParticipated">Years Participated</Label>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-weeks">Weeks/Year</Label>
                 <Input
-                  id="editYearsParticipated"
+                  id="edit-weeks"
                   type="number"
-                  value={editForm.yearsParticipated}
-                  onChange={(e) => setEditForm({ ...editForm, yearsParticipated: Number(e.target.value) })}
-                  min="0"
-                  max="4"
+                  placeholder="40"
+                  value={editActivity.weeksPerYear}
+                  onChange={(e) => setEditActivity({ ...editActivity, weeksPerYear: e.target.value })}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-years">Years</Label>
+                <Input
+                  id="edit-years"
+                  type="number"
+                  placeholder="3"
+                  value={editActivity.yearsParticipated}
+                  onChange={(e) => setEditActivity({ ...editActivity, yearsParticipated: e.target.value })}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-3">
+            <Button variant="outline" onClick={() => setIsEditActivityDialogOpen(false)} className="h-12 rounded-xl px-6">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditActivity}
+              disabled={!editActivity.name || !editActivity.category}
+              className="h-12 rounded-xl px-6 text-white font-semibold"
+              style={{ backgroundColor: "#60a5fa" }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Honor Dialog */}
+      <Dialog open={isEditHonorDialogOpen} onOpenChange={setIsEditHonorDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+              Edit Honor/Award
+            </DialogTitle>
+            <DialogDescription className="text-base">Update your honor or award details</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-honor-title">Title *</Label>
+              <Input
+                id="edit-honor-title"
+                placeholder="e.g., National Merit Scholar"
+                value={editHonor.title}
+                onChange={(e) => setEditHonor({ ...editHonor, title: e.target.value })}
+                className="h-12 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-honor-level">Recognition Level</Label>
+                <Select
+                  value={editHonor.level}
+                  onValueChange={(value) => setEditHonor({ ...editHonor, level: value })}
+                >
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="School">School</SelectItem>
+                    <SelectItem value="Local">Local</SelectItem>
+                    <SelectItem value="State">State</SelectItem>
+                    <SelectItem value="National">National</SelectItem>
+                    <SelectItem value="International">International</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-honor-date">Date Received</Label>
+                <Input
+                  id="edit-honor-date"
+                  type="date"
+                  value={editHonor.dateReceived}
+                  onChange={(e) => setEditHonor({ ...editHonor, dateReceived: e.target.value })}
+                  className="h-12 rounded-xl"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 mb-4">
-              <div>
-                <Label htmlFor="editDescription">Description</Label>
+            <div className="space-y-2">
+              <Label htmlFor="edit-honor-description">Description</Label>
+              <Textarea
+                id="edit-honor-description"
+                placeholder="Describe the achievement and its significance"
+                value={editHonor.description}
+                onChange={(e) => setEditHonor({ ...editHonor, description: e.target.value })}
+                className="rounded-xl"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-3">
+            <Button variant="outline" onClick={() => setIsEditHonorDialogOpen(false)} className="h-12 rounded-xl px-6">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditHonor}
+              disabled={!editHonor.title}
+              className="h-12 rounded-xl px-6 text-white font-semibold"
+              style={{ backgroundColor: "#a78bfa" }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Analyzer Tab */}
+      {activeTab === "analyzer" && session?.user?.id && (
+        <FeatureGate userId={session.user.id} featureName="Activities & Essays Analyzer">
+          <div className="space-y-6">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold flex items-center gap-3" style={{ color: "#0f172a" }}>
+                <Sparkles className="h-6 w-6" style={{ color: "#f89880" }} />
+                Activities & Essays Analyzer
+              </CardTitle>
+              <CardDescription className="text-base">
+                Get expert admissions feedback on your activities and essays from a simulated admissions officer perspective
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Type Selection */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">What would you like to analyze?</Label>
+                <div className="flex gap-3">
+                  <Button
+                    variant={analyzerType === "activity" ? "default" : "outline"}
+                    onClick={() => setAnalyzerType("activity")}
+                    className="flex-1"
+                    style={{
+                      backgroundColor: analyzerType === "activity" ? "#f89880" : "transparent",
+                      color: analyzerType === "activity" ? "white" : "#0f172a",
+                    }}
+                  >
+                    Activity/Honor
+                  </Button>
+                  <Button
+                    variant={analyzerType === "essay" ? "default" : "outline"}
+                    onClick={() => setAnalyzerType("essay")}
+                    className="flex-1"
+                    style={{
+                      backgroundColor: analyzerType === "essay" ? "#f89880" : "transparent",
+                      color: analyzerType === "essay" ? "white" : "#0f172a",
+                    }}
+                  >
+                    Essay
+                  </Button>
+                </div>
+              </div>
+
+              {/* Input Area */}
+              <div className="space-y-2">
+                <Label htmlFor="analyzer-input" className="text-sm font-medium">
+                  {analyzerType === "activity" 
+                    ? "Paste your activity or honor description"
+                    : "Paste your essay or personal statement"}
+                </Label>
                 <Textarea
-                  id="editDescription"
-                  value={editForm.description}
-                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  placeholder="Describe your involvement and responsibilities"
-                  rows={3}
+                  id="analyzer-input"
+                  placeholder={
+                    analyzerType === "activity"
+                      ? "Example: Founded and led a tutoring program at my local library, organizing 15 volunteers to provide free homework help to 50+ elementary school students weekly. Developed curriculum materials and secured $2,000 in funding from local businesses..."
+                      : "Paste your complete essay here..."
+                  }
+                  value={analyzerInput}
+                  onChange={(e) => setAnalyzerInput(e.target.value)}
+                  className="rounded-xl min-h-[300px]"
+                  rows={12}
                 />
+                <p className="text-xs text-gray-500">
+                  Tip: Include as much detail as possible for the most accurate analysis
+                </p>
               </div>
-              <div>
-                <Label htmlFor="editAchievements">Achievements & Awards</Label>
-                <Textarea
-                  id="editAchievements"
-                  value={editForm.achievements}
-                  onChange={(e) => setEditForm({ ...editForm, achievements: e.target.value })}
-                  placeholder="List any awards, recognitions, or notable achievements"
-                  rows={2}
-                />
-              </div>
-            </div>
 
-            <div className="flex gap-2">
-              <Button onClick={handleSaveEdit}>
-                Save Changes
+              {/* Analyze Button */}
+              <Button
+                onClick={handleAnalyze}
+                disabled={isAnalyzing || !analyzerInput.trim()}
+                className="w-full h-12 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:scale-105"
+                style={{ backgroundColor: "#f89880" }}
+              >
+                {isAnalyzing ? (
+                  <span className="flex items-center gap-2">
+                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Analyzing...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5" />
+                    Analyze
+                  </span>
+                )}
               </Button>
-              <Button variant="outline" onClick={handleCancelEdit}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+
+              {/* Results */}
+              {analyzerResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="mt-8 space-y-6"
+                >
+                  {/* Scores */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-xl border-2 border-blue-200 bg-blue-50">
+                      <p className="text-xs font-medium text-blue-700 mb-1">Public Flagship</p>
+                      <div className="text-3xl font-bold text-blue-600">
+                        {analyzerResult.scores?.public_flagship || "N/A"}<span className="text-lg">/5</span>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border-2 border-purple-200 bg-purple-50">
+                      <p className="text-xs font-medium text-purple-700 mb-1">Highly Selective</p>
+                      <div className="text-3xl font-bold text-purple-600">
+                        {analyzerResult.scores?.highly_selective || "N/A"}<span className="text-lg">/5</span>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border-2 border-green-200 bg-green-50">
+                      <p className="text-xs font-medium text-green-700 mb-1">Essay Quality</p>
+                      <div className="text-3xl font-bold text-green-600">
+                        {analyzerResult.scores?.essay_quality || "N/A"}<span className="text-lg">/6</span>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border-2 border-orange-200 bg-orange-50">
+                      <p className="text-xs font-medium text-orange-700 mb-1">Overall Impact</p>
+                      <div className="text-3xl font-bold text-orange-600">
+                        {analyzerResult.scores?.overall || "N/A"}<span className="text-lg">/10</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Summary */}
+                  {analyzerResult.summary && (
+                    <div className="p-6 rounded-xl border-2 border-gray-200 bg-white">
+                      <h3 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: "#0f172a" }}>
+                        <FileText className="h-5 w-5" style={{ color: "#f89880" }} />
+                        Summary
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed">{analyzerResult.summary}</p>
+                    </div>
+                  )}
+
+                  {/* Key Strengths */}
+                  {analyzerResult.strengths && analyzerResult.strengths.length > 0 && (
+                    <div className="p-6 rounded-xl border-2 border-green-200 bg-green-50">
+                      <h3 className="text-lg font-bold mb-3 flex items-center gap-2 text-green-800">
+                        <Trophy className="h-5 w-5" />
+                        Key Strengths
+                      </h3>
+                      <ul className="space-y-2">
+                        {analyzerResult.strengths.map((strength: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2 text-green-900">
+                            <span className="text-green-600 mt-1">✓</span>
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Areas to Improve */}
+                  {analyzerResult.improvements && analyzerResult.improvements.length > 0 && (
+                    <div className="p-6 rounded-xl border-2 border-orange-200 bg-orange-50">
+                      <h3 className="text-lg font-bold mb-3 flex items-center gap-2 text-orange-800">
+                        <Target className="h-5 w-5" />
+                        Areas to Improve
+                      </h3>
+                      <ul className="space-y-2">
+                        {analyzerResult.improvements.map((improvement: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2 text-orange-900">
+                            <span className="text-orange-600 mt-1">→</span>
+                            <span>{improvement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
+          </div>
+        </FeatureGate>
       )}
     </div>
   )

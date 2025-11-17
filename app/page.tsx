@@ -4,206 +4,336 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import Link from "next/link"
-import { GraduationCap, BookOpen, Trophy, FileText, Target, Award, Users, Calendar, Briefcase } from "lucide-react"
-import { PngLogo } from "@/components/png-logo"
+import { ArrowRight, CheckCircle, BarChart3, Calendar, Sparkles } from "lucide-react"
+import { motion } from "framer-motion"
 
 export default function HomePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
   useEffect(() => {
-    // Only redirect if explicitly authenticated
     if (status === "authenticated" && session) {
       router.push("/dashboard")
     }
   }, [status, session, router])
 
-  // Show loading state only briefly, then show content anyway
-  if (status === "loading") {
-    // Continue to show content even if loading
-  }
-
   if (status === "authenticated") {
-    return null // Will redirect to dashboard
+    return null
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Logo in top-left corner */}
-      <div className="absolute top-8 left-8 z-10">
-        <PngLogo size="lg" className="h-16 w-16" />
-      </div>
-
-      <div className="container mx-auto px-4 py-16 max-w-6xl">
-        {/* Main heading and description */}
-        <div className="text-center mb-16 pt-20">
-          <h1 className="text-5xl font-bold mb-6 font-geist text-navy-800">
-            My College Map
-          </h1>
-          <p className="text-xl max-w-3xl mx-auto text-navy-600">
-            Streamline your college and summer program application process with our comprehensive tracking tool. 
-            Manage your GPA, test scores, extracurriculars, essays, internships, and educational programs all in one place.
-          </p>
-        </div>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-            <GraduationCap className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-            <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-              GPA Tracking
-            </h3>
-            <p className="text-sm text-navy-600">
-              Monitor your academic performance with detailed GPA tracking and analysis.
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-red-100 via-orange-50 to-blue-100">
+      {/* Navigation */}
+      <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm fixed top-0 w-full z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="text-2xl font-bold" style={{ color: '#1e293b' }}>
+              MyCollegeMap
+            </Link>
+            <Link 
+              href="/features" 
+              className="text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
+            >
+              Features
+            </Link>
+            <Link 
+              href="/pricing" 
+              className="text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
+            >
+              Pricing
+            </Link>
           </div>
-
-          <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-            <BookOpen className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-            <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-              Test Scores
-            </h3>
-            <p className="text-sm text-navy-600">
-              Keep track of all your standardized test scores in one organized location.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-            <Trophy className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-            <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-              Activities & Awards
-            </h3>
-            <p className="text-sm text-navy-600">
-              Document your extracurricular activities, honors, and achievements.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-            <FileText className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-            <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-              Essay Management
-            </h3>
-            <p className="text-sm text-navy-600">
-              Organize and track your college essays with progress monitoring.
-            </p>
-          </div>
-
-        <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-          <Target className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-          <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-            College List
-          </h3>
-          <p className="text-sm text-navy-600">
-            Build and manage your college application list with detailed information.
-          </p>
-        </div>
-
-          <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-            <Award className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-            <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-              AI Analysis
-            </h3>
-            <p className="text-sm text-navy-600">
-              Get AI-powered insights to strengthen your activities and honors.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-            <Users className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-            <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-              Progress Tracking
-            </h3>
-            <p className="text-sm text-navy-600">
-              Visualize your application progress with comprehensive dashboards.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-            <Calendar className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-            <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-              Deadline Management
-            </h3>
-            <p className="text-sm text-navy-600">
-              Never miss important deadlines with our comprehensive calendar system.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-lg border border-gray-200 bg-white/80 backdrop-blur-sm">
-            <Briefcase className="mx-auto h-10 w-10 mb-4" style={{ color: '#f89880' }} />
-            <h3 className="text-lg font-semibold mb-2 font-geist text-navy-800">
-              Summer Programs & Internships
-            </h3>
-            <p className="text-sm text-navy-600">
-              Track applications for summer programs, internships, and educational opportunities.
-            </p>
+          <div className="flex gap-4 items-center">
+            <Link
+              href="/auth/login"
+              className="px-5 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="px-5 py-2 text-sm font-medium rounded-full text-white transition-all hover:shadow-lg"
+              style={{ backgroundColor: '#f89880' }}
+            >
+              Start free
+            </Link>
           </div>
         </div>
+      </nav>
 
-        {/* CTA Section */}
-        <div className="text-center">
-          <div className="rounded-lg p-8 max-w-2xl mx-auto border border-gray-200 bg-white/90 backdrop-blur-sm">
-            <h2 className="text-3xl font-bold mb-4 font-geist text-navy-800">
-              Ready to Start Your Academic Journey?
-            </h2>
-            <p className="mb-8 text-navy-600">
-              Join thousands of students who are already using My College Map to organize their college applications, summer programs, internships, and track their academic progress.
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight" style={{ color: '#0f172a' }}>
+              Navigate your path
+              <br />
+              to <span style={{ color: '#f89880' }}>college success</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-3xl leading-relaxed">
+              The complete platform to track applications, manage deadlines, and organize your college journey, all in one place.
             </p>
-            <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/auth/signup"
-                className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-lg transition-colors text-white border focus:outline-none focus:ring-2 focus:ring-offset-2"
-                style={{ 
-                  backgroundColor: '#f89880',
-                  borderColor: '#f89880'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f5856b';
-                  e.currentTarget.style.borderColor = '#f5856b';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f89880';
-                  e.currentTarget.style.borderColor = '#f89880';
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.outline = '2px solid #f89880';
-                  e.currentTarget.style.outlineOffset = '2px';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.outline = 'none';
-                }}
+                className="group px-8 py-4 text-lg font-medium rounded-full text-white transition-all hover:shadow-xl hover:scale-105 flex items-center gap-2 w-fit"
+                style={{ backgroundColor: '#f89880' }}
               >
-                Create Account
-              </Link>
-              <Link
-                href="/auth/login"
-                className="inline-flex items-center px-8 py-4 text-lg font-medium rounded-lg transition-colors border focus:outline-none focus:ring-2 focus:ring-offset-2"
-                style={{ 
-                  backgroundColor: 'transparent',
-                  color: '#f89880',
-                  borderColor: '#f89880'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f89880';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#f89880';
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.outline = '2px solid #f89880';
-                  e.currentTarget.style.outlineOffset = '2px';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.outline = 'none';
-                }}
-              >
-                Sign In
+                Get started
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
+          </motion.div>
+          <motion.div 
+            className="flex justify-center lg:justify-end"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <motion.img 
+              src="/titlep.png" 
+              alt="Student climbing ladder to graduation cap"
+              className="w-full max-w-3xl h-auto"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Mission Statement Section */}
+      <section className="py-24 px-6">
+        <motion.div 
+          className="max-w-6xl mx-auto"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
+        >
+          <motion.p 
+            className="text-2xl md:text-3xl text-slate-700 mb-8 leading-relaxed font-light"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            Making college admissions guidance accessible, affordable, and equitable.
+            {" "}
+            MyCollegeMap helps every student understand requirements, build a competitive profile, and stay organized without the cost of traditional counseling.
+          </motion.p>
+          <motion.h2 
+            className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight" 
+            style={{ color: '#0f172a' }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+          >
+            Everyone deserves to go
+            <br />
+            to go to college
+          </motion.h2>
+        </motion.div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#0f172a' }}>
+              Everything you need
+            </h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Powerful tools to streamline your college application process
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: BarChart3,
+                title: "Track everything",
+                description: "GPA, test scores, extracurriculars, essays, and deadlines, all organized in one dashboard."
+              },
+              {
+                icon: Calendar,
+                title: "Stay organized",
+                description: "Never miss a deadline with smart reminders and comprehensive calendar management."
+              },
+              {
+                icon: Sparkles,
+                title: "Get insights",
+                description: "Customized analysis to strengthen your profile and improve your applications."
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                className="p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition-all"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+              >
+                <div className="w-12 h-12 rounded-xl mb-6 flex items-center justify-center" style={{ backgroundColor: '#fef3f2' }}>
+                  <feature.icon className="w-6 h-6" style={{ color: '#f89880' }} />
+                </div>
+                <h3 className="text-2xl font-semibold mb-3" style={{ color: '#0f172a' }}>
+                  {feature.title}
+                </h3>
+                <p className="text-slate-600 leading-relaxed">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            className="rounded-3xl p-12 md:p-16 text-center" 
+            style={{ backgroundColor: '#fef3f2' }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.h2 
+              className="text-4xl md:text-5xl font-bold mb-8" 
+              style={{ color: '#0f172a' }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Trusted by students everywhere
+            </motion.h2>
+            <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+              {[
+                { stat: "10K+", label: "Active students" },
+                { stat: "50K+", label: "Applications tracked" },
+                { stat: "95%", label: "Satisfaction rate" }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
+                >
+                  <div className="text-5xl font-bold mb-2" style={{ color: '#f89880' }}>{item.stat}</div>
+                  <div className="text-slate-600 text-lg">{item.label}</div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <motion.h2 
+            className="text-4xl md:text-5xl font-bold mb-12 text-center" 
+            style={{ color: '#0f172a' }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Why MyCollegeMap?
+          </motion.h2>
+          <div className="space-y-6">
+            {[
+              "Comprehensive tracking for GPA, test scores, activities, and essays",
+              "Smart deadline management with automated reminders",
+              "Customized insights to strengthen your applications",
+              "Summer programs and internship tracking",
+              "Beautiful, intuitive interface that's easy to use",
+              "Secure cloud storage, access anywhere, anytime"
+            ].map((benefit, index) => (
+              <motion.div 
+                key={index} 
+                className="flex items-start gap-4 p-6 rounded-xl hover:bg-slate-50 transition-colors"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+              >
+                <CheckCircle className="w-6 h-6 flex-shrink-0 mt-1" style={{ color: '#f89880' }} />
+                <p className="text-lg text-slate-700">{benefit}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-6">
+        <motion.div 
+          className="max-w-4xl mx-auto text-center"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#0f172a' }}>
+            Start your journey today
+          </h2>
+          <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto">
+            Join thousands of students using MyCollegeMap to organize their college applications and achieve their dreams.
+          </p>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center gap-2 px-10 py-5 text-lg font-medium rounded-full text-white transition-all hover:shadow-xl"
+              style={{ backgroundColor: '#f89880' }}
+            >
+              Get started for free
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 py-12 px-6">
+        <motion.div 
+          className="max-w-6xl mx-auto text-center text-slate-600"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <p className="mb-2">Questions or support?</p>
+          <a 
+            href="mailto:mycollegemap@gmail.com" 
+            className="hover:underline"
+            style={{ color: '#f89880' }}
+          >
+            mycollegemap@gmail.com
+          </a>
+          <p className="mt-8 text-sm text-slate-500">
+            © 2024 MyCollegeMap. All rights reserved.
+          </p>
+        </motion.div>
+      </footer>
     </div>
   )
 }

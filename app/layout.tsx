@@ -5,13 +5,14 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { DataProvider } from "@/lib/data-context"
+import { SidebarProvider } from "@/lib/sidebar-context"
 import { Toaster } from "@/components/ui/sonner"
 
 const dmSans = DM_Sans({ subsets: ["latin"] })
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "College Application Tracker",
+  title: "MCM",
   description: "Track your college applications, essays, and academic progress",
     generator: 'v0.app'
 }
@@ -26,10 +27,12 @@ export default function RootLayout({
       <body className={dmSans.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>
-            <DataProvider>
-              {children}
-              <Toaster />
-            </DataProvider>
+            <SidebarProvider>
+              <DataProvider>
+                {children}
+                <Toaster />
+              </DataProvider>
+            </SidebarProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
