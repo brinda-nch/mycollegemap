@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Trophy, Award, Trash2, Edit, Clock, Users, BookOpen, Sparkles, Target, FileText } from "lucide-react"
+import { Plus, Trophy, Award, Trash2, Edit, Clock, Users, BookOpen, Sparkles, Target, FileText, BookMarked } from "lucide-react"
 import { useData } from "@/lib/data-context"
 import { FeatureGate } from "@/components/feature-gate"
 import {
@@ -28,7 +28,7 @@ export default function ExtracurricularsPage() {
   const { data: session } = useSession()
   const { activities, addActivity, deleteActivity, updateActivity, honorsAwards, addHonorAward, deleteHonorAward, updateHonorAward } = useData()
 
-  const [activeTab, setActiveTab] = useState<"activities" | "honors" | "analyzer">("activities")
+  const [activeTab, setActiveTab] = useState<"activities" | "honors" | "analyzer" | "resources">("activities")
 
   // Activities State
   const [isAddActivityDialogOpen, setIsAddActivityDialogOpen] = useState(false)
@@ -336,6 +336,20 @@ export default function ExtracurricularsPage() {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5" />
                 <span>Analyzer</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("resources")}
+              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                activeTab === "resources"
+                  ? "text-white shadow-lg"
+                  : "text-slate-600 hover:bg-white/50"
+              }`}
+              style={{ backgroundColor: activeTab === "resources" ? "#34d399" : "transparent" }}
+            >
+              <div className="flex items-center gap-2">
+                <BookMarked className="h-5 w-5" />
+                <span>Resources</span>
               </div>
             </button>
           </div>
@@ -1118,6 +1132,190 @@ export default function ExtracurricularsPage() {
           </Card>
           </div>
         </FeatureGate>
+      )}
+
+      {/* Resources Tab */}
+      {activeTab === "resources" && (
+        <div className="space-y-6">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold flex items-center gap-3" style={{ color: "#0f172a" }}>
+                <BookMarked className="h-6 w-6" style={{ color: "#34d399" }} />
+                Resources
+              </CardTitle>
+              <CardDescription className="text-base">
+                Helpful resources and guides for building strong extracurricular profiles
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Resource Card 1 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 hover:shadow-lg transition-all">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <BookOpen className="h-6 w-6 text-green-600" />
+                        <CardTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                          Building Your Profile
+                        </CardTitle>
+                      </div>
+                      <CardDescription>
+                        Learn how to develop a compelling extracurricular profile
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-1">•</span>
+                          <span>Focus on depth over breadth - quality matters more than quantity</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-1">•</span>
+                          <span>Develop a "spike" or area of expertise that shows passion and commitment</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-1">•</span>
+                          <span>Show leadership and initiative, not just participation</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-1">•</span>
+                          <span>Document impact and achievements with specific numbers and outcomes</span>
+                        </li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Resource Card 2 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                  <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 hover:shadow-lg transition-all">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <Target className="h-6 w-6 text-blue-600" />
+                        <CardTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                          Activity Descriptions
+                        </CardTitle>
+                      </div>
+                      <CardDescription>
+                        Tips for writing effective activity descriptions
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-600 mt-1">•</span>
+                          <span>Use action verbs to describe your role and impact</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-600 mt-1">•</span>
+                          <span>Include specific numbers (hours, people helped, funds raised, etc.)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-600 mt-1">•</span>
+                          <span>Focus on what you accomplished, not just what you did</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-600 mt-1">•</span>
+                          <span>Keep descriptions concise but impactful (150 characters for Common App)</span>
+                        </li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Resource Card 3 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 hover:shadow-lg transition-all">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <Trophy className="h-6 w-6 text-purple-600" />
+                        <CardTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                          Honors & Awards
+                        </CardTitle>
+                      </div>
+                      <CardDescription>
+                        How to showcase your achievements effectively
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-600 mt-1">•</span>
+                          <span>List awards in order of significance, not chronologically</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-600 mt-1">•</span>
+                          <span>Include the level of recognition (school, state, national, international)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-600 mt-1">•</span>
+                          <span>Explain the selection process and how many students were considered</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-600 mt-1">•</span>
+                          <span>Connect awards to your activities and interests to show consistency</span>
+                        </li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Resource Card 4 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 hover:shadow-lg transition-all">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <Users className="h-6 w-6 text-orange-600" />
+                        <CardTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                          Leadership Tips
+                        </CardTitle>
+                      </div>
+                      <CardDescription>
+                        Strategies for demonstrating leadership in your activities
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-600 mt-1">•</span>
+                          <span>Start initiatives or projects, don't just join existing ones</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-600 mt-1">•</span>
+                          <span>Show how you've mentored others or built a team</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-600 mt-1">•</span>
+                          <span>Document measurable outcomes from your leadership</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-600 mt-1">•</span>
+                          <span>Leadership can be informal - show initiative even without a title</span>
+                        </li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   )
