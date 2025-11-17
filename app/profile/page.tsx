@@ -74,9 +74,11 @@ const CATEGORY_TO_MAJORS: Record<string, Array<{ major: string; icon: any }>> = 
 
 export default function MyProfilePage() {
   const { data: session } = useSession()
-  const { activities, honorsAwards } = useData()
+  const { activities, honorsAwards, gpaEntries, testScores, essays } = useData()
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null)
   const [isLoadingPortal, setIsLoadingPortal] = useState(false)
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
     async function fetchStatus() {
@@ -123,6 +125,44 @@ export default function MyProfilePage() {
       console.error('❌ Error opening portal:', error)
       alert(`Error: ${error.message || 'Failed to open subscription portal. Please make sure you have an active subscription.'}`)
       setIsLoadingPortal(false)
+    }
+  }
+
+  const handleAIAnalysis = async () => {
+    setIsAnalyzing(true)
+    setAiAnalysis(null)
+    
+    try {
+      const response = await fetch("/api/analyze-profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          activities,
+          honorsAwards,
+          gpaEntries,
+          testScores,
+          essays,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Analysis failed")
+      }
+
+      const data = await response.json()
+      if (data.success && data.analysis) {
+        setAiAnalysis(data.analysis)
+      } else {
+        throw new Error("Invalid response from analysis API")
+      }
+    } catch (error: any) {
+      console.error('❌ Analysis error:', error)
+      alert(`Analysis failed: ${error.message || 'Please try again later.'}`)
+    } finally {
+      setIsAnalyzing(false)
     }
   }
 
@@ -398,7 +438,335 @@ export default function MyProfilePage() {
           </motion.div>
         )}
 
-        {!analysis.primarySpike ? (
+        {/* AI Analysis Button */}
+        {(activities.length > 0 || honorsAwards.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="mb-6"
+          >
+            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold mb-2" style={{ color: "#0f172a" }}>
+                      AI-Powered Profile Analysis
+                    </h3>
+                    <p className="text-slate-600">
+                      Get comprehensive analysis of your activities, honors, GPA, test scores, and essays to identify your academic spike, recommended majors, and strategic next steps.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleAIAnalysis}
+                    disabled={isAnalyzing}
+                    className="h-12 px-6 text-white font-semibold rounded-xl"
+                    style={{ backgroundColor: "#f89880" }}
+                  >
+                    {isAnalyzing ? (
+                      <span className="flex items-center gap-2">
+                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Analyzing...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5" />
+                        Analyze Profile
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Display AI Analysis if available */}
+        {aiAnalysis ? (
+          <div className="space-y-6">
+            {/* Academic Spike */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="h-6 w-6" style={{ color: "#f89880" }} />
+                    <div>
+                      <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                        Your Academic Spike
+                      </CardTitle>
+                      <CardDescription className="text-base mt-1">
+                        AI-analyzed based on your complete profile
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="p-6 rounded-xl" style={{ backgroundColor: "rgba(248, 152, 128, 0.1)" }}>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-3xl font-bold mb-2" style={{ color: "#f89880" }}>
+                          {aiAnalysis.academicSpike?.category || "Not identified"}
+                        </h3>
+                        <p className="text-slate-700 text-base leading-relaxed mb-4">
+                          {aiAnalysis.academicSpike?.description || ""}
+                        </p>
+                        {aiAnalysis.academicSpike?.keyEvidence && aiAnalysis.academicSpike.keyEvidence.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm font-semibold text-slate-700">Key Evidence:</p>
+                            <ul className="list-disc list-inside space-y-1 text-sm text-slate-600">
+                              {aiAnalysis.academicSpike.keyEvidence.map((evidence: string, idx: number) => (
+                                <li key={idx}>{evidence}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-4 py-2 rounded-xl bg-white border-2 ml-4" style={{ borderColor: "#f89880" }}>
+                        <p className="text-sm font-medium text-slate-600">Strength</p>
+                        <div className="text-2xl font-bold" style={{ color: "#f89880" }}>
+                          {aiAnalysis.academicSpike?.strength || 0}/100
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Recommended Majors */}
+            {aiAnalysis.recommendedMajors && aiAnalysis.recommendedMajors.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
+                <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <BookOpen className="h-6 w-6 text-blue-600" />
+                      <div>
+                        <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                          Recommended Majors
+                        </CardTitle>
+                        <CardDescription className="text-base mt-1">
+                          Based on your complete academic and extracurricular profile
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {aiAnalysis.recommendedMajors.map((major: any, idx: number) => {
+                        const Icon = getMajorIcon(major.major)
+                        return (
+                          <div
+                            key={idx}
+                            className="p-5 rounded-xl border-2 hover:shadow-lg transition-all"
+                            style={{
+                              backgroundColor: major.relevance > 90 ? "rgba(96, 165, 250, 0.1)" : "rgba(241, 245, 249, 1)",
+                              borderColor: major.relevance > 90 ? "#60a5fa" : "#e2e8f0"
+                            }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 rounded-lg bg-white">
+                                <Icon className="h-5 w-5 text-blue-600" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-1">
+                                  <h4 className="font-bold text-slate-900">{major.major}</h4>
+                                  <Badge 
+                                    variant={major.relevance > 90 ? "default" : "secondary"}
+                                    className={major.relevance > 90 ? "bg-blue-600" : ""}
+                                  >
+                                    {major.relevance}% match
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-slate-600 leading-relaxed">
+                                  {major.reasoning}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Suggested Next Steps */}
+            {aiAnalysis.suggestedNextSteps && aiAnalysis.suggestedNextSteps.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <Target className="h-6 w-6 text-green-600" />
+                      <div>
+                        <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                          Suggested Next Steps
+                        </CardTitle>
+                        <CardDescription className="text-base mt-1">
+                          Strategic recommendations to strengthen your profile
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {aiAnalysis.suggestedNextSteps.map((step: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="p-5 rounded-xl bg-green-50 border-2 border-green-200 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 rounded-lg bg-white mt-1">
+                              <Lightbulb className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-bold text-green-900">{step.step}</h4>
+                                <Badge 
+                                  variant={step.priority === "high" ? "default" : "secondary"}
+                                  className={step.priority === "high" ? "bg-red-600" : step.priority === "medium" ? "bg-yellow-600" : ""}
+                                >
+                                  {step.priority}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-green-800 leading-relaxed">
+                                {step.reasoning}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Mission Statements */}
+            {aiAnalysis.missionStatements && aiAnalysis.missionStatements.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <MessageSquare className="h-6 w-6" style={{ color: "#a78bfa" }} />
+                      <div>
+                        <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                          Mission Statement Ideas
+                        </CardTitle>
+                        <CardDescription className="text-base mt-1">
+                          Synthesized from your complete profile
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {aiAnalysis.missionStatements.map((statement: string, idx: number) => (
+                        <div
+                          key={idx}
+                          className="p-5 rounded-xl bg-purple-50 border-2 border-purple-200"
+                        >
+                          <p className="text-base text-purple-900 leading-relaxed italic">
+                            "{statement}"
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Overall Strength */}
+            {aiAnalysis.overallStrength && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="h-6 w-6 text-blue-600" />
+                      <div>
+                        <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                          Overall Applicant Strength
+                        </CardTitle>
+                        <CardDescription className="text-base mt-1">
+                          Comprehensive assessment of your profile
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      <div className="p-6 rounded-xl bg-blue-50 border-2 border-blue-200">
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <p className="text-sm font-medium text-slate-600 mb-1">Overall Score</p>
+                            <div className="text-4xl font-bold text-blue-600">
+                              {aiAnalysis.overallStrength.score}/100
+                            </div>
+                          </div>
+                          <Badge className="bg-blue-600 text-white text-lg px-4 py-2">
+                            {aiAnalysis.overallStrength.tier}
+                          </Badge>
+                        </div>
+                        <p className="text-slate-700 leading-relaxed">
+                          {aiAnalysis.overallStrength.admissionsAdvice}
+                        </p>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-xl bg-green-50 border-2 border-green-200">
+                          <h4 className="font-bold text-green-900 mb-3">Key Strengths</h4>
+                          <ul className="space-y-2">
+                            {aiAnalysis.overallStrength.strengths?.map((strength: string, idx: number) => (
+                              <li key={idx} className="flex items-start gap-2 text-green-800 text-sm">
+                                <span className="text-green-600 mt-1">✓</span>
+                                <span>{strength}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="p-4 rounded-xl bg-orange-50 border-2 border-orange-200">
+                          <h4 className="font-bold text-orange-900 mb-3">Areas for Growth</h4>
+                          <ul className="space-y-2">
+                            {aiAnalysis.overallStrength.areasForGrowth?.map((area: string, idx: number) => (
+                              <li key={idx} className="flex items-start gap-2 text-orange-800 text-sm">
+                                <span className="text-orange-600 mt-1">→</span>
+                                <span>{area}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+          </div>
+        )}
+
+        {!analysis.primarySpike && !aiAnalysis ? (
           // Empty state
           <motion.div
             initial={{ opacity: 0, y: 20 }}
