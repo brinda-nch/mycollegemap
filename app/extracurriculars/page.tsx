@@ -27,7 +27,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 export default function ExtracurricularsPage() {
   const { data: session } = useSession()
-  const { activities, addActivity, deleteActivity, updateActivity, honorsAwards, addHonorAward, deleteHonorAward, updateHonorAward } = useData()
+  const { activities, addActivity, deleteActivity, updateActivity, honorsAwards, addHonorAward, deleteHonorAward, updateHonorAward, essays } = useData()
 
   const [activeTab, setActiveTab] = useState<"activities" | "honors" | "analyzer" | "resources">("activities")
 
@@ -72,8 +72,9 @@ export default function ExtracurricularsPage() {
   })
 
   // Analyzer State
-  const [analyzerInput, setAnalyzerInput] = useState("")
-  const [analyzerType, setAnalyzerType] = useState<"activity" | "essay">("activity")
+  const [selectedActivities, setSelectedActivities] = useState<Set<string>>(new Set())
+  const [selectedHonors, setSelectedHonors] = useState<Set<string>>(new Set())
+  const [selectedEssays, setSelectedEssays] = useState<Set<string>>(new Set())
   const [analyzerResult, setAnalyzerResult] = useState<any>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
@@ -198,17 +199,68 @@ export default function ExtracurricularsPage() {
   }
 
   const handleAnalyze = async () => {
-    if (!analyzerInput.trim()) return
+    // Get selected items
+    const selectedActivityItems = activities.filter(a => selectedActivities.has(a.id))
+    const selectedHonorItems = honorsAwards.filter(h => selectedHonors.has(h.id))
+    const selectedEssayItems = essays.filter(e => selectedEssays.has(e.id))
+
+    // Check if any items are selected
+    const totalSelected = selectedActivityItems.length + selectedHonorItems.length + selectedEssayItems.length
+    if (totalSelected === 0) {
+      alert("Please select at least one item to analyze")
+      return
+    }
 
     const startTime = Date.now()
     console.log('🎯 [FRONTEND] Starting analysis...', {
-      type: analyzerType,
-      inputLength: analyzerInput.length,
+      activitiesCount: selectedActivityItems.length,
+      honorsCount: selectedHonorItems.length,
+      essaysCount: selectedEssayItems.length,
+      totalSelected,
       timestamp: new Date().toISOString()
     })
 
     setIsAnalyzing(true)
     setAnalyzerResult(null)
+
+    // Build combined text from selected items
+    let combinedText = ""
+    
+    if (selectedActivityItems.length > 0) {
+      combinedText += "ACTIVITIES:\n\n"
+      selectedActivityItems.forEach((activity, idx) => {
+        combinedText += `Activity ${idx + 1}: ${activity.activityName}\n`
+        if (activity.category) combinedText += `Category: ${activity.category}\n`
+        if (activity.leadershipPosition) combinedText += `Role: ${activity.leadershipPosition}\n`
+        if (activity.description) combinedText += `Description: ${activity.description}\n`
+        if (activity.hoursPerWeek && activity.weeksPerYear && activity.yearsParticipated) {
+          const totalHours = activity.hoursPerWeek * activity.weeksPerYear * activity.yearsParticipated
+          combinedText += `Time commitment: ${activity.hoursPerWeek} hrs/week × ${activity.weeksPerYear} weeks/year × ${activity.yearsParticipated} years = ${totalHours} total hours\n`
+        }
+        combinedText += "\n"
+      })
+    }
+
+    if (selectedHonorItems.length > 0) {
+      combinedText += "HONORS & AWARDS:\n\n"
+      selectedHonorItems.forEach((honor, idx) => {
+        combinedText += `Honor ${idx + 1}: ${honor.title}\n`
+        if (honor.level) combinedText += `Level: ${honor.level}\n`
+        if (honor.description) combinedText += `Description: ${honor.description}\n`
+        if (honor.dateReceived) combinedText += `Date: ${honor.dateReceived}\n`
+        combinedText += "\n"
+      })
+    }
+
+    if (selectedEssayItems.length > 0) {
+      combinedText += "ESSAYS:\n\n"
+      selectedEssayItems.forEach((essay, idx) => {
+        combinedText += `Essay ${idx + 1}: ${essay.title || 'Untitled'}\n`
+        if (essay.prompt) combinedText += `Prompt: ${essay.prompt}\n`
+        if (essay.content) combinedText += `Content: ${essay.content}\n`
+        combinedText += "\n"
+      })
+    }
 
     // Create timeout controller
     const controller = new AbortController()
@@ -227,8 +279,8 @@ export default function ExtracurricularsPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          input: analyzerInput,
-          type: analyzerType,
+          input: combinedText,
+          type: selectedEssayItems.length > 0 ? "essay" : "activity",
         }),
         signal: controller.signal,
       })
@@ -271,7 +323,7 @@ export default function ExtracurricularsPage() {
       })
       
       if (error.name === 'AbortError') {
-        alert("⏱️ Analysis timed out (45 seconds).\n\nPossible causes:\n- OpenAI API is slow\n- Your text is too long\n- Network issues\n\nTry with shorter text or check your internet connection.")
+        alert("⏱️ Analysis timed out (45 seconds).\n\nPossible causes:\n- OpenAI API is slow\n- You selected too many items\n- Network issues\n\nTry selecting fewer items or check your internet connection.")
       } else {
         alert(`❌ Analysis failed:\n\n${error.message}\n\nCheck the browser console for more details.`)
       }
@@ -280,6 +332,55 @@ export default function ExtracurricularsPage() {
       setIsAnalyzing(false)
       console.log('🏁 [FRONTEND] Analysis process completed')
     }
+  }
+
+  // Helper functions for selection
+  const toggleActivity = (activityId: string) => {
+    const newSet = new Set(selectedActivities)
+    if (newSet.has(activityId)) {
+      newSet.delete(activityId)
+    } else {
+      newSet.add(activityId)
+    }
+    setSelectedActivities(newSet)
+  }
+
+  const toggleHonor = (honorId: string) => {
+    const newSet = new Set(selectedHonors)
+    if (newSet.has(honorId)) {
+      newSet.delete(honorId)
+    } else {
+      newSet.add(honorId)
+    }
+    setSelectedHonors(newSet)
+  }
+
+  const toggleEssay = (essayId: string) => {
+    const newSet = new Set(selectedEssays)
+    if (newSet.has(essayId)) {
+      newSet.delete(essayId)
+    } else {
+      newSet.add(essayId)
+    }
+    setSelectedEssays(newSet)
+  }
+
+  const selectAllActivities = () => {
+    setSelectedActivities(new Set(activities.map(a => a.id)))
+  }
+
+  const selectAllHonors = () => {
+    setSelectedHonors(new Set(honorsAwards.map(h => h.id)))
+  }
+
+  const selectAllEssays = () => {
+    setSelectedEssays(new Set(essays.map(e => e.id)))
+  }
+
+  const clearAllSelections = () => {
+    setSelectedActivities(new Set())
+    setSelectedHonors(new Set())
+    setSelectedEssays(new Set())
   }
 
   return (
@@ -984,63 +1085,157 @@ export default function ExtracurricularsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Type Selection */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">What would you like to analyze?</Label>
-                <div className="flex gap-3">
+              {/* Selection Controls */}
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Select items to analyze:</Label>
+                <div className="flex gap-2">
                   <Button
-                    variant={analyzerType === "activity" ? "default" : "outline"}
-                    onClick={() => setAnalyzerType("activity")}
-                    className="flex-1"
-                    style={{
-                      backgroundColor: analyzerType === "activity" ? "#f89880" : "transparent",
-                      color: analyzerType === "activity" ? "white" : "#0f172a",
-                    }}
+                    variant="outline"
+                    size="sm"
+                    onClick={selectAllActivities}
+                    disabled={activities.length === 0}
                   >
-                    Activity/Honor
+                    All Activities
                   </Button>
                   <Button
-                    variant={analyzerType === "essay" ? "default" : "outline"}
-                    onClick={() => setAnalyzerType("essay")}
-                    className="flex-1"
-                    style={{
-                      backgroundColor: analyzerType === "essay" ? "#f89880" : "transparent",
-                      color: analyzerType === "essay" ? "white" : "#0f172a",
-                    }}
+                    variant="outline"
+                    size="sm"
+                    onClick={selectAllHonors}
+                    disabled={honorsAwards.length === 0}
                   >
-                    Essay
+                    All Honors
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={selectAllEssays}
+                    disabled={essays.length === 0}
+                  >
+                    All Essays
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearAllSelections}
+                    disabled={selectedActivities.size === 0 && selectedHonors.size === 0 && selectedEssays.size === 0}
+                  >
+                    Clear
                   </Button>
                 </div>
               </div>
 
-              {/* Input Area */}
-              <div className="space-y-2">
-                <Label htmlFor="analyzer-input" className="text-sm font-medium">
-                  {analyzerType === "activity" 
-                    ? "Paste your activity or honor description"
-                    : "Paste your essay or personal statement"}
-                </Label>
-                <Textarea
-                  id="analyzer-input"
-                  placeholder={
-                    analyzerType === "activity"
-                      ? "Example: Founded and led a tutoring program at my local library, organizing 15 volunteers to provide free homework help to 50+ elementary school students weekly. Developed curriculum materials and secured $2,000 in funding from local businesses..."
-                      : "Paste your complete essay here..."
-                  }
-                  value={analyzerInput}
-                  onChange={(e) => setAnalyzerInput(e.target.value)}
-                  className="rounded-xl min-h-[300px]"
-                  rows={12}
-                />
-                <p className="text-xs text-gray-500">
-                  Tip: Include as much detail as possible for the most accurate analysis
-                </p>
-              </div>
+              {/* Activities Section */}
+              {activities.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                    <Trophy className="h-5 w-5" style={{ color: "#f89880" }} />
+                    Activities ({selectedActivities.size} of {activities.length} selected)
+                  </h3>
+                  <div className="max-h-64 overflow-y-auto space-y-2 border rounded-xl p-3 bg-gray-50">
+                    {activities.map((activity) => (
+                      <label
+                        key={activity.id}
+                        className="flex items-start gap-3 p-3 rounded-lg hover:bg-white cursor-pointer transition-colors border border-transparent hover:border-gray-200"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedActivities.has(activity.id)}
+                          onChange={() => toggleActivity(activity.id)}
+                          className="mt-1 h-4 w-4 rounded border-gray-300"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-slate-900">{activity.activityName}</p>
+                          {activity.category && (
+                            <p className="text-xs text-gray-500 mt-0.5">{activity.category}</p>
+                          )}
+                          {activity.description && (
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{activity.description}</p>
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Honors Section */}
+              {honorsAwards.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                    <Award className="h-5 w-5" style={{ color: "#a78bfa" }} />
+                    Honors & Awards ({selectedHonors.size} of {honorsAwards.length} selected)
+                  </h3>
+                  <div className="max-h-64 overflow-y-auto space-y-2 border rounded-xl p-3 bg-gray-50">
+                    {honorsAwards.map((honor) => (
+                      <label
+                        key={honor.id}
+                        className="flex items-start gap-3 p-3 rounded-lg hover:bg-white cursor-pointer transition-colors border border-transparent hover:border-gray-200"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedHonors.has(honor.id)}
+                          onChange={() => toggleHonor(honor.id)}
+                          className="mt-1 h-4 w-4 rounded border-gray-300"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-slate-900">{honor.title}</p>
+                          {honor.level && (
+                            <p className="text-xs text-gray-500 mt-0.5">{honor.level}</p>
+                          )}
+                          {honor.description && (
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{honor.description}</p>
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Essays Section */}
+              {essays.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                    <FileText className="h-5 w-5" style={{ color: "#34d399" }} />
+                    Essays ({selectedEssays.size} of {essays.length} selected)
+                  </h3>
+                  <div className="max-h-64 overflow-y-auto space-y-2 border rounded-xl p-3 bg-gray-50">
+                    {essays.map((essay) => (
+                      <label
+                        key={essay.id}
+                        className="flex items-start gap-3 p-3 rounded-lg hover:bg-white cursor-pointer transition-colors border border-transparent hover:border-gray-200"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedEssays.has(essay.id)}
+                          onChange={() => toggleEssay(essay.id)}
+                          className="mt-1 h-4 w-4 rounded border-gray-300"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-slate-900">{essay.title || 'Untitled Essay'}</p>
+                          {essay.prompt && (
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{essay.prompt}</p>
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {activities.length === 0 && honorsAwards.length === 0 && essays.length === 0 && (
+                <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
+                  <Sparkles className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-600 font-medium">No items to analyze</p>
+                  <p className="text-gray-500 text-sm mt-1">Add activities, honors, or essays to get started</p>
+                </div>
+              )}
 
               {/* Analyze Button */}
               <Button
                 onClick={handleAnalyze}
-                disabled={isAnalyzing || !analyzerInput.trim()}
+                disabled={isAnalyzing || (selectedActivities.size === 0 && selectedHonors.size === 0 && selectedEssays.size === 0)}
                 className="w-full h-12 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:scale-105"
                 style={{ backgroundColor: "#f89880" }}
               >
@@ -1052,7 +1247,7 @@ export default function ExtracurricularsPage() {
                 ) : (
                   <span className="flex items-center gap-2">
                     <Sparkles className="h-5 w-5" />
-                    Analyze
+                    Analyze Selected Items ({selectedActivities.size + selectedHonors.size + selectedEssays.size})
                   </span>
                 )}
               </Button>

@@ -55,7 +55,7 @@ export default function HomePage() {
               className="px-5 py-2 text-sm font-medium rounded-full text-white transition-all hover:shadow-lg"
               style={{ backgroundColor: '#f89880' }}
             >
-              Start free
+              Get Started
             </Link>
           </div>
         </div>

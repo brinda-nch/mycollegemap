@@ -104,7 +104,7 @@ export const authOptions: NextAuthOptions = {
             const firstName = nameParts[0] || ""
             const lastName = nameParts.slice(1).join(" ") || ""
 
-            const { data: newUser } = await supabase.from("users").insert({
+            await supabase.from("users").insert({
               email: user.email,
               first_name: firstName,
               last_name: lastName,
@@ -114,20 +114,7 @@ export const authOptions: NextAuthOptions = {
               created_at: new Date().toISOString(),
             }).select().single()
 
-            // Create trial subscription for new OAuth user (14 days)
-            if (newUser) {
-              const trialEnd = new Date()
-              trialEnd.setDate(trialEnd.getDate() + 14)
-
-              await supabase.from("user_subscriptions").insert({
-                user_id: newUser.id,
-                subscription_tier: 'trial',
-                status: 'trialing',
-                trial_start: new Date().toISOString(),
-                trial_end: trialEnd.toISOString(),
-                has_selected_plan: false
-              })
-            }
+            // Platform is now free - no trial subscription needed
           } else if (!existingUser.oauth_provider) {
             // Link Google account to existing email/password account
             await supabase

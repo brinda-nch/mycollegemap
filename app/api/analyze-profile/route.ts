@@ -40,12 +40,12 @@ export async function POST(request: NextRequest) {
     const completedEssays = essayStatuses.filter((s: string) => s === "completed" || s === "final").length
 
     // Build comprehensive prompt
-    const prompt = `You are an expert college admissions counselor analyzing a high school student's complete academic and extracurricular profile to provide comprehensive admissions guidance.
+    const prompt = `You are an expert college admissions counselor with extensive knowledge of college admissions data, analyzing a high school student's complete profile to provide highly personalized, data-driven guidance.
 
 STUDENT PROFILE:
 
 ACADEMIC PERFORMANCE:
-${averageGPA ? `- Average GPA: ${averageGPA}` : "- GPA: Not provided"}
+${averageGPA ? `- Average GPA: ${averageGPA} (Weighted)` : "- GPA: Not provided"}
 ${bestSAT ? `- Best SAT Score: ${bestSAT.score}` : ""}
 ${bestACT ? `- Best ACT Score: ${bestACT.score}` : ""}
 ${bestAP && bestAP.length > 0 ? `- AP Scores: ${bestAP.slice(0, 5).map((s: any) => `${s.testName || 'AP'}: ${s.score}`).join(", ")}` : ""}
@@ -79,48 +79,96 @@ ${honorsAwards && honorsAwards.length > 0 ? honorsAwards.map((honor: any, i: num
 
 ANALYSIS REQUIRED:
 
-Please provide a comprehensive analysis in the following JSON format. Analyze the DESCRIPTIONS, not just categories, to understand the student's true interests, achievements, and potential:
+Provide a comprehensive, data-driven analysis in JSON format. Be SPECIFIC and PERSONALIZED - reference their actual activities, GPA, test scores, and achievements. Avoid generic advice.
 
 {
   "academicSpike": {
-    "category": "The main area of academic/expertise excellence (e.g., STEM, Humanities, Arts, Leadership, etc.)",
+    "category": "Main area of excellence (e.g., 'Biomedical Research', 'Social Justice Advocacy', not just 'STEM')",
     "strength": 85,
-    "description": "2-3 sentence explanation based on DESCRIPTIONS of activities and honors, not just categories. What makes this their spike?",
-    "keyEvidence": ["List 2-3 specific activities/honors with descriptions that prove this spike"]
+    "description": "2-3 sentences explaining their SPECIFIC spike based on THEIR activities and honors",
+    "keyEvidence": ["Reference SPECIFIC activities/honors from their profile that prove this"]
   },
   "recommendedMajors": [
     {
-      "major": "Specific major name (e.g., 'Biomedical Engineering', not just 'Engineering')",
+      "major": "Specific major (e.g., 'Computational Biology', not just 'Biology')",
       "relevance": 95,
-      "reasoning": "Why this major fits based on their DESCRIPTIONS, GPA, test scores, and essay themes"
+      "reasoning": "Why THIS major fits THEIR specific profile, mentioning their GPA/scores/activities",
+      "careerPaths": ["3-4 specific career paths this major leads to"],
+      "coursesYouWillTake": ["4-5 example courses they'll take in this major"],
+      "whyItFitsYou": "Personalized explanation connecting THEIR activities to this major"
+    }
+  ],
+  "collegeRecommendations": {
+    "safety": [
+      {
+        "name": "Specific college name",
+        "location": "City, State",
+        "acceptanceRate": "Approximate %",
+        "averageGPA": "Range",
+        "averageSAT": "Range",
+        "whyGoodFit": "Specific programs/opportunities at THIS school that match THEIR profile",
+        "strengthsForThisSchool": ["2-3 specific aspects of their profile that make them competitive here"]
+      }
+    ],
+    "target": [
+      {
+        "name": "Specific college name",
+        "location": "City, State",
+        "acceptanceRate": "Approximate %",
+        "averageGPA": "Range",
+        "averageSAT": "Range",
+        "whyGoodFit": "Specific programs/opportunities at THIS school that match THEIR profile",
+        "strengthsForThisSchool": ["2-3 specific aspects of their profile that make them competitive here"],
+        "areasToStrengthen": ["1-2 areas where they could improve their chances"]
+      }
+    ],
+    "reach": [
+      {
+        "name": "Specific college name",
+        "location": "City, State",
+        "acceptanceRate": "Approximate %",
+        "averageGPA": "Range",
+        "averageSAT": "Range",
+        "whyGoodFit": "Specific programs/opportunities at THIS school that match THEIR profile",
+        "strengthsForThisSchool": ["What makes them a potential candidate despite the selectivity"],
+        "whatWouldMakeYouStandOut": ["Specific achievements or improvements that would significantly boost their chances"]
+      }
+    ]
+  },
+  "personalizedInsights": [
+    {
+      "insight": "Specific observation about THEIR profile",
+      "actionable": "Concrete action they can take based on this insight",
+      "impact": "How this will specifically help their applications"
     }
   ],
   "suggestedNextSteps": [
     {
-      "step": "Specific actionable recommendation",
-      "reasoning": "Why this would strengthen their profile based on gaps or opportunities",
-      "priority": "high/medium/low"
+      "step": "Specific, actionable recommendation tailored to THEIR profile",
+      "reasoning": "Why THIS step matters for THEIR specific spike/goals",
+      "priority": "high/medium/low",
+      "timeline": "When they should do this (e.g., 'This summer', 'Junior year')"
     }
-  ],
-  "missionStatements": [
-    "4 different mission statement options that synthesize their activities, honors, academic performance, and essay themes into a compelling narrative"
   ],
   "overallStrength": {
     "score": 85,
     "tier": "competitive/highly competitive/exceptional",
-    "strengths": ["List 3-4 key strengths based on DESCRIPTIONS and academic performance"],
-    "areasForGrowth": ["List 2-3 specific areas to improve"],
-    "admissionsAdvice": "2-3 sentences of strategic advice for college applications based on their complete profile"
+    "strengths": ["SPECIFIC strengths from THEIR profile, not generic"],
+    "areasForGrowth": ["SPECIFIC areas THEY should improve"],
+    "admissionsAdvice": "2-3 sentences of strategic advice specific to THEIR profile and goals"
   }
 }
 
-CRITICAL: 
-- Analyze DESCRIPTIONS of activities and honors, not just categories
-- Consider GPA and test scores in your assessment
-- Consider essay themes and quality
-- Be specific and insightful
-- Focus on what top-tier college admissions officers look for
-- Provide ONLY the JSON response, no additional text.`
+CRITICAL INSTRUCTIONS:
+- Be SPECIFIC: Reference their actual GPA (${averageGPA || 'N/A'}), test scores, and activities by name
+- No generic advice: Every insight must be personalized to THIS student
+- College recommendations must match their academic stats and interests
+- Safety schools: Where their stats are above the 75th percentile
+- Target schools: Where their stats are in the middle 50%
+- Reach schools: Where their stats are below median but profile is still competitive
+- Include 3-4 schools in each category (safety/target/reach)
+- For majors: Include career paths and specific courses
+- Provide ONLY valid JSON, no additional text.`
 
     console.log('🎯 [PROFILE ANALYSIS] Starting analysis...', {
       activitiesCount: activities?.length || 0,
@@ -135,7 +183,7 @@ CRITICAL:
       messages: [
         {
           role: "system",
-          content: "You are an expert college admissions counselor with deep knowledge of what top universities look for in applicants. Analyze student profiles comprehensively, focusing on descriptions and details, not just categories."
+          content: "You are an expert college admissions counselor with deep knowledge of US college admissions data, acceptance rates, and what universities look for. You provide personalized, data-driven guidance tailored to each student's specific profile."
         },
         {
           role: "user",
@@ -144,7 +192,7 @@ CRITICAL:
       ],
       response_format: { type: "json_object" },
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 4000, // Increased for detailed college recommendations
     })
 
     const responseText = completion.choices[0]?.message?.content

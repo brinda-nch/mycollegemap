@@ -55,26 +55,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Create trial subscription for new user (14 days)
-    const trialEnd = new Date()
-    trialEnd.setDate(trialEnd.getDate() + 14)
-
-    const { error: subscriptionError } = await supabase
-      .from("user_subscriptions")
-      .insert({
-        user_id: user.id,
-        subscription_tier: 'trial',
-        status: 'trialing',
-        trial_start: new Date().toISOString(),
-        trial_end: trialEnd.toISOString(),
-        has_selected_plan: false
-      })
-
-    if (subscriptionError) {
-      console.error("Error creating trial subscription:", subscriptionError)
-      // Don't fail the signup, just log the error
-      // User can still use the app, but trial tracking might not work
-    }
+    // Platform is now free - no trial subscription needed
 
     return NextResponse.json({ message: "User created successfully", userId: user.id }, { status: 201 })
   } catch (error) {

@@ -2,14 +2,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { UserCircle, Sparkles, Trophy, Award, Target, Lightbulb, BookOpen, TrendingUp, Users, Briefcase, Beaker, PenTool, Music, Globe, Calculator, MessageSquare } from "lucide-react"
+import { UserCircle, Sparkles, Trophy, Award, Target, Lightbulb, BookOpen, TrendingUp, Users, Briefcase, Beaker, PenTool, Music, Globe, Calculator, MessageSquare, School, MapPin, BarChart, CheckCircle2, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 import { useData } from "@/lib/data-context"
 import { useSession } from "next-auth/react"
 import { useMemo, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-// Trial status is fetched via API route
-import { Settings, CreditCard } from "lucide-react"
 
 interface SpikeAnalysis {
   primarySpike: {
@@ -75,58 +73,8 @@ const CATEGORY_TO_MAJORS: Record<string, Array<{ major: string; icon: any }>> = 
 export default function MyProfilePage() {
   const { data: session } = useSession()
   const { activities, honorsAwards, gpaEntries, testScores, essays } = useData()
-  const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null)
-  const [isLoadingPortal, setIsLoadingPortal] = useState(false)
   const [aiAnalysis, setAiAnalysis] = useState<any>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-
-  useEffect(() => {
-    async function fetchStatus() {
-      if (session?.user) {
-        try {
-          const response = await fetch('/api/trial/status')
-          if (response.ok) {
-            const { status } = await response.json()
-            setSubscriptionStatus(status)
-          }
-        } catch (error) {
-          console.error('Error fetching subscription status:', error)
-        }
-      }
-    }
-    fetchStatus()
-  }, [session])
-
-  const handleManageSubscription = async () => {
-    setIsLoadingPortal(true)
-    try {
-      console.log('🔄 Opening subscription portal...')
-      const response = await fetch("/api/stripe/create-portal", {
-        method: "POST",
-      })
-
-      console.log('📥 Portal response:', { status: response.status, ok: response.ok })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error('❌ Portal error:', errorData)
-        throw new Error(errorData.error || "Failed to open subscription portal")
-      }
-
-      const { url } = await response.json()
-      console.log('✅ Portal URL received, redirecting...', url)
-      
-      if (url) {
-        window.location.href = url
-      } else {
-        throw new Error("No portal URL received")
-      }
-    } catch (error: any) {
-      console.error('❌ Error opening portal:', error)
-      alert(`Error: ${error.message || 'Failed to open subscription portal. Please make sure you have an active subscription.'}`)
-      setIsLoadingPortal(false)
-    }
-  }
 
   const handleAIAnalysis = async () => {
     setIsAnalyzing(true)
@@ -374,70 +322,6 @@ export default function MyProfilePage() {
           </p>
         </motion.div>
 
-        {/* Subscription Management */}
-        {subscriptionStatus && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-8"
-          >
-            <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-6 w-6" style={{ color: "#f89880" }} />
-                    <div>
-                      <CardTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
-                        Subscription
-                      </CardTitle>
-                      <CardDescription>
-                        {subscriptionStatus.subscriptionTier === 'standard' 
-                          ? 'MyCollegeMap Standard - Active'
-                          : subscriptionStatus.isTrialing
-                          ? `${subscriptionStatus.daysRemaining} days left in your free trial`
-                          : 'Trial expired - Subscribe to continue'}
-                      </CardDescription>
-                    </div>
-                  </div>
-                  {subscriptionStatus.subscriptionTier === 'standard' && (
-                    <Button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        console.log('🔘 Button clicked!', { isLoadingPortal, subscriptionStatus })
-                        handleManageSubscription()
-                      }}
-                      disabled={isLoadingPortal}
-                      className="flex items-center gap-2 cursor-pointer"
-                      style={{ backgroundColor: isLoadingPortal ? "#ccc" : "#f89880" }}
-                    >
-                      {isLoadingPortal ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          Loading...
-                        </>
-                      ) : (
-                        <>
-                          <Settings className="h-4 w-4" />
-                          Manage Subscription
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              {subscriptionStatus.subscriptionTier === 'standard' && (
-                <CardContent>
-                  <p className="text-sm text-slate-600">
-                    Manage your subscription, update payment methods, view invoices, or cancel anytime.
-                  </p>
-                </CardContent>
-              )}
-            </Card>
-          </motion.div>
-        )}
-
         {/* AI Analysis Button */}
         {(activities.length > 0 || honorsAwards.length > 0) && (
           <motion.div
@@ -537,7 +421,7 @@ export default function MyProfilePage() {
               </Card>
             </motion.div>
 
-            {/* Recommended Majors */}
+            {/* Recommended Majors - Enhanced */}
             {aiAnalysis.recommendedMajors && aiAnalysis.recommendedMajors.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -559,35 +443,75 @@ export default function MyProfilePage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-6">
                       {aiAnalysis.recommendedMajors.map((major: any, idx: number) => {
                         const Icon = getMajorIcon(major.major)
                         return (
                           <div
                             key={idx}
-                            className="p-5 rounded-xl border-2 hover:shadow-lg transition-all"
+                            className="p-6 rounded-xl border-2 hover:shadow-lg transition-all"
                             style={{
-                              backgroundColor: major.relevance > 90 ? "rgba(96, 165, 250, 0.1)" : "rgba(241, 245, 249, 1)",
+                              backgroundColor: major.relevance > 90 ? "rgba(96, 165, 250, 0.05)" : "rgba(241, 245, 249, 1)",
                               borderColor: major.relevance > 90 ? "#60a5fa" : "#e2e8f0"
                             }}
                           >
-                            <div className="flex items-start gap-3">
-                              <div className="p-2 rounded-lg bg-white">
-                                <Icon className="h-5 w-5 text-blue-600" />
+                            <div className="flex items-start gap-4">
+                              <div className="p-3 rounded-lg bg-white border-2 border-blue-200">
+                                <Icon className="h-6 w-6 text-blue-600" />
                               </div>
                               <div className="flex-1">
-                                <div className="flex items-center justify-between mb-1">
-                                  <h4 className="font-bold text-slate-900">{major.major}</h4>
+                                <div className="flex items-center justify-between mb-3">
+                                  <h4 className="text-xl font-bold text-slate-900">{major.major}</h4>
                                   <Badge 
                                     variant={major.relevance > 90 ? "default" : "secondary"}
-                                    className={major.relevance > 90 ? "bg-blue-600" : ""}
+                                    className={major.relevance > 90 ? "bg-blue-600 text-lg px-3 py-1" : "text-lg px-3 py-1"}
                                   >
                                     {major.relevance}% match
                                   </Badge>
                                 </div>
-                                <p className="text-sm text-slate-600 leading-relaxed">
+                                
+                                {major.whyItFitsYou && (
+                                  <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                                    <p className="text-sm font-semibold text-blue-900 mb-1">Why This Fits You:</p>
+                                    <p className="text-sm text-blue-800 leading-relaxed">{major.whyItFitsYou}</p>
+                                  </div>
+                                )}
+                                
+                                <p className="text-sm text-slate-600 leading-relaxed mb-4">
                                   {major.reasoning}
                                 </p>
+
+                                {major.careerPaths && major.careerPaths.length > 0 && (
+                                  <div className="mb-3">
+                                    <p className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                                      <Briefcase className="h-3 w-3" />
+                                      Career Paths:
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {major.careerPaths.map((career: string, i: number) => (
+                                        <Badge key={i} variant="outline" className="bg-white text-xs">
+                                          {career}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {major.coursesYouWillTake && major.coursesYouWillTake.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                                      <BookOpen className="h-3 w-3" />
+                                      Example Courses:
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                      {major.coursesYouWillTake.map((course: string, i: number) => (
+                                        <Badge key={i} variant="secondary" className="text-xs">
+                                          {course}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -599,12 +523,306 @@ export default function MyProfilePage() {
               </motion.div>
             )}
 
+            {/* College Recommendations */}
+            {aiAnalysis.collegeRecommendations && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+              >
+                <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <School className="h-6 w-6" style={{ color: "#f89880" }} />
+                      <div>
+                        <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                          College Recommendations
+                        </CardTitle>
+                        <CardDescription className="text-base mt-1">
+                          Personalized safety, target, and reach schools based on your profile
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    {/* Safety Schools */}
+                    {aiAnalysis.collegeRecommendations.safety && aiAnalysis.collegeRecommendations.safety.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <CheckCircle2 className="h-5 w-5 text-green-600" />
+                          <h3 className="text-xl font-bold text-green-800">Safety Schools</h3>
+                          <Badge className="bg-green-100 text-green-800 border-green-300">
+                            Strong Match
+                          </Badge>
+                        </div>
+                        <div className="grid gap-4">
+                          {aiAnalysis.collegeRecommendations.safety.map((school: any, idx: number) => (
+                            <div key={idx} className="p-5 rounded-xl border-2 border-green-200 bg-green-50 hover:shadow-md transition-all">
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="text-lg font-bold text-slate-900">{school.name}</h4>
+                                  <p className="text-sm text-slate-600 flex items-center gap-1 mt-1">
+                                    <MapPin className="h-3 w-3" />
+                                    {school.location}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs text-slate-600">Acceptance Rate</p>
+                                  <p className="text-lg font-bold text-green-700">{school.acceptanceRate}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-3 mb-3 p-3 bg-white rounded-lg border border-green-200">
+                                <div>
+                                  <p className="text-xs text-slate-600">Avg GPA</p>
+                                  <p className="text-sm font-semibold text-slate-900">{school.averageGPA}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-slate-600">Avg SAT</p>
+                                  <p className="text-sm font-semibold text-slate-900">{school.averageSAT}</p>
+                                </div>
+                              </div>
+
+                              <div className="mb-3">
+                                <p className="text-sm font-semibold text-green-900 mb-1">Why It's a Good Fit:</p>
+                                <p className="text-sm text-green-800 leading-relaxed">{school.whyGoodFit}</p>
+                              </div>
+
+                              {school.strengthsForThisSchool && school.strengthsForThisSchool.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-semibold text-green-900 mb-2">Your Strengths for This School:</p>
+                                  <ul className="space-y-1">
+                                    {school.strengthsForThisSchool.map((strength: string, i: number) => (
+                                      <li key={i} className="text-sm text-green-800 flex items-start gap-2">
+                                        <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                        <span>{strength}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Target Schools */}
+                    {aiAnalysis.collegeRecommendations.target && aiAnalysis.collegeRecommendations.target.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Target className="h-5 w-5 text-blue-600" />
+                          <h3 className="text-xl font-bold text-blue-800">Target Schools</h3>
+                          <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+                            Competitive Match
+                          </Badge>
+                        </div>
+                        <div className="grid gap-4">
+                          {aiAnalysis.collegeRecommendations.target.map((school: any, idx: number) => (
+                            <div key={idx} className="p-5 rounded-xl border-2 border-blue-200 bg-blue-50 hover:shadow-md transition-all">
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="text-lg font-bold text-slate-900">{school.name}</h4>
+                                  <p className="text-sm text-slate-600 flex items-center gap-1 mt-1">
+                                    <MapPin className="h-3 w-3" />
+                                    {school.location}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs text-slate-600">Acceptance Rate</p>
+                                  <p className="text-lg font-bold text-blue-700">{school.acceptanceRate}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-3 mb-3 p-3 bg-white rounded-lg border border-blue-200">
+                                <div>
+                                  <p className="text-xs text-slate-600">Avg GPA</p>
+                                  <p className="text-sm font-semibold text-slate-900">{school.averageGPA}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-slate-600">Avg SAT</p>
+                                  <p className="text-sm font-semibold text-slate-900">{school.averageSAT}</p>
+                                </div>
+                              </div>
+
+                              <div className="mb-3">
+                                <p className="text-sm font-semibold text-blue-900 mb-1">Why It's a Good Fit:</p>
+                                <p className="text-sm text-blue-800 leading-relaxed">{school.whyGoodFit}</p>
+                              </div>
+
+                              {school.strengthsForThisSchool && school.strengthsForThisSchool.length > 0 && (
+                                <div className="mb-3">
+                                  <p className="text-xs font-semibold text-blue-900 mb-2">Your Strengths:</p>
+                                  <ul className="space-y-1">
+                                    {school.strengthsForThisSchool.map((strength: string, i: number) => (
+                                      <li key={i} className="text-sm text-blue-800 flex items-start gap-2">
+                                        <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                        <span>{strength}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {school.areasToStrengthen && school.areasToStrengthen.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-semibold text-blue-900 mb-2">Areas to Strengthen:</p>
+                                  <ul className="space-y-1">
+                                    {school.areasToStrengthen.map((area: string, i: number) => (
+                                      <li key={i} className="text-sm text-blue-800 flex items-start gap-2">
+                                        <Zap className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                                        <span>{area}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Reach Schools */}
+                    {aiAnalysis.collegeRecommendations.reach && aiAnalysis.collegeRecommendations.reach.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Trophy className="h-5 w-5" style={{ color: "#f89880" }} />
+                          <h3 className="text-xl font-bold" style={{ color: "#f89880" }}>Reach Schools</h3>
+                          <Badge className="bg-orange-100 border-orange-300" style={{ color: "#f89880" }}>
+                            Ambitious Goals
+                          </Badge>
+                        </div>
+                        <div className="grid gap-4">
+                          {aiAnalysis.collegeRecommendations.reach.map((school: any, idx: number) => (
+                            <div key={idx} className="p-5 rounded-xl border-2 hover:shadow-md transition-all" style={{ borderColor: "#f89880", backgroundColor: "rgba(248, 152, 128, 0.05)" }}>
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="text-lg font-bold text-slate-900">{school.name}</h4>
+                                  <p className="text-sm text-slate-600 flex items-center gap-1 mt-1">
+                                    <MapPin className="h-3 w-3" />
+                                    {school.location}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs text-slate-600">Acceptance Rate</p>
+                                  <p className="text-lg font-bold" style={{ color: "#f89880" }}>{school.acceptanceRate}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-3 mb-3 p-3 bg-white rounded-lg border" style={{ borderColor: "#f89880" }}>
+                                <div>
+                                  <p className="text-xs text-slate-600">Avg GPA</p>
+                                  <p className="text-sm font-semibold text-slate-900">{school.averageGPA}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-slate-600">Avg SAT</p>
+                                  <p className="text-sm font-semibold text-slate-900">{school.averageSAT}</p>
+                                </div>
+                              </div>
+
+                              <div className="mb-3">
+                                <p className="text-sm font-semibold mb-1" style={{ color: "#f89880" }}>Why It's a Good Fit:</p>
+                                <p className="text-sm text-slate-700 leading-relaxed">{school.whyGoodFit}</p>
+                              </div>
+
+                              {school.strengthsForThisSchool && school.strengthsForThisSchool.length > 0 && (
+                                <div className="mb-3">
+                                  <p className="text-xs font-semibold mb-2" style={{ color: "#f89880" }}>What Makes You Competitive:</p>
+                                  <ul className="space-y-1">
+                                    {school.strengthsForThisSchool.map((strength: string, i: number) => (
+                                      <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                        <Sparkles className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: "#f89880" }} />
+                                        <span>{strength}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {school.whatWouldMakeYouStandOut && school.whatWouldMakeYouStandOut.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-semibold mb-2" style={{ color: "#f89880" }}>To Stand Out Even More:</p>
+                                  <ul className="space-y-1">
+                                    {school.whatWouldMakeYouStandOut.map((item: string, i: number) => (
+                                      <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                        <Target className="h-4 w-4 mt-0.5 flex-shrink-0" style={{ color: "#f89880" }} />
+                                        <span>{item}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* Personalized Insights */}
+            {aiAnalysis.personalizedInsights && aiAnalysis.personalizedInsights.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.18 }}
+              >
+                <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <Lightbulb className="h-6 w-6 text-yellow-600" />
+                      <div>
+                        <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                          Personalized Insights
+                        </CardTitle>
+                        <CardDescription className="text-base mt-1">
+                          Specific observations and actionable recommendations
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {aiAnalysis.personalizedInsights.map((insight: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="p-5 rounded-xl bg-yellow-50 border-2 border-yellow-200 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 rounded-lg bg-white mt-1">
+                              <Sparkles className="h-5 w-5 text-yellow-600" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-bold text-yellow-900 mb-2">{insight.insight}</h4>
+                              <div className="space-y-2">
+                                <div className="flex items-start gap-2">
+                                  <Badge className="bg-yellow-600 text-white text-xs">Action</Badge>
+                                  <p className="text-sm text-yellow-800 flex-1">{insight.actionable}</p>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                  <Badge className="bg-green-600 text-white text-xs">Impact</Badge>
+                                  <p className="text-sm text-yellow-800 flex-1">{insight.impact}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
             {/* Suggested Next Steps */}
             {aiAnalysis.suggestedNextSteps && aiAnalysis.suggestedNextSteps.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
+                transition={{ duration: 0.6, delay: 0.21 }}
               >
                 <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
                   <CardHeader>
@@ -632,7 +850,7 @@ export default function MyProfilePage() {
                               <Lightbulb className="h-5 w-5 text-green-600" />
                             </div>
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
+                              <div className="flex items-center gap-2 mb-2 flex-wrap">
                                 <h4 className="font-bold text-green-900">{step.step}</h4>
                                 <Badge 
                                   variant={step.priority === "high" ? "default" : "secondary"}
@@ -640,6 +858,11 @@ export default function MyProfilePage() {
                                 >
                                   {step.priority}
                                 </Badge>
+                                {step.timeline && (
+                                  <Badge variant="outline" className="bg-white">
+                                    {step.timeline}
+                                  </Badge>
+                                )}
                               </div>
                               <p className="text-sm text-green-800 leading-relaxed">
                                 {step.reasoning}
