@@ -9,8 +9,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Optimize font loading
-  optimizeFonts: true,
   // Next.js 15 configuration - removed deprecated options
 }
 
