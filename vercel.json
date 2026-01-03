@@ -2,7 +2,7 @@
   "buildCommand": "rm -rf .next && npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm ci",
+  "installCommand": "npm install",
   "devCommand": "npm run dev",
   "regions": ["iad1"],
   "functions": {
