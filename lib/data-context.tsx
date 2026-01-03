@@ -86,6 +86,20 @@ export interface ProgramInternship {
   tasks?: ApplicationTask[]
 }
 
+export interface CollegeListItem {
+  id: string
+  collegeName: string
+  location: string
+  acceptanceRate: number
+  avgGPA: number
+  avgSAT: number
+  avgACT: number
+  type: string
+  category?: 'safety' | 'target' | 'reach'
+  notes?: string
+  addedDate?: string
+}
+
 interface DataContextType {
   // GPA Data
   gpaEntries: GPAEntry[]
@@ -137,6 +151,12 @@ interface DataContextType {
   deleteProgramTask: (programId: string, taskId: string) => void
   toggleProgramTaskComplete: (programId: string, taskId: string) => void
   
+  // College List
+  collegeList: CollegeListItem[]
+  addToCollegeList: (college: Omit<CollegeListItem, 'id' | 'addedDate'>) => void
+  removeFromCollegeList: (id: string) => void
+  updateCollegeListItem: (id: string, updates: Partial<CollegeListItem>) => void
+  
   // Utility functions
   getDashboardStats: () => {
     currentGPA: string
@@ -172,6 +192,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [essays, setEssays] = useState<Essay[]>([])
   const [collegeApplications, setCollegeApplications] = useState<CollegeApplication[]>([])
   const [programsInternships, setProgramsInternships] = useState<ProgramInternship[]>([])
+  const [collegeList, setCollegeList] = useState<CollegeListItem[]>([])
 
   // Helper function to get user-specific storage key
   const getUserStorageKey = (key: string) => {
@@ -250,6 +271,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         const storedEssays = localStorage.getItem(getUserStorageKey('essays'))
         const storedCollegeApplications = localStorage.getItem(getUserStorageKey('collegeApplications'))
         const storedProgramsInternships = localStorage.getItem(getUserStorageKey('programsInternships'))
+        const storedCollegeList = localStorage.getItem(getUserStorageKey('collegeList'))
 
         setGpaEntries(storedGpa ? JSON.parse(storedGpa) : [])
         setTestScores(storedTestScores ? JSON.parse(storedTestScores) : [])
@@ -258,6 +280,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setEssays(storedEssays ? JSON.parse(storedEssays) : [])
         setCollegeApplications(storedCollegeApplications ? JSON.parse(storedCollegeApplications) : [])
         setProgramsInternships(storedProgramsInternships ? JSON.parse(storedProgramsInternships) : [])
+        setCollegeList(storedCollegeList ? JSON.parse(storedCollegeList) : [])
       } catch (error) {
         console.error('Error loading data from localStorage:', error)
         // If there's an error, start with empty arrays
@@ -268,6 +291,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         setEssays([])
         setCollegeApplications([])
         setProgramsInternships([])
+        setCollegeList([])
       }
     }
     // If no session, keep data as is (empty arrays)
@@ -663,6 +687,97 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
+  // College List functions
+  const addToCollegeList = (college: Omit<CollegeListItem, 'id' | 'addedDate'>) => {
+    const newCollege: CollegeListItem = {
+      ...college,
+      id: Date.now().toString(),
+      addedDate: new Date().toISOString(),
+    }
+    
+    console.log('📋 Adding college to list:', college.collegeName)
+    
+    setCollegeList(prev => {
+      const updated = [...prev, newCollege]
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('collegeList'), JSON.stringify(updated))
+      }
+      return updated
+    })
+
+    // Automatically add to application tracker if not already there
+    // Use functional update to ensure we have the latest state
+    setCollegeApplications(prev => {
+      // Check if college already exists in current state
+      const existingApplication = prev.find(
+        app => app.collegeName.toLowerCase() === college.collegeName.toLowerCase()
+      )
+      
+      // If it already exists, don't add it again
+      if (existingApplication) {
+        console.log('⚠️ College already in application tracker:', college.collegeName)
+        return prev
+      }
+      
+      // Create new application entry
+      const newApplication: CollegeApplication = {
+        id: (Date.now() + 1).toString(), // +1 to ensure unique ID
+        collegeName: college.collegeName,
+        applicationType: 'Regular Decision',
+        deadline: '',
+        status: 'planning',
+        notes: college.notes || '',
+        tasks: [],
+      }
+      
+      console.log('✅ Adding college to application tracker:', college.collegeName)
+      
+      const updated = [...prev, newApplication]
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('collegeApplications'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
+  const removeFromCollegeList = (id: string) => {
+    // Get the college name before removing
+    const collegeToRemove = collegeList.find(c => c.id === id)
+    
+    setCollegeList(prev => {
+      const updated = prev.filter(college => college.id !== id)
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('collegeList'), JSON.stringify(updated))
+      }
+      return updated
+    })
+
+    // Optionally: Remove from application tracker as well (commented out by default)
+    // Uncomment if you want removing from college list to also remove from applications
+    /*
+    if (collegeToRemove) {
+      const applicationToRemove = collegeApplications.find(
+        app => app.collegeName.toLowerCase() === collegeToRemove.collegeName.toLowerCase()
+      )
+      if (applicationToRemove) {
+        deleteCollegeApplication(applicationToRemove.id)
+      }
+    }
+    */
+  }
+
+  const updateCollegeListItem = (id: string, updates: Partial<CollegeListItem>) => {
+    setCollegeList(prev => {
+      const updated = prev.map(college => 
+        college.id === id ? { ...college, ...updates } : college
+      )
+      if (session?.user?.email && session.user.email !== 'demo@example.com') {
+        localStorage.setItem(getUserStorageKey('collegeList'), JSON.stringify(updated))
+      }
+      return updated
+    })
+  }
+
   // Dashboard utility functions
   const getDashboardStats = () => {
     const currentGPA = gpaEntries.length > 0 
@@ -858,6 +973,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     updateProgramTask,
     deleteProgramTask,
     toggleProgramTaskComplete,
+    collegeList,
+    addToCollegeList,
+    removeFromCollegeList,
+    updateCollegeListItem,
     getDashboardStats,
     getRecentActivities,
     getUpcomingDeadlines,

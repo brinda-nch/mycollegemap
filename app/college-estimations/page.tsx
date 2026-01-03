@@ -26,6 +26,7 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowLeft,
+  Pencil,
 } from "lucide-react"
 import { useData } from "@/lib/data-context"
 import Link from "next/link"
@@ -105,6 +106,7 @@ export default function ApplicationTrackingPage() {
   const [isSearching, setIsSearching] = useState(false)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null)
   const [expandedApplications, setExpandedApplications] = useState<Set<string>>(new Set())
   
@@ -113,6 +115,27 @@ export default function ApplicationTrackingPage() {
   const [isAddProgramTaskDialogOpen, setIsAddProgramTaskDialogOpen] = useState(false)
   const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null)
   const [expandedPrograms, setExpandedPrograms] = useState<Set<string>>(new Set())
+  
+  // Edit application state
+  const [editingApplication, setEditingApplication] = useState<{
+    id: string
+    collegeName: string
+    applicationType: string
+    deadline: string
+    status: string
+    notes?: string
+  } | null>(null)
+  
+  // Edit program state
+  const [isEditProgramDialogOpen, setIsEditProgramDialogOpen] = useState(false)
+  const [editingProgram, setEditingProgram] = useState<{
+    id: string
+    title: string
+    deadline: string
+    status: string
+    tuition?: number
+    notes?: string
+  } | null>(null)
 
   // Add application form state
   const [newApplication, setNewApplication] = useState({
@@ -197,6 +220,60 @@ export default function ApplicationTrackingPage() {
       deadline: "",
     })
     setIsAddDialogOpen(false)
+  }
+
+  const handleEditApplication = () => {
+    if (!editingApplication) return
+
+    updateCollegeApplication(editingApplication.id, {
+      collegeName: editingApplication.collegeName,
+      applicationType: editingApplication.applicationType,
+      deadline: editingApplication.deadline,
+      status: editingApplication.status,
+      notes: editingApplication.notes,
+    })
+
+    setEditingApplication(null)
+    setIsEditDialogOpen(false)
+  }
+
+  const openEditDialog = (application: any) => {
+    setEditingApplication({
+      id: application.id,
+      collegeName: application.collegeName,
+      applicationType: application.applicationType || "Regular Decision",
+      deadline: application.deadline || "",
+      status: application.status || "planning",
+      notes: application.notes || "",
+    })
+    setIsEditDialogOpen(true)
+  }
+
+  const handleEditProgram = () => {
+    if (!editingProgram) return
+
+    updateProgramInternship(editingProgram.id, {
+      title: editingProgram.title,
+      deadline: editingProgram.deadline,
+      status: editingProgram.status,
+      tuition: editingProgram.tuition,
+      notes: editingProgram.notes,
+    })
+
+    setEditingProgram(null)
+    setIsEditProgramDialogOpen(false)
+  }
+
+  const openEditProgramDialog = (program: any) => {
+    setEditingProgram({
+      id: program.id,
+      title: program.title,
+      deadline: program.deadline || "",
+      status: program.status || "planning",
+      tuition: program.tuition || undefined,
+      notes: program.notes || "",
+    })
+    setIsEditProgramDialogOpen(true)
   }
 
   const handleAddTask = () => {
@@ -484,6 +561,138 @@ export default function ApplicationTrackingPage() {
         </Dialog>
       </div>
 
+      {/* Edit Application Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+              Edit Application Details
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Update the details for this college application.
+            </DialogDescription>
+          </DialogHeader>
+          {editingApplication && (
+            <div className="space-y-6 py-4">
+              {/* College Name */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-college-name" className="text-sm font-medium">
+                  College Name *
+                </Label>
+                <Input
+                  id="edit-college-name"
+                  value={editingApplication.collegeName}
+                  onChange={(e) =>
+                    setEditingApplication({ ...editingApplication, collegeName: e.target.value })
+                  }
+                  className="h-12 rounded-xl"
+                />
+              </div>
+
+              {/* Application Type */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-app-type" className="text-sm font-medium">
+                  Application Type *
+                </Label>
+                <Select
+                  value={editingApplication.applicationType}
+                  onValueChange={(value) =>
+                    setEditingApplication({ ...editingApplication, applicationType: value })
+                  }
+                >
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Early Decision">Early Decision</SelectItem>
+                    <SelectItem value="Early Action">Early Action</SelectItem>
+                    <SelectItem value="Regular Decision">Regular Decision</SelectItem>
+                    <SelectItem value="Rolling Admission">Rolling Admission</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Deadline */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-deadline" className="text-sm font-medium">
+                  Application Deadline *
+                </Label>
+                <Input
+                  id="edit-deadline"
+                  type="date"
+                  value={editingApplication.deadline}
+                  onChange={(e) =>
+                    setEditingApplication({ ...editingApplication, deadline: e.target.value })
+                  }
+                  className="h-12 rounded-xl"
+                />
+              </div>
+
+              {/* Status */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-status" className="text-sm font-medium">
+                  Application Status *
+                </Label>
+                <Select
+                  value={editingApplication.status}
+                  onValueChange={(value) =>
+                    setEditingApplication({ ...editingApplication, status: value })
+                  }
+                >
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="planning">Planning</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="submitted">Submitted</SelectItem>
+                    <SelectItem value="accepted">Accepted</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="waitlisted">Waitlisted</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-notes" className="text-sm font-medium">
+                  Notes (Optional)
+                </Label>
+                <Input
+                  id="edit-notes"
+                  placeholder="Add any additional notes..."
+                  value={editingApplication.notes || ""}
+                  onChange={(e) =>
+                    setEditingApplication({ ...editingApplication, notes: e.target.value })
+                  }
+                  className="h-12 rounded-xl"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditDialogOpen(false)
+                setEditingApplication(null)
+              }}
+              className="h-12 rounded-xl px-6"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleEditApplication}
+              disabled={!editingApplication?.collegeName || !editingApplication?.deadline}
+              className="h-12 rounded-xl px-6 text-white font-semibold"
+              style={{ backgroundColor: "#f89880" }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Applications List */}
       {collegeApplications.length === 0 ? (
         <motion.div
@@ -581,26 +790,27 @@ export default function ApplicationTrackingPage() {
                     {isExpanded && (
                       <CardContent className="pt-0">
                         <div className="space-y-6">
-                          {/* Add Task Button */}
+                          {/* Add Task Button and Edit/Delete Buttons */}
                           <div className="flex justify-between items-center border-t pt-4">
-                            <Dialog
-                              open={isAddTaskDialogOpen && selectedApplicationId === application.id}
-                              onOpenChange={(open) => {
-                                setIsAddTaskDialogOpen(open)
-                                if (open) setSelectedApplicationId(application.id)
-                              }}
-                            >
-                              <DialogTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="rounded-xl"
-                                  onClick={() => setSelectedApplicationId(application.id)}
-                                >
-                                  <Plus className="h-4 w-4 mr-2" />
-                                  Add Task
-                                </Button>
-                              </DialogTrigger>
+                            <div className="flex gap-2">
+                              <Dialog
+                                open={isAddTaskDialogOpen && selectedApplicationId === application.id}
+                                onOpenChange={(open) => {
+                                  setIsAddTaskDialogOpen(open)
+                                  if (open) setSelectedApplicationId(application.id)
+                                }}
+                              >
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-xl"
+                                    onClick={() => setSelectedApplicationId(application.id)}
+                                  >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Task
+                                  </Button>
+                                </DialogTrigger>
                               <DialogContent>
                                 <DialogHeader>
                                   <DialogTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
@@ -686,6 +896,17 @@ export default function ApplicationTrackingPage() {
                                 </DialogFooter>
                               </DialogContent>
                             </Dialog>
+
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEditDialog(application)}
+                                className="rounded-xl"
+                              >
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit Details
+                              </Button>
+                            </div>
 
                             <Button
                               variant="ghost"
@@ -873,6 +1094,135 @@ export default function ApplicationTrackingPage() {
               </Dialog>
             </div>
 
+            {/* Edit Program Dialog */}
+            <Dialog open={isEditProgramDialogOpen} onOpenChange={setIsEditProgramDialogOpen}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                    Edit Program/Internship Details
+                  </DialogTitle>
+                  <DialogDescription className="text-base">
+                    Update the details for this program or internship.
+                  </DialogDescription>
+                </DialogHeader>
+                {editingProgram && (
+                  <div className="space-y-6 py-4">
+                    {/* Program Title */}
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-program-title" className="text-sm font-medium">
+                        Program/Internship Title *
+                      </Label>
+                      <Input
+                        id="edit-program-title"
+                        value={editingProgram.title}
+                        onChange={(e) =>
+                          setEditingProgram({ ...editingProgram, title: e.target.value })
+                        }
+                        className="h-12 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Deadline */}
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-program-deadline" className="text-sm font-medium">
+                        Application Deadline *
+                      </Label>
+                      <Input
+                        id="edit-program-deadline"
+                        type="date"
+                        value={editingProgram.deadline}
+                        onChange={(e) =>
+                          setEditingProgram({ ...editingProgram, deadline: e.target.value })
+                        }
+                        className="h-12 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Status */}
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-program-status" className="text-sm font-medium">
+                        Application Status *
+                      </Label>
+                      <Select
+                        value={editingProgram.status}
+                        onValueChange={(value) =>
+                          setEditingProgram({ ...editingProgram, status: value })
+                        }
+                      >
+                        <SelectTrigger className="h-12 rounded-xl">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="planning">Planning</SelectItem>
+                          <SelectItem value="in-progress">In Progress</SelectItem>
+                          <SelectItem value="submitted">Submitted</SelectItem>
+                          <SelectItem value="accepted">Accepted</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
+                          <SelectItem value="waitlisted">Waitlisted</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Tuition */}
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-program-tuition" className="text-sm font-medium">
+                        Tuition (Optional)
+                      </Label>
+                      <Input
+                        id="edit-program-tuition"
+                        type="number"
+                        placeholder="e.g., 5000"
+                        value={editingProgram.tuition || ""}
+                        onChange={(e) =>
+                          setEditingProgram({ 
+                            ...editingProgram, 
+                            tuition: e.target.value ? parseFloat(e.target.value) : undefined 
+                          })
+                        }
+                        className="h-12 rounded-xl"
+                      />
+                    </div>
+
+                    {/* Notes */}
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-program-notes" className="text-sm font-medium">
+                        Notes (Optional)
+                      </Label>
+                      <Input
+                        id="edit-program-notes"
+                        placeholder="Add any additional notes..."
+                        value={editingProgram.notes || ""}
+                        onChange={(e) =>
+                          setEditingProgram({ ...editingProgram, notes: e.target.value })
+                        }
+                        className="h-12 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                )}
+                <DialogFooter className="gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditProgramDialogOpen(false)
+                      setEditingProgram(null)
+                    }}
+                    className="h-12 rounded-xl px-6"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleEditProgram}
+                    disabled={!editingProgram?.title || !editingProgram?.deadline}
+                    className="h-12 rounded-xl px-6 text-white font-semibold"
+                    style={{ backgroundColor: "#60a5fa" }}
+                  >
+                    Save Changes
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             {/* Programs List */}
             {programsInternships.length === 0 ? (
               <motion.div
@@ -975,26 +1325,27 @@ export default function ApplicationTrackingPage() {
                           {isExpanded && (
                             <CardContent className="pt-0">
                               <div className="space-y-6">
-                                {/* Add Task Button */}
+                                {/* Add Task Button and Edit/Delete Buttons */}
                                 <div className="flex justify-between items-center border-t pt-4">
-                                  <Dialog
-                                    open={isAddProgramTaskDialogOpen && selectedProgramId === program.id}
-                                    onOpenChange={(open) => {
-                                      setIsAddProgramTaskDialogOpen(open)
-                                      if (open) setSelectedProgramId(program.id)
-                                    }}
-                                  >
-                                    <DialogTrigger asChild>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="rounded-xl"
-                                        onClick={() => setSelectedProgramId(program.id)}
-                                      >
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Add Task
-                                      </Button>
-                                    </DialogTrigger>
+                                  <div className="flex gap-2">
+                                    <Dialog
+                                      open={isAddProgramTaskDialogOpen && selectedProgramId === program.id}
+                                      onOpenChange={(open) => {
+                                        setIsAddProgramTaskDialogOpen(open)
+                                        if (open) setSelectedProgramId(program.id)
+                                      }}
+                                    >
+                                      <DialogTrigger asChild>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="rounded-xl"
+                                          onClick={() => setSelectedProgramId(program.id)}
+                                        >
+                                          <Plus className="h-4 w-4 mr-2" />
+                                          Add Task
+                                        </Button>
+                                      </DialogTrigger>
                                     <DialogContent>
                                       <DialogHeader>
                                         <DialogTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
@@ -1080,6 +1431,17 @@ export default function ApplicationTrackingPage() {
                                       </DialogFooter>
                                     </DialogContent>
                                   </Dialog>
+
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => openEditProgramDialog(program)}
+                                      className="rounded-xl"
+                                    >
+                                      <Pencil className="h-4 w-4 mr-2" />
+                                      Edit Details
+                                    </Button>
+                                  </div>
 
                                   <Button
                                     variant="ghost"

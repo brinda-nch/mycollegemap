@@ -28,14 +28,19 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
+  School,
 } from "lucide-react"
 import { PngLogo } from "./png-logo"
 import { useSidebar } from "@/lib/sidebar-context"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
+  { name: "Academics", href: "/gpa", icon: GraduationCap },
+  { name: "Extra Curriculars", href: "/extracurriculars", icon: Trophy },
+  { name: "Application Tracking", href: "/application-tracking", icon: ClipboardList },
+  { name: "College List", href: "/college-list", icon: School },
   { name: "Essays", href: "/essays", icon: FileText },
-  { name: "Plan Upgrade", href: "/pricing", icon: Target },
   { name: "My Profile", href: "/profile", icon: User },
 ]
 
