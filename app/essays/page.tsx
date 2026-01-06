@@ -552,40 +552,40 @@ export default function EssaysPage() {
                           transition={{ duration: 0.3, delay: index * 0.05 }}
                           className="group"
                         >
-                          <div className="p-6 rounded-2xl border-2 border-gray-200 hover:border-[#f89880] bg-white hover:shadow-lg transition-all">
-                            <div className="flex items-start justify-between gap-4">
+                          <div className="p-4 sm:p-6 rounded-2xl border-2 border-gray-200 hover:border-[#f89880] bg-white hover:shadow-lg transition-all">
+                            <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
                               <button
                                 onClick={() => handleOpenEditor(essay)}
-                                className="flex-1 text-left"
+                                className="flex-1 text-left w-full min-w-0"
                               >
-                                <div className="flex items-start gap-4 mb-4">
+                                <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                                   <div
-                                    className="p-3 rounded-xl mt-1"
+                                    className="p-2 sm:p-3 rounded-xl mt-1 flex-shrink-0"
                                     style={{ backgroundColor: "rgba(248, 152, 128, 0.1)" }}
                                   >
-                                    <FileText className="h-6 w-6" style={{ color: "#f89880" }} />
+                                    <FileText className="h-5 w-5 sm:h-6 sm:w-6" style={{ color: "#f89880" }} />
                                   </div>
 
-                                  <div className="flex-1">
-                                    <h3 className="text-xl font-bold mb-2" style={{ color: "#0f172a" }}>
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-2 break-words" style={{ color: "#0f172a" }}>
                                       {essay.title}
                                     </h3>
                                     {essay.prompt && (
-                                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                                      <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">
                                         <span className="font-medium">Prompt:</span> {essay.prompt}
                                       </p>
                                     )}
 
-                                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                                      <Badge className={`${statusColors.bg} ${statusColors.text} border ${statusColors.border}`}>
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
+                                      <Badge className={`${statusColors.bg} ${statusColors.text} border ${statusColors.border} text-xs`}>
                                         {essay.status}
                                       </Badge>
-                                      <span className="text-sm text-gray-600">
+                                      <span className="text-xs sm:text-sm text-gray-600">
                                         {wordCount} / {wordLimit} words
                                       </span>
                                     </div>
 
-                                    <div className="w-full max-w-md">
+                                    <div className="w-full">
                                       <Progress value={progressPercent} className="h-2" />
                                       <p className="text-xs text-gray-500 mt-1">
                                         {progressPercent.toFixed(0)}% complete
@@ -596,7 +596,7 @@ export default function EssaysPage() {
                               </button>
 
                               {/* Action Buttons */}
-                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-auto flex-shrink-0">
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -604,9 +604,9 @@ export default function EssaysPage() {
                                     e.stopPropagation()
                                     handleOpenEditDialog(essay)
                                   }}
-                                  className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl p-3"
+                                  className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl p-2 sm:p-3"
                                 >
-                                  <Edit className="h-5 w-5" />
+                                  <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -615,9 +615,9 @@ export default function EssaysPage() {
                                     e.stopPropagation()
                                     deleteEssay(essay.id)
                                   }}
-                                  className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl p-3"
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl p-2 sm:p-3"
                                 >
-                                  <Trash2 className="h-5 w-5" />
+                                  <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </Button>
                               </div>
                             </div>

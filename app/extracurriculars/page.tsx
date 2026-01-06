@@ -1279,29 +1279,29 @@ export default function ExtracurricularsPage() {
                   className="mt-8 space-y-6"
                 >
                   {/* Scores */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="p-4 rounded-xl border-2 border-blue-200 bg-blue-50">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div className="p-3 sm:p-4 rounded-xl border-2 border-blue-200 bg-blue-50">
                       <p className="text-xs font-medium text-blue-700 mb-1">Public Flagship</p>
-                      <div className="text-3xl font-bold text-blue-600">
-                        {analyzerResult.scores?.public_flagship || "N/A"}<span className="text-lg">/5</span>
+                      <div className="text-2xl sm:text-3xl font-bold text-blue-600">
+                        {analyzerResult.scores?.public_flagship || "N/A"}<span className="text-base sm:text-lg">/5</span>
                       </div>
                     </div>
-                    <div className="p-4 rounded-xl border-2 border-purple-200 bg-purple-50">
+                    <div className="p-3 sm:p-4 rounded-xl border-2 border-purple-200 bg-purple-50">
                       <p className="text-xs font-medium text-purple-700 mb-1">Highly Selective</p>
-                      <div className="text-3xl font-bold text-purple-600">
-                        {analyzerResult.scores?.highly_selective || "N/A"}<span className="text-lg">/5</span>
+                      <div className="text-2xl sm:text-3xl font-bold text-purple-600">
+                        {analyzerResult.scores?.highly_selective || "N/A"}<span className="text-base sm:text-lg">/5</span>
                       </div>
                     </div>
-                    <div className="p-4 rounded-xl border-2 border-green-200 bg-green-50">
+                    <div className="p-3 sm:p-4 rounded-xl border-2 border-green-200 bg-green-50">
                       <p className="text-xs font-medium text-green-700 mb-1">Essay Quality</p>
-                      <div className="text-3xl font-bold text-green-600">
-                        {analyzerResult.scores?.essay_quality || "N/A"}<span className="text-lg">/6</span>
+                      <div className="text-2xl sm:text-3xl font-bold text-green-600">
+                        {analyzerResult.scores?.essay_quality || "N/A"}<span className="text-base sm:text-lg">/6</span>
                       </div>
                     </div>
-                    <div className="p-4 rounded-xl border-2 border-orange-200 bg-orange-50">
+                    <div className="p-3 sm:p-4 rounded-xl border-2 border-orange-200 bg-orange-50">
                       <p className="text-xs font-medium text-orange-700 mb-1">Overall Impact</p>
-                      <div className="text-3xl font-bold text-orange-600">
-                        {analyzerResult.scores?.overall || "N/A"}<span className="text-lg">/10</span>
+                      <div className="text-2xl sm:text-3xl font-bold text-orange-600">
+                        {analyzerResult.scores?.overall || "N/A"}<span className="text-base sm:text-lg">/10</span>
                       </div>
                     </div>
                   </div>

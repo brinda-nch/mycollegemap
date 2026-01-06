@@ -738,20 +738,20 @@ export default function ApplicationTrackingPage() {
                   <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-all">
                     {/* Application Header */}
                     <CardHeader
-                      className="cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="cursor-pointer hover:bg-gray-50 transition-colors p-4 sm:p-6"
                       onClick={() => toggleExpanded(application.id)}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <GraduationCap className="h-6 w-6" style={{ color: "#f89880" }} />
-                            <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex-1 min-w-0 w-full">
+                          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                            <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" style={{ color: "#f89880" }} />
+                            <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold truncate" style={{ color: "#0f172a" }}>
                               {application.collegeName}
                             </CardTitle>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-slate-600">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600">
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
+                              <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                               <span>
                                 {application.deadline
                                   ? new Date(application.deadline).toLocaleDateString("en-US", {
@@ -762,24 +762,24 @@ export default function ApplicationTrackingPage() {
                                   : "No deadline"}
                               </span>
                             </div>
-                            <Badge variant="secondary">{application.applicationType}</Badge>
+                            <Badge variant="secondary" className="text-xs">{application.applicationType}</Badge>
                             <span className="font-medium">
-                              {completedTasks}/{totalTasks} tasks completed
+                              {completedTasks}/{totalTasks} tasks
                             </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 self-end sm:self-auto">
                           <div className="text-right">
-                            <div className="text-3xl font-bold mb-1" style={{ color: "#0f172a" }}>
+                            <div className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: "#0f172a" }}>
                               {progress}%
                             </div>
-                            <Progress value={progress} className="w-24 h-2" />
+                            <Progress value={progress} className="w-20 sm:w-24 h-2" />
                           </div>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="flex-shrink-0">
                             {isExpanded ? (
-                              <ChevronUp className="h-5 w-5" />
+                              <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
                             ) : (
-                              <ChevronDown className="h-5 w-5" />
+                              <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
                             )}
                           </Button>
                         </div>
