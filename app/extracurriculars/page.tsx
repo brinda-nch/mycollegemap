@@ -827,51 +827,60 @@ export default function ExtracurricularsPage() {
                   </DialogContent>
                 </Dialog>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6">
                 {honorsAwards.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Level</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {honorsAwards.map((honor) => (
-                        <TableRow key={honor.id}>
-                          <TableCell className="font-medium">{honor.title}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{honor.level || "N/A"}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            {honor.dateReceived ? new Date(honor.dateReceived).toLocaleDateString() : "N/A"}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleOpenEditHonorDialog(honor)}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => deleteHonorAward(honor.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                  <div className="space-y-3">
+                    {honorsAwards.map((honor) => (
+                      <Card key={honor.id} className="border-2 hover:border-purple-300 transition-all">
+                        <CardContent className="p-4">
+                          <div className="flex flex-col gap-3">
+                            {/* Header: Honor Title and Actions */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1">{honor.title}</h3>
+                                <Badge variant="outline" className="text-xs">{honor.level || "N/A"}</Badge>
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleOpenEditHonorDialog(honor)}
+                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl p-2"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteHonorAward(honor.id)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl p-2"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                            
+                            {/* Details */}
+                            {honor.dateReceived && (
+                              <div className="text-sm">
+                                <span className="text-gray-500 font-medium">Date:</span>
+                                <span className="ml-2 text-gray-900">
+                                  {new Date(honor.dateReceived).toLocaleDateString()}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Description if available */}
+                            {honor.description && (
+                              <div className="pt-2 border-t">
+                                <p className="text-sm text-gray-600">{honor.description}</p>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 ) : (
                   <div className="text-center py-16">
                     <Award className="h-12 w-12 text-gray-400 mx-auto mb-4" />
