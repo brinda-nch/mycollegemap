@@ -387,7 +387,7 @@ export default function ExtracurricularsPage() {
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -395,74 +395,75 @@ export default function ExtracurricularsPage() {
           >
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 transition-colors group"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-3 sm:mb-4 transition-colors group -ml-2"
             >
-              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Back to Dashboard</span>
+              <ArrowLeft className="h-4 sm:h-5 w-4 sm:w-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="text-sm sm:text-base font-medium">Back to Dashboard</span>
             </Link>
-            <h1 className="text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
               Extracurriculars
             </h1>
-            <p className="text-lg text-slate-600">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-600">
               Track your activities, honors, and awards
             </p>
           </motion.div>
 
           {/* Tabs */}
-          <div className="flex gap-4 mt-6">
+          <div className="flex gap-2 sm:gap-3 lg:gap-4 mt-4 sm:mt-6 overflow-x-auto pb-2">
             <button
               onClick={() => setActiveTab("activities")}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all whitespace-nowrap ${
                 activeTab === "activities"
                   ? "text-white shadow-lg"
                   : "text-slate-600 hover:bg-white/50"
               }`}
               style={{ backgroundColor: activeTab === "activities" ? "#60a5fa" : "transparent" }}
             >
-              <div className="flex items-center gap-2">
-                <Trophy className="h-5 w-5" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Trophy className="h-4 sm:h-5 w-4 sm:w-5" />
                 <span>Activities</span>
               </div>
             </button>
             <button
               onClick={() => setActiveTab("honors")}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all whitespace-nowrap ${
                 activeTab === "honors"
                   ? "text-white shadow-lg"
                   : "text-slate-600 hover:bg-white/50"
               }`}
               style={{ backgroundColor: activeTab === "honors" ? "#a78bfa" : "transparent" }}
             >
-              <div className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                <span>Honors & Awards</span>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Award className="h-4 sm:h-5 w-4 sm:w-5" />
+                <span className="hidden sm:inline">Honors & Awards</span>
+                <span className="sm:hidden">Honors</span>
               </div>
             </button>
             <button
               onClick={() => setActiveTab("analyzer")}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all whitespace-nowrap ${
                 activeTab === "analyzer"
                   ? "text-white shadow-lg"
                   : "text-slate-600 hover:bg-white/50"
               }`}
               style={{ backgroundColor: activeTab === "analyzer" ? "#f89880" : "transparent" }}
             >
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <Sparkles className="h-4 sm:h-5 w-4 sm:w-5" />
                 <span>Analyzer</span>
               </div>
             </button>
             <button
               onClick={() => setActiveTab("resources")}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all whitespace-nowrap ${
                 activeTab === "resources"
                   ? "text-white shadow-lg"
                   : "text-slate-600 hover:bg-white/50"
               }`}
               style={{ backgroundColor: activeTab === "resources" ? "#34d399" : "transparent" }}
             >
-              <div className="flex items-center gap-2">
-                <BookMarked className="h-5 w-5" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <BookMarked className="h-4 sm:h-5 w-4 sm:w-5" />
                 <span>Resources</span>
               </div>
             </button>
@@ -471,11 +472,11 @@ export default function ExtracurricularsPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {activeTab === "activities" && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Activities Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

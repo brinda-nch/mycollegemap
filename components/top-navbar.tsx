@@ -65,13 +65,13 @@ export function TopNavbar() {
   return (
     <>
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 z-50 hidden md:flex flex-col shadow-xl transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+      <div className={`fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 z-50 hidden lg:flex flex-col shadow-xl transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
         {/* Logo */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           {!isSidebarCollapsed && (
             <Link href="/dashboard" className="flex items-center">
               <PngLogo size="lg" />
-              <span className="ml-3 text-xl font-bold" style={{ color: '#364652' }}>mycollegemap</span>
+              <span className="ml-2 lg:ml-3 text-lg lg:text-xl font-bold" style={{ color: '#364652' }}>mycollegemap</span>
             </Link>
           )}
           {isSidebarCollapsed && (
@@ -164,20 +164,20 @@ export function TopNavbar() {
       </div>
 
       {/* Mobile Top Bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-50">
-        <div className="flex justify-between items-center px-4 py-3">
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-50 shadow-sm">
+        <div className="flex justify-between items-center px-3 sm:px-4 py-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2"
+            className="p-2 hover:bg-gray-100"
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
 
           <Link href="/dashboard" className="flex items-center">
-            <PngLogo size="md" />
-            <span className="ml-2 text-lg font-bold" style={{ color: '#364652' }}>mycollegemap</span>
+            <PngLogo size="sm" />
+            <span className="ml-2 text-base sm:text-lg font-bold" style={{ color: '#364652' }}>mycollegemap</span>
           </Link>
 
           {session?.user && (
@@ -192,7 +192,7 @@ export function TopNavbar() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 max-h-[calc(100vh-64px)] overflow-y-auto">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
@@ -200,7 +200,7 @@ export function TopNavbar() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center px-4 py-3 text-base font-medium rounded-xl transition-colors ${
+                    className={`flex items-center px-3 sm:px-4 py-3 text-sm sm:text-base font-medium rounded-xl transition-colors ${
                       isActive
                         ? "text-white"
                         : "hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -211,11 +211,37 @@ export function TopNavbar() {
                     }}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
+                    <item.icon className="mr-2 sm:mr-3 h-5 w-5 flex-shrink-0" />
+                    <span className="truncate">{item.name}</span>
                   </Link>
                 )
               })}
+              
+              {/* User Profile in Mobile Menu */}
+              {session?.user && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 px-3 sm:px-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={session.user.image || ""} alt={session.user.name || ""} />
+                      <AvatarFallback>
+                        {session.user.name ? getInitials(session.user.name) : <User className="h-4 w-4" />}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{session.user.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleSignOut}
+                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}

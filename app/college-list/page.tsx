@@ -280,33 +280,34 @@ export default function CollegeListPage() {
   const reachColleges = collegeList.filter(c => c.category === 'reach')
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 max-w-7xl">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Link href="/dashboard">
-          <Button variant="ghost" className="mb-4">
+          <Button variant="ghost" className="mb-3 sm:mb-4 -ml-2">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </Link>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">My College List</h1>
-            <p className="text-gray-600 dark:text-gray-400">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">My College List</h1>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Track and organize colleges you're interested in applying to
             </p>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="lg" className="gap-2">
-                <Plus className="h-5 w-5" />
+              <Button size="lg" className="gap-2 w-full sm:w-auto">
+                <Plus className="h-4 sm:h-5 w-4 sm:w-5" />
                 Add College
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="max-w-[95vw] sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Add College to Your List</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-lg sm:text-xl">Add College to Your List</DialogTitle>
+                <DialogDescription className="text-sm">
                   Search for a college and we'll automatically categorize it based on your stats
                 </DialogDescription>
               </DialogHeader>
@@ -437,67 +438,72 @@ export default function CollegeListPage() {
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">{collegeList.length}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Total Colleges</div>
+              <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{collegeList.length}</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">Total Colleges</div>
             </div>
           </CardContent>
         </Card>
         <Card className="border-green-200 bg-green-50 dark:bg-green-950">
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-800 dark:text-green-200">{safetyColleges.length}</div>
-              <div className="text-sm text-green-600 dark:text-green-400 mt-1">Safety Schools</div>
+              <div className="text-2xl sm:text-3xl font-bold text-green-800 dark:text-green-200">{safetyColleges.length}</div>
+              <div className="text-xs sm:text-sm text-green-600 dark:text-green-400 mt-1">Safety Schools</div>
             </div>
           </CardContent>
         </Card>
         <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950">
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-800 dark:text-blue-200">{targetColleges.length}</div>
-              <div className="text-sm text-blue-600 dark:text-blue-400 mt-1">Target Schools</div>
+              <div className="text-2xl sm:text-3xl font-bold text-blue-800 dark:text-blue-200">{targetColleges.length}</div>
+              <div className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 mt-1">Target Schools</div>
             </div>
           </CardContent>
         </Card>
         <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950">
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-orange-800 dark:text-orange-200">{reachColleges.length}</div>
-              <div className="text-sm text-orange-600 dark:text-orange-400 mt-1">Reach Schools</div>
+              <div className="text-2xl sm:text-3xl font-bold text-orange-800 dark:text-orange-200">{reachColleges.length}</div>
+              <div className="text-xs sm:text-sm text-orange-600 dark:text-orange-400 mt-1">Reach Schools</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         <Button
           variant={filterCategory === "all" ? "default" : "outline"}
           onClick={() => setFilterCategory("all")}
+          className="text-xs sm:text-sm"
+          size="sm"
         >
           All ({collegeList.length})
         </Button>
         <Button
           variant={filterCategory === "safety" ? "default" : "outline"}
           onClick={() => setFilterCategory("safety")}
-          className={filterCategory === "safety" ? "bg-green-600 hover:bg-green-700" : ""}
+          className={`text-xs sm:text-sm ${filterCategory === "safety" ? "bg-green-600 hover:bg-green-700" : ""}`}
+          size="sm"
         >
           Safety ({safetyColleges.length})
         </Button>
         <Button
           variant={filterCategory === "target" ? "default" : "outline"}
           onClick={() => setFilterCategory("target")}
-          className={filterCategory === "target" ? "bg-blue-600 hover:bg-blue-700" : ""}
+          className={`text-xs sm:text-sm ${filterCategory === "target" ? "bg-blue-600 hover:bg-blue-700" : ""}`}
+          size="sm"
         >
           Target ({targetColleges.length})
         </Button>
         <Button
           variant={filterCategory === "reach" ? "default" : "outline"}
           onClick={() => setFilterCategory("reach")}
-          className={filterCategory === "reach" ? "bg-orange-600 hover:bg-orange-700" : ""}
+          className={`text-xs sm:text-sm ${filterCategory === "reach" ? "bg-orange-600 hover:bg-orange-700" : ""}`}
+          size="sm"
         >
           Reach ({reachColleges.length})
         </Button>
@@ -534,31 +540,32 @@ export default function CollegeListPage() {
                   transition={{ duration: 0.2 }}
                 >
                   <Card className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <CardTitle className="text-xl">{college.collegeName}</CardTitle>
-                            <Badge className={`${getCategoryColor(college.category)} capitalize`}>
+                    <CardHeader className="p-4 sm:p-6">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <CardTitle className="text-base sm:text-lg lg:text-xl truncate">{college.collegeName}</CardTitle>
+                            <Badge className={`${getCategoryColor(college.category)} capitalize text-xs whitespace-nowrap`}>
                               {college.category}
                             </Badge>
                             {isInApplicationTracker(college.collegeName) && (
-                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 gap-1">
+                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 gap-1 text-xs whitespace-nowrap">
                                 <CheckCircle2 className="h-3 w-3" />
-                                In Tracker
+                                <span className="hidden sm:inline">In Tracker</span>
                               </Badge>
                             )}
                           </div>
-                          <CardDescription className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            {college.location}
+                          <CardDescription className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">{college.location}</span>
                           </CardDescription>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-1 sm:gap-2 flex-shrink-0">
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => toggleExpanded(college.id)}
+                            className="h-8 w-8 sm:h-10 sm:w-10"
                           >
                             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                           </Button>
@@ -566,30 +573,30 @@ export default function CollegeListPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleRemoveCollege(college.id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 sm:h-10 sm:w-10"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <CardContent className="p-4 sm:p-6 pt-0">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
                         <div>
                           <Label className="text-xs text-gray-500">Acceptance Rate</Label>
-                          <p className="font-semibold text-lg">{college.acceptanceRate}%</p>
+                          <p className="font-semibold text-sm sm:text-base lg:text-lg">{college.acceptanceRate}%</p>
                         </div>
                         <div>
                           <Label className="text-xs text-gray-500">Average GPA</Label>
-                          <p className="font-semibold text-lg">{college.avgGPA.toFixed(2)}</p>
+                          <p className="font-semibold text-sm sm:text-base lg:text-lg">{college.avgGPA.toFixed(2)}</p>
                         </div>
                         <div>
                           <Label className="text-xs text-gray-500">Average SAT</Label>
-                          <p className="font-semibold text-lg">{college.avgSAT}</p>
+                          <p className="font-semibold text-sm sm:text-base lg:text-lg">{college.avgSAT}</p>
                         </div>
                         <div>
                           <Label className="text-xs text-gray-500">Average ACT</Label>
-                          <p className="font-semibold text-lg">{college.avgACT}</p>
+                          <p className="font-semibold text-sm sm:text-base lg:text-lg">{college.avgACT}</p>
                         </div>
                       </div>
 

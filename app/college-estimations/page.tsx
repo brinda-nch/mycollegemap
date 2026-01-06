@@ -381,7 +381,7 @@ export default function ApplicationTrackingPage() {
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -389,22 +389,22 @@ export default function ApplicationTrackingPage() {
           >
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-4 transition-colors group"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-3 sm:mb-4 transition-colors group -ml-2"
             >
-              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Back to Dashboard</span>
+              <ArrowLeft className="h-4 sm:h-5 w-4 sm:w-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="text-sm sm:text-base font-medium">Back to Dashboard</span>
             </Link>
-            <h1 className="text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2" style={{ color: "#0f172a" }}>
               Application Tracking
             </h1>
-            <p className="text-lg text-slate-600">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-600">
               Manage your applications and track your to-do items
             </p>
           </motion.div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {/* Tabs */}
         <div className="flex border-b border-gray-200 mb-8">
           <Button

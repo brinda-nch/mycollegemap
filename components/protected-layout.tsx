@@ -17,8 +17,8 @@ export function ProtectedLayout({ children }: ProtectedLayoutProps) {
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <TopNavbar />
-        <main className={`pt-0 md:pt-0 transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
-          <div className="md:p-0 pt-16 md:pt-0">
+        <main className={`pt-0 transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
+          <div className="pt-16 lg:pt-0">
             {children}
           </div>
         </main>
