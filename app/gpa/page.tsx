@@ -598,48 +598,48 @@ export default function AcademicsPage() {
                           transition={{ duration: 0.3, delay: index * 0.05 }}
                           className="group"
                         >
-                          <div className="flex items-center justify-between p-6 rounded-2xl border-2 border-gray-200 hover:border-[#f89880] bg-white hover:shadow-lg transition-all">
-                            <div className="flex items-center gap-6 flex-1">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-6 rounded-2xl border-2 border-gray-200 hover:border-[#f89880] bg-white hover:shadow-lg transition-all gap-4">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 flex-1 w-full">
                               {/* Semester Badge */}
                               <div
-                                className="flex flex-col items-center justify-center min-w-[120px] p-4 rounded-xl"
+                                className="flex flex-col items-center justify-center w-full sm:min-w-[100px] sm:w-auto p-3 sm:p-4 rounded-xl"
                                 style={{ backgroundColor: "rgba(248, 152, 128, 0.1)" }}
                               >
-                                <span className="text-lg font-bold" style={{ color: "#f89880" }}>
+                                <span className="text-base sm:text-lg font-bold" style={{ color: "#f89880" }}>
                                   {entry.semester}
                                 </span>
-                                <span className="text-sm font-semibold text-slate-600">{entry.year}</span>
+                                <span className="text-xs sm:text-sm font-semibold text-slate-600">{entry.year}</span>
                               </div>
 
                               {/* GPA Info */}
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-1">
+                              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 flex-1 w-full">
                                 <div>
                                   <p className="text-xs text-slate-500 mb-1 font-medium">Unweighted GPA</p>
-                                  <div className="flex items-baseline gap-2">
-                                    <span className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                                  <div className="flex items-baseline gap-1">
+                                    <span className="text-lg sm:text-xl lg:text-2xl font-bold" style={{ color: "#0f172a" }}>
                                       {entry.gpa.toFixed(2)}
                                     </span>
-                                    <span className="text-sm text-slate-400">/4.0</span>
+                                    <span className="text-xs sm:text-sm text-slate-400">/4.0</span>
                                   </div>
                                 </div>
 
                                 <div>
                                   <p className="text-xs text-slate-500 mb-1 font-medium">Weighted GPA</p>
                                   {entry.weightedGpa ? (
-                                    <div className="flex items-baseline gap-2">
-                                      <span className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                                    <div className="flex items-baseline gap-1">
+                                      <span className="text-lg sm:text-xl lg:text-2xl font-bold" style={{ color: "#0f172a" }}>
                                         {entry.weightedGpa.toFixed(2)}
                                       </span>
-                                      <span className="text-sm text-slate-400">/5.0</span>
+                                      <span className="text-xs sm:text-sm text-slate-400">/5.0</span>
                                     </div>
                                   ) : (
-                                    <span className="text-lg text-slate-300">N/A</span>
+                                    <span className="text-sm sm:text-base text-slate-300">N/A</span>
                                   )}
                                 </div>
 
                                 <div>
                                   <p className="text-xs text-slate-500 mb-1 font-medium">Credits</p>
-                                  <span className="text-xl font-semibold text-slate-700">
+                                  <span className="text-base sm:text-lg lg:text-xl font-semibold text-slate-700">
                                     {entry.credits || <span className="text-slate-300">N/A</span>}
                                   </span>
                                 </div>
@@ -648,33 +648,33 @@ export default function AcademicsPage() {
                                   <p className="text-xs text-slate-500 mb-1 font-medium">Class Rank</p>
                                   {entry.classRank ? (
                                     <div className="flex items-baseline gap-1">
-                                      <span className="text-xl font-semibold text-slate-700">#{entry.classRank}</span>
-                                      {entry.classSize && <span className="text-sm text-slate-400">/{entry.classSize}</span>}
+                                      <span className="text-base sm:text-lg lg:text-xl font-semibold text-slate-700">#{entry.classRank}</span>
+                                      {entry.classSize && <span className="text-xs sm:text-sm text-slate-400">/{entry.classSize}</span>}
                                     </div>
                                   ) : (
-                                    <span className="text-lg text-slate-300">N/A</span>
+                                    <span className="text-sm sm:text-base text-slate-300">N/A</span>
                                   )}
                                 </div>
                               </div>
                             </div>
 
                             {/* Edit and Delete Buttons */}
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-auto">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleOpenEditDialog(entry)}
-                                className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl p-3"
+                                className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl p-2 sm:p-3"
                               >
-                                <Pencil className="h-5 w-5" />
+                                <Pencil className="h-4 w-4 sm:h-5 sm:w-5" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => deleteGpaEntry(entry.id)}
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl p-3"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl p-2 sm:p-3"
                               >
-                                <Trash2 className="h-5 w-5" />
+                                <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                               </Button>
                             </div>
                           </div>
@@ -860,7 +860,7 @@ export default function AcademicsPage() {
         {activeTab === "tests" && (
           <div className="space-y-6">
             {/* Test Scores Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -871,8 +871,8 @@ export default function AcademicsPage() {
                     <CardTitle className="text-sm font-medium text-gray-600">SAT Composite</CardTitle>
                     <FileText className="h-5 w-5 text-blue-600" />
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-gray-900">{getSATComposite()}</div>
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <div className="text-2xl sm:text-3xl font-bold text-gray-900">{getSATComposite()}</div>
                     <p className="text-xs text-gray-500 mt-1">out of 1600</p>
                   </CardContent>
                 </Card>
@@ -933,17 +933,17 @@ export default function AcademicsPage() {
 
             {/* Test Scores Table */}
             <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+                <div className="flex-1">
+                  <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold" style={{ color: "#0f172a" }}>
                     Test Score History
                   </CardTitle>
-                  <CardDescription className="text-base mt-2">Your standardized test performance over time</CardDescription>
+                  <CardDescription className="text-xs sm:text-sm lg:text-base mt-1 sm:mt-2">Your standardized test performance over time</CardDescription>
                 </div>
                 <Dialog open={isAddTestDialogOpen} onOpenChange={setIsAddTestDialogOpen}>
                   <DialogTrigger asChild>
                     <Button
-                      className="text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105"
+                      className="text-white font-semibold rounded-xl hover:shadow-lg transition-all hover:scale-105 w-full sm:w-auto text-sm"
                       style={{ backgroundColor: "#f89880" }}
                     >
                       <Plus className="h-4 w-4 mr-2" />
@@ -1045,48 +1045,50 @@ export default function AcademicsPage() {
                   </DialogContent>
                 </Dialog>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-6">
                 {testScores.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Test Type</TableHead>
-                        <TableHead>Subject</TableHead>
-                        <TableHead>Score</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {testScores.map((score) => (
-                        <TableRow key={score.id}>
-                          <TableCell>
-                            <Badge variant="outline">{score.testType}</Badge>
-                          </TableCell>
-                          <TableCell>{score.subject || <span className="text-gray-400">N/A</span>}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <span className="font-semibold">{score.score}</span>
-                              {score.maxScore && <span className="text-gray-500 text-sm">/ {score.maxScore}</span>}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {score.testDate ? new Date(score.testDate).toLocaleDateString() : <span className="text-gray-400">N/A</span>}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteTestScore(score.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
+                  <div className="overflow-x-auto -mx-3 sm:mx-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="whitespace-nowrap">Test Type</TableHead>
+                          <TableHead className="whitespace-nowrap">Subject</TableHead>
+                          <TableHead className="whitespace-nowrap">Score</TableHead>
+                          <TableHead className="whitespace-nowrap hidden sm:table-cell">Date</TableHead>
+                          <TableHead className="whitespace-nowrap">Actions</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {testScores.map((score) => (
+                          <TableRow key={score.id}>
+                            <TableCell className="whitespace-nowrap">
+                              <Badge variant="outline" className="text-xs">{score.testType}</Badge>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-sm">{score.subject || <span className="text-gray-400">N/A</span>}</TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              <div className="flex items-center space-x-1">
+                                <span className="font-semibold text-sm">{score.score}</span>
+                                {score.maxScore && <span className="text-gray-500 text-xs">/{score.maxScore}</span>}
+                              </div>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-sm hidden sm:table-cell">
+                              {score.testDate ? new Date(score.testDate).toLocaleDateString() : <span className="text-gray-400">N/A</span>}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteTestScore(score.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl p-2"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 ) : (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}

@@ -148,32 +148,32 @@ export default function DashboardPage() {
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-[#f89880] to-[#60a5fa] text-white">
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8 lg:py-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="h-8 w-8" />
-              <h1 className="text-4xl md:text-5xl font-bold">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 flex-shrink-0" />
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight">
                 Welcome back, {session?.user?.firstName || session?.user?.name}!
               </h1>
             </div>
-            <p className="text-xl text-white/90 max-w-2xl">
+            <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-white/90 max-w-2xl">
               Here's your college application journey at a glance
             </p>
           </motion.div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-7xl">
         {/* Stats Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8"
+          className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8"
         >
           {stats.map((stat, index) => (
             <motion.div
@@ -184,12 +184,12 @@ export default function DashboardPage() {
               whileHover={{ y: -5, scale: 1.02 }}
             >
               <Card className={`bg-gradient-to-br ${stat.gradient} border-2 border-transparent hover:border-gray-300 transition-all shadow-lg hover:shadow-xl`}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-700">{stat.title}</CardTitle>
-                  <stat.icon className="h-6 w-6" style={{ color: stat.color }} />
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-4 sm:p-6">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">{stat.title}</CardTitle>
+                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" style={{ color: stat.color }} />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold" style={{ color: stat.color }}>
+                <CardContent className="p-4 sm:p-6 pt-0">
+                  <div className="text-2xl sm:text-3xl font-bold" style={{ color: stat.color }}>
                     {stat.value}
                   </div>
                   <p className="text-xs text-gray-600 mt-1">{stat.description}</p>
@@ -206,16 +206,16 @@ export default function DashboardPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mb-8"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
-              <h2 className="text-3xl font-bold" style={{ color: "#0f172a" }}>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold" style={{ color: "#0f172a" }}>
                 Quick Actions
               </h2>
-              <p className="text-gray-600 mt-1">Manage your college application materials</p>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Manage your college application materials</p>
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {quickActions.map((action, index) => (
               <motion.div
                 key={action.title}
@@ -226,18 +226,18 @@ export default function DashboardPage() {
               >
                 <Link href={action.href}>
                   <Card className={`bg-gradient-to-br ${action.gradient} border-2 border-transparent hover:border-gray-300 transition-all shadow-lg hover:shadow-2xl group cursor-pointer h-full`}>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                       <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                             <div
-                              className="p-3 rounded-xl"
+                              className="p-2 sm:p-3 rounded-xl flex-shrink-0"
                               style={{ backgroundColor: `${action.color}20` }}
                             >
-                              <action.icon className="h-6 w-6" style={{ color: action.color }} />
+                              <action.icon className="h-5 w-5 sm:h-6 sm:w-6" style={{ color: action.color }} />
                             </div>
-                            <div>
-                              <h3 className="text-xl font-bold" style={{ color: "#0f172a" }}>
+                            <div className="min-w-0">
+                              <h3 className="text-base sm:text-lg lg:text-xl font-bold truncate" style={{ color: "#0f172a" }}>
                                 {action.title}
                               </h3>
                             </div>

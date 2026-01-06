@@ -63,6 +63,13 @@
   * {
     @apply border-border;
   }
+  
+  /* Prevent horizontal scrolling on all pages */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
   body {
     @apply text-foreground;
     background: linear-gradient(135deg, #dcf1f7 0%, #f7eedc 100%);
