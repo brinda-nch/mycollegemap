@@ -629,55 +629,72 @@ export default function ExtracurricularsPage() {
                   </DialogContent>
                 </Dialog>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6">
                 {activities.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Activity</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Time Commitment</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {activities.map((activity) => (
-                        <TableRow key={activity.id}>
-                          <TableCell className="font-medium">{activity.activityName}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">{activity.category}</Badge>
-                          </TableCell>
-                          <TableCell>{activity.leadershipPosition || "Member"}</TableCell>
-                          <TableCell>
-                            {activity.hoursPerWeek && activity.weeksPerYear
-                              ? `${activity.hoursPerWeek}h/w, ${activity.weeksPerYear}w/y`
-                              : "N/A"}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleOpenEditActivityDialog(activity)}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => deleteActivity(activity.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                  <div className="space-y-3">
+                    {activities.map((activity) => (
+                      <Card key={activity.id} className="border-2 hover:border-blue-300 transition-all">
+                        <CardContent className="p-4">
+                          <div className="flex flex-col gap-3">
+                            {/* Header: Activity Name and Actions */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-1">{activity.activityName}</h3>
+                                <Badge variant="outline" className="text-xs">{activity.category}</Badge>
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleOpenEditActivityDialog(activity)}
+                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl p-2"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteActivity(activity.id)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl p-2"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                            
+                            {/* Details Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                              <div>
+                                <span className="text-gray-500 font-medium">Role:</span>
+                                <span className="ml-2 text-gray-900">{activity.leadershipPosition || "Member"}</span>
+                              </div>
+                              <div>
+                                <span className="text-gray-500 font-medium">Time:</span>
+                                <span className="ml-2 text-gray-900">
+                                  {activity.hoursPerWeek && activity.weeksPerYear
+                                    ? `${activity.hoursPerWeek}h/w, ${activity.weeksPerYear}w/y`
+                                    : "N/A"}
+                                </span>
+                              </div>
+                              {activity.yearsParticipated && (
+                                <div>
+                                  <span className="text-gray-500 font-medium">Years:</span>
+                                  <span className="ml-2 text-gray-900">{activity.yearsParticipated}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Description if available */}
+                            {activity.description && (
+                              <div className="pt-2 border-t">
+                                <p className="text-sm text-gray-600">{activity.description}</p>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 ) : (
                   <div className="text-center py-16">
                     <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
