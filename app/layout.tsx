@@ -14,7 +14,12 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "MCM",
   description: "Track your college applications, essays, and academic progress",
-    generator: 'v0.app'
+  generator: 'v0.app',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 }
 
 export default function RootLayout({

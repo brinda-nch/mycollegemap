@@ -406,28 +406,30 @@ export default function ApplicationTrackingPage() {
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 mb-8">
+        <div className="flex border-b border-gray-200 mb-6 sm:mb-8 overflow-x-auto">
           <Button
             variant="ghost"
-            className={`px-6 py-3 text-lg font-medium rounded-t-lg transition-colors ${
+            className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-medium rounded-t-lg transition-colors whitespace-nowrap ${
               activeTab === "college"
                 ? "border-b-2 border-[#a78bfa] text-[#a78bfa]"
                 : "text-gray-600 hover:text-gray-900"
             }`}
             onClick={() => setActiveTab("college")}
           >
-            College Applications
+            <span className="hidden sm:inline">College Applications</span>
+            <span className="sm:hidden">Colleges</span>
           </Button>
           <Button
             variant="ghost"
-            className={`px-6 py-3 text-lg font-medium rounded-t-lg transition-colors ${
+            className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 text-sm sm:text-base lg:text-lg font-medium rounded-t-lg transition-colors whitespace-nowrap ${
               activeTab === "programs"
                 ? "border-b-2 border-[#60a5fa] text-[#60a5fa]"
                 : "text-gray-600 hover:text-gray-900"
             }`}
             onClick={() => setActiveTab("programs")}
           >
-            Programs & Internships
+            <span className="hidden sm:inline">Programs & Internships</span>
+            <span className="sm:hidden">Programs</span>
           </Button>
         </div>
 
@@ -737,49 +739,83 @@ export default function ApplicationTrackingPage() {
                 >
                   <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-all">
                     {/* Application Header */}
-                    <CardHeader
-                      className="cursor-pointer hover:bg-gray-50 transition-colors p-4 sm:p-6"
-                      onClick={() => toggleExpanded(application.id)}
-                    >
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div className="flex-1 min-w-0 w-full">
-                          <div className="flex items-center gap-2 sm:gap-3 mb-2">
-                            <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" style={{ color: "#f89880" }} />
-                            <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold truncate" style={{ color: "#0f172a" }}>
-                              {application.collegeName}
-                            </CardTitle>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-                              <span>
-                                {application.deadline
-                                  ? new Date(application.deadline).toLocaleDateString("en-US", {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    })
-                                  : "No deadline"}
-                              </span>
+                    <CardHeader className="p-3 sm:p-4">
+                      <div className="flex flex-col gap-2">
+                        {/* Top Row: Title and Progress */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div 
+                            className="flex-1 min-w-0 cursor-pointer"
+                            onClick={() => toggleExpanded(application.id)}
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <GraduationCap className="h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0" style={{ color: "#f89880" }} />
+                              <CardTitle className="text-base sm:text-lg font-bold truncate" style={{ color: "#0f172a" }}>
+                                {application.collegeName}
+                              </CardTitle>
                             </div>
-                            <Badge variant="secondary" className="text-xs">{application.applicationType}</Badge>
-                            <span className="font-medium">
-                              {completedTasks}/{totalTasks} tasks
-                            </span>
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-600">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                <span>
+                                  {application.deadline
+                                    ? new Date(application.deadline).toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                      })
+                                    : "No deadline"}
+                                </span>
+                              </div>
+                              <Badge variant="secondary" className="text-xs px-1.5 py-0">{application.applicationType}</Badge>
+                              <span className="font-medium">{completedTasks}/{totalTasks}</span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3 sm:gap-4 self-end sm:self-auto">
-                          <div className="text-right">
-                            <div className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: "#0f172a" }}>
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="text-xl sm:text-2xl font-bold" style={{ color: "#0f172a" }}>
                               {progress}%
                             </div>
-                            <Progress value={progress} className="w-20 sm:w-24 h-2" />
+                            <Progress value={progress} className="w-16 sm:w-20 h-1.5" />
                           </div>
-                          <Button variant="ghost" size="sm" className="flex-shrink-0">
+                        </div>
+                        
+                        {/* Bottom Row: Action Buttons */}
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
+                          <div className="flex gap-1.5">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setEditingApplication(application)
+                                setIsEditApplicationDialogOpen(true)
+                              }}
+                              className="h-7 px-2 text-xs"
+                            >
+                              <Pencil className="h-3 w-3 mr-1" />
+                              <span className="hidden sm:inline">Edit</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteApplication(application.id)
+                              }}
+                              className="h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:border-red-300"
+                            >
+                              <Trash2 className="h-3 w-3 mr-1" />
+                              <span className="hidden sm:inline">Delete</span>
+                            </Button>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 px-2"
+                            onClick={() => toggleExpanded(application.id)}
+                          >
                             {isExpanded ? (
-                              <ChevronUp className="h-4 w-4 sm:h-5 sm:w-5" />
+                              <ChevronUp className="h-4 w-4" />
                             ) : (
-                              <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
+                              <ChevronDown className="h-4 w-4" />
                             )}
                           </Button>
                         </div>
@@ -790,27 +826,26 @@ export default function ApplicationTrackingPage() {
                     {isExpanded && (
                       <CardContent className="pt-0">
                         <div className="space-y-6">
-                          {/* Add Task Button and Edit/Delete Buttons */}
+                          {/* Add Task Button */}
                           <div className="flex justify-between items-center border-t pt-4">
-                            <div className="flex gap-2">
-                              <Dialog
-                                open={isAddTaskDialogOpen && selectedApplicationId === application.id}
-                                onOpenChange={(open) => {
-                                  setIsAddTaskDialogOpen(open)
-                                  if (open) setSelectedApplicationId(application.id)
-                                }}
-                              >
-                                <DialogTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="rounded-xl"
-                                    onClick={() => setSelectedApplicationId(application.id)}
-                                  >
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Add Task
-                                  </Button>
-                                </DialogTrigger>
+                            <Dialog
+                              open={isAddTaskDialogOpen && selectedApplicationId === application.id}
+                              onOpenChange={(open) => {
+                                setIsAddTaskDialogOpen(open)
+                                if (open) setSelectedApplicationId(application.id)
+                              }}
+                            >
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="rounded-xl"
+                                  onClick={() => setSelectedApplicationId(application.id)}
+                                >
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  Add Task
+                                </Button>
+                              </DialogTrigger>
                               <DialogContent>
                                 <DialogHeader>
                                   <DialogTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
@@ -896,27 +931,6 @@ export default function ApplicationTrackingPage() {
                                 </DialogFooter>
                               </DialogContent>
                             </Dialog>
-
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => openEditDialog(application)}
-                                className="rounded-xl"
-                              >
-                                <Pencil className="h-4 w-4 mr-2" />
-                                Edit Details
-                              </Button>
-                            </div>
-
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteCollegeApplication(application.id)}
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete Application
-                            </Button>
                           </div>
 
                           {/* Tasks by Category */}
@@ -1267,54 +1281,88 @@ export default function ApplicationTrackingPage() {
                       >
                         <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200 hover:shadow-2xl transition-all">
                           {/* Program Header */}
-                          <CardHeader
-                            className="cursor-pointer hover:bg-gray-50 transition-colors"
-                            onClick={() => toggleProgramExpanded(program.id)}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <Target className="h-6 w-6" style={{ color: "#60a5fa" }} />
-                                  <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
-                                    {program.title}
-                                  </CardTitle>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-slate-600">
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="h-4 w-4" />
-                                    <span>
-                                      {program.deadline
-                                        ? new Date(program.deadline).toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                            year: "numeric",
-                                          })
-                                        : "No deadline"}
-                                    </span>
+                          <CardHeader className="p-3 sm:p-4">
+                            <div className="flex flex-col gap-2">
+                              {/* Top Row: Title and Progress */}
+                              <div className="flex items-start justify-between gap-2">
+                                <div 
+                                  className="flex-1 min-w-0 cursor-pointer"
+                                  onClick={() => toggleProgramExpanded(program.id)}
+                                >
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Target className="h-4 sm:h-5 w-4 sm:w-5 flex-shrink-0" style={{ color: "#60a5fa" }} />
+                                    <CardTitle className="text-base sm:text-lg font-bold truncate" style={{ color: "#0f172a" }}>
+                                      {program.title}
+                                    </CardTitle>
                                   </div>
-                                  {program.tuition && (
+                                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-600">
                                     <div className="flex items-center gap-1">
-                                      <DollarSign className="h-4 w-4" />
-                                      <span>${program.tuition.toLocaleString()}</span>
+                                      <Calendar className="h-3 w-3" />
+                                      <span>
+                                        {program.deadline
+                                          ? new Date(program.deadline).toLocaleDateString("en-US", {
+                                              month: "short",
+                                              day: "numeric",
+                                            })
+                                          : "No deadline"}
+                                      </span>
                                     </div>
-                                  )}
-                                  <span className="font-medium">
-                                    {completedTasks}/{totalTasks} tasks completed
-                                  </span>
+                                    {program.tuition && (
+                                      <div className="flex items-center gap-1">
+                                        <DollarSign className="h-3 w-3" />
+                                        <span>${program.tuition.toLocaleString()}</span>
+                                      </div>
+                                    )}
+                                    <span className="font-medium">{completedTasks}/{totalTasks}</span>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <div className="text-right">
-                                  <div className="text-3xl font-bold mb-1" style={{ color: "#0f172a" }}>
+                                <div className="flex flex-col items-end gap-1">
+                                  <div className="text-xl sm:text-2xl font-bold" style={{ color: "#0f172a" }}>
                                     {progress}%
                                   </div>
-                                  <Progress value={progress} className="w-24 h-2" />
+                                  <Progress value={progress} className="w-16 sm:w-20 h-1.5" />
                                 </div>
-                                <Button variant="ghost" size="sm">
+                              </div>
+                              
+                              {/* Bottom Row: Action Buttons */}
+                              <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100">
+                                <div className="flex gap-1.5">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setEditingProgram(program)
+                                      setIsEditProgramDialogOpen(true)
+                                    }}
+                                    className="h-7 px-2 text-xs"
+                                  >
+                                    <Pencil className="h-3 w-3 mr-1" />
+                                    <span className="hidden sm:inline">Edit</span>
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      deleteProgramInternship(program.id)
+                                    }}
+                                    className="h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:border-red-300"
+                                  >
+                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    <span className="hidden sm:inline">Delete</span>
+                                  </Button>
+                                </div>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-7 px-2"
+                                  onClick={() => toggleProgramExpanded(program.id)}
+                                >
                                   {isExpanded ? (
-                                    <ChevronUp className="h-5 w-5" />
+                                    <ChevronUp className="h-4 w-4" />
                                   ) : (
-                                    <ChevronDown className="h-5 w-5" />
+                                    <ChevronDown className="h-4 w-4" />
                                   )}
                                 </Button>
                               </div>
@@ -1325,27 +1373,26 @@ export default function ApplicationTrackingPage() {
                           {isExpanded && (
                             <CardContent className="pt-0">
                               <div className="space-y-6">
-                                {/* Add Task Button and Edit/Delete Buttons */}
+                                {/* Add Task Button */}
                                 <div className="flex justify-between items-center border-t pt-4">
-                                  <div className="flex gap-2">
-                                    <Dialog
-                                      open={isAddProgramTaskDialogOpen && selectedProgramId === program.id}
-                                      onOpenChange={(open) => {
-                                        setIsAddProgramTaskDialogOpen(open)
-                                        if (open) setSelectedProgramId(program.id)
-                                      }}
-                                    >
-                                      <DialogTrigger asChild>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className="rounded-xl"
-                                          onClick={() => setSelectedProgramId(program.id)}
-                                        >
-                                          <Plus className="h-4 w-4 mr-2" />
-                                          Add Task
-                                        </Button>
-                                      </DialogTrigger>
+                                  <Dialog
+                                    open={isAddProgramTaskDialogOpen && selectedProgramId === program.id}
+                                    onOpenChange={(open) => {
+                                      setIsAddProgramTaskDialogOpen(open)
+                                      if (open) setSelectedProgramId(program.id)
+                                    }}
+                                  >
+                                    <DialogTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-xl"
+                                        onClick={() => setSelectedProgramId(program.id)}
+                                      >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add Task
+                                      </Button>
+                                    </DialogTrigger>
                                     <DialogContent>
                                       <DialogHeader>
                                         <DialogTitle className="text-xl font-bold" style={{ color: "#0f172a" }}>
@@ -1431,27 +1478,6 @@ export default function ApplicationTrackingPage() {
                                       </DialogFooter>
                                     </DialogContent>
                                   </Dialog>
-
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => openEditProgramDialog(program)}
-                                      className="rounded-xl"
-                                    >
-                                      <Pencil className="h-4 w-4 mr-2" />
-                                      Edit Details
-                                    </Button>
-                                  </div>
-
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => deleteProgramInternship(program.id)}
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete Program
-                                  </Button>
                                 </div>
 
                                 {/* Tasks by Category */}

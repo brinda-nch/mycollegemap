@@ -69,6 +69,9 @@ export default function EssaysPage() {
   const [proofreadResults, setProofreadResults] = useState<any>(null)
   const [showProofreadPanel, setShowProofreadPanel] = useState(false)
   
+  // Discard confirmation dialog
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false)
+  
   // New essay form state
   const [newEssay, setNewEssay] = useState({
     title: "",
@@ -134,6 +137,7 @@ export default function EssaysPage() {
     setEditorContent(currentEssay?.content || "")
     setHasUnsavedChanges(false)
     setCanClose(true)
+    setShowDiscardDialog(false)
   }
 
   const handleCloseEditor = () => {
@@ -319,28 +323,28 @@ export default function EssaysPage() {
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-blue-50">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center gap-3 mb-2">
-              <FileText className="h-8 w-8" style={{ color: "#f89880" }} />
-              <h1 className="text-4xl font-bold" style={{ color: "#0f172a" }}>
+            <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+              <FileText className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8" style={{ color: "#f89880" }} />
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold" style={{ color: "#0f172a" }}>
                 Essays
               </h1>
             </div>
-            <p className="text-lg text-slate-600">
+            <p className="text-sm sm:text-base lg:text-lg text-slate-600">
               Write and manage your college application essays
             </p>
           </motion.div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -348,14 +352,14 @@ export default function EssaysPage() {
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
           >
             <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-transparent hover:border-[#f89880] transition-all shadow-lg hover:shadow-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-3 rounded-2xl" style={{ backgroundColor: "rgba(248, 152, 128, 0.1)" }}>
-                    <FileText className="h-6 w-6" style={{ color: "#f89880" }} />
+              <CardContent className="p-3 sm:p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                  <div className="p-2 sm:p-2.5 lg:p-3 rounded-xl sm:rounded-2xl" style={{ backgroundColor: "rgba(248, 152, 128, 0.1)" }}>
+                    <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" style={{ color: "#f89880" }} />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-600 mb-1">Total Essays</p>
-                <div className="text-4xl font-bold" style={{ color: "#f89880" }}>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mb-0.5 sm:mb-1">Total Essays</p>
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold" style={{ color: "#f89880" }}>
                   {totalEssays}
                 </div>
               </CardContent>
@@ -369,14 +373,14 @@ export default function EssaysPage() {
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
           >
             <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-transparent hover:border-green-400 transition-all shadow-lg hover:shadow-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-3 rounded-2xl bg-green-100">
-                    <CheckCircle className="h-6 w-6 text-green-600" />
+              <CardContent className="p-3 sm:p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                  <div className="p-2 sm:p-2.5 lg:p-3 rounded-xl sm:rounded-2xl bg-green-100">
+                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-green-600" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-600 mb-1">Completed</p>
-                <div className="text-4xl font-bold text-green-600">{completedEssays}</div>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mb-0.5 sm:mb-1">Completed</p>
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600">{completedEssays}</div>
               </CardContent>
             </Card>
           </motion.div>
@@ -388,14 +392,14 @@ export default function EssaysPage() {
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
           >
             <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-transparent hover:border-blue-400 transition-all shadow-lg hover:shadow-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-3 rounded-2xl bg-blue-100">
-                    <Clock className="h-6 w-6 text-blue-600" />
+              <CardContent className="p-3 sm:p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                  <div className="p-2 sm:p-2.5 lg:p-3 rounded-xl sm:rounded-2xl bg-blue-100">
+                    <Clock className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-blue-600" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-600 mb-1">In Progress</p>
-                <div className="text-4xl font-bold text-blue-600">{inProgressEssays}</div>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mb-0.5 sm:mb-1">In Progress</p>
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600">{inProgressEssays}</div>
               </CardContent>
             </Card>
           </motion.div>
@@ -407,14 +411,14 @@ export default function EssaysPage() {
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
           >
             <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-transparent hover:border-purple-400 transition-all shadow-lg hover:shadow-xl">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-3 rounded-2xl bg-purple-100">
-                    <BookOpen className="h-6 w-6 text-purple-600" />
+              <CardContent className="p-3 sm:p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                  <div className="p-2 sm:p-2.5 lg:p-3 rounded-xl sm:rounded-2xl bg-purple-100">
+                    <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-purple-600" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-600 mb-1">Total Words</p>
-                <div className="text-4xl font-bold text-purple-600">{totalWords}</div>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 mb-0.5 sm:mb-1">Total Words</p>
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600">{totalWords}</div>
               </CardContent>
             </Card>
           </motion.div>
@@ -427,13 +431,13 @@ export default function EssaysPage() {
           transition={{ duration: 0.5, delay: 0.5 }}
         >
           <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-2 border-gray-200">
-            <CardHeader className="border-b border-gray-100 pb-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <CardHeader className="border-b border-gray-100 pb-3 sm:pb-4 lg:pb-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 sm:gap-4">
                 <div>
-                  <CardTitle className="text-2xl font-bold" style={{ color: "#0f172a" }}>
+                  <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold" style={{ color: "#0f172a" }}>
                     Your Essays
                   </CardTitle>
-                  <CardDescription className="text-base mt-2">
+                  <CardDescription className="text-sm sm:text-base mt-1 sm:mt-2">
                     Manage and write your college application essays
                   </CardDescription>
                 </div>
@@ -533,7 +537,7 @@ export default function EssaysPage() {
                 </Dialog>
               </div>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
               {essays.length > 0 ? (
                 <div className="space-y-4">
                   <AnimatePresence>
@@ -552,74 +556,74 @@ export default function EssaysPage() {
                           transition={{ duration: 0.3, delay: index * 0.05 }}
                           className="group"
                         >
-                          <div className="p-4 sm:p-6 rounded-2xl border-2 border-gray-200 hover:border-[#f89880] bg-white hover:shadow-lg transition-all">
-                            <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
-                              <button
-                                onClick={() => handleOpenEditor(essay)}
-                                className="flex-1 text-left w-full min-w-0"
-                              >
-                                <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-                                  <div
-                                    className="p-2 sm:p-3 rounded-xl mt-1 flex-shrink-0"
-                                    style={{ backgroundColor: "rgba(248, 152, 128, 0.1)" }}
-                                  >
-                                    <FileText className="h-5 w-5 sm:h-6 sm:w-6" style={{ color: "#f89880" }} />
+                          <div className="p-3 sm:p-4 rounded-xl border-2 border-gray-200 hover:border-[#f89880] bg-white hover:shadow-lg transition-all">
+                            <button
+                              onClick={() => handleOpenEditor(essay)}
+                              className="w-full text-left"
+                            >
+                              <div className="flex items-start gap-2 sm:gap-3 mb-2">
+                                <div
+                                  className="p-1.5 sm:p-2 rounded-lg flex-shrink-0"
+                                  style={{ backgroundColor: "rgba(248, 152, 128, 0.1)" }}
+                                >
+                                  <FileText className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: "#f89880" }} />
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-sm sm:text-base font-bold mb-1 break-words" style={{ color: "#0f172a" }}>
+                                    {essay.title}
+                                  </h3>
+                                  {essay.prompt && (
+                                    <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                                      <span className="font-medium">Prompt:</span> {essay.prompt}
+                                    </p>
+                                  )}
+
+                                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2">
+                                    <Badge className={`${statusColors.bg} ${statusColors.text} border ${statusColors.border} text-xs px-1.5 py-0`}>
+                                      {essay.status}
+                                    </Badge>
+                                    <span className="text-xs text-gray-600">
+                                      {wordCount}/{wordLimit}
+                                    </span>
                                   </div>
 
-                                  <div className="flex-1 min-w-0">
-                                    <h3 className="text-base sm:text-lg lg:text-xl font-bold mb-2 break-words" style={{ color: "#0f172a" }}>
-                                      {essay.title}
-                                    </h3>
-                                    {essay.prompt && (
-                                      <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">
-                                        <span className="font-medium">Prompt:</span> {essay.prompt}
-                                      </p>
-                                    )}
-
-                                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
-                                      <Badge className={`${statusColors.bg} ${statusColors.text} border ${statusColors.border} text-xs`}>
-                                        {essay.status}
-                                      </Badge>
-                                      <span className="text-xs sm:text-sm text-gray-600">
-                                        {wordCount} / {wordLimit} words
-                                      </span>
-                                    </div>
-
-                                    <div className="w-full">
-                                      <Progress value={progressPercent} className="h-2" />
-                                      <p className="text-xs text-gray-500 mt-1">
-                                        {progressPercent.toFixed(0)}% complete
-                                      </p>
-                                    </div>
+                                  <div className="w-full">
+                                    <Progress value={progressPercent} className="h-1.5" />
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                      {progressPercent.toFixed(0)}%
+                                    </p>
                                   </div>
                                 </div>
-                              </button>
-
-                              {/* Action Buttons */}
-                              <div className="flex items-center gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity self-end sm:self-auto flex-shrink-0">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleOpenEditDialog(essay)
-                                  }}
-                                  className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-xl p-2 sm:p-3"
-                                >
-                                  <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    deleteEssay(essay.id)
-                                  }}
-                                  className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl p-2 sm:p-3"
-                                >
-                                  <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                                </Button>
                               </div>
+                            </button>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-1.5 pt-2 border-t border-gray-100 mt-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleOpenEditDialog(essay)
+                                }}
+                                className="h-7 px-2 text-xs"
+                              >
+                                <Edit className="h-3 w-3 mr-1" />
+                                <span className="hidden sm:inline">Edit</span>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  deleteEssay(essay.id)
+                                }}
+                                className="h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:border-red-300"
+                              >
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                <span className="hidden sm:inline">Delete</span>
+                              </Button>
                             </div>
                           </div>
                         </motion.div>
@@ -760,53 +764,54 @@ export default function EssaysPage() {
           >
             {/* Editor Header */}
             <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
-              <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <FileText className="h-6 w-6" style={{ color: "#f89880" }} />
-                  <span className="text-lg font-semibold" style={{ color: "#0f172a" }}>
+              <div className="max-w-full mx-auto px-3 sm:px-4 lg:px-6 py-2 sm:py-3 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  <FileText className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" style={{ color: "#f89880" }} />
+                  <span className="text-sm sm:text-base lg:text-lg font-semibold truncate" style={{ color: "#0f172a" }}>
                     {currentEssay.title}
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 flex-shrink-0">
                   <Button
                     onClick={handleProofread}
                     disabled={isProofreading || !editorContent || editorContent.trim().length === 0}
-                    className="h-10 rounded-xl px-6 text-white font-semibold"
+                    className="h-7 sm:h-8 lg:h-9 rounded-lg sm:rounded-xl px-2 sm:px-3 lg:px-4 text-white font-semibold text-xs sm:text-sm"
                     style={{ backgroundColor: "#a78bfa" }}
                   >
                     {isProofreading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Proofreading...
+                        <div className="animate-spin rounded-full h-3 w-3 sm:h-3.5 sm:w-3.5 border-b-2 border-white mr-1"></div>
+                        <span className="hidden sm:inline">Proofreading...</span>
                       </>
                     ) : (
                       <>
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        Proofread
+                        <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 sm:mr-1" />
+                        <span className="hidden sm:inline">Proofread</span>
                       </>
                     )}
                   </Button>
                   <Button
-                    onClick={handleDiscardChanges}
+                    onClick={() => setShowDiscardDialog(true)}
                     variant="outline"
-                    className="h-10 rounded-xl px-6 border-2"
+                    className="h-7 sm:h-8 lg:h-9 rounded-lg sm:rounded-xl px-2 sm:px-3 lg:px-4 border text-xs sm:text-sm"
                   >
-                    Discard Changes
+                    <X className="h-3 w-3 sm:mr-1" />
+                    <span className="hidden sm:inline">Discard</span>
                   </Button>
                   <Button
                     onClick={handleSaveEditor}
-                    className="h-10 rounded-xl px-6 text-white font-semibold"
+                    className="h-7 sm:h-8 lg:h-9 rounded-lg sm:rounded-xl px-2 sm:px-3 lg:px-4 text-white font-semibold text-xs sm:text-sm"
                     style={{ backgroundColor: "#f89880" }}
                   >
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    <Save className="h-3 w-3 sm:h-3.5 sm:w-3.5 lg:h-4 lg:w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Save</span>
                   </Button>
                   <Button
                     onClick={handleCloseEditor}
                     variant="ghost"
                     size="sm"
                     disabled={!canClose}
-                    className={`h-10 w-10 rounded-xl ${
+                    className={`h-7 w-7 sm:h-8 sm:w-8 rounded-lg sm:rounded-xl p-0 ${
                       canClose
                         ? "hover:bg-gray-100"
                         : "opacity-50 cursor-not-allowed"
@@ -817,70 +822,69 @@ export default function EssaysPage() {
                         : "Close editor"
                     }
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                   </Button>
                 </div>
               </div>
             </div>
 
             {/* Essay Details Section */}
-            <div className="max-w-4xl mx-auto px-6 py-8">
+            <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="mb-8"
+                className="mb-4 sm:mb-6"
               >
                 {/* Essay Title */}
-                <h1 className="text-4xl font-bold mb-4" style={{ color: "#0f172a" }}>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3" style={{ color: "#0f172a" }}>
                   {currentEssay.title}
                 </h1>
 
                 {/* Essay Meta Information */}
-                <div className="flex flex-wrap items-center gap-4 mb-6">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                   <Badge
                     className={`${getStatusColor(currentEssay.status).bg} ${
                       getStatusColor(currentEssay.status).text
-                    } border ${getStatusColor(currentEssay.status).border} text-sm py-1 px-3`}
+                    } border ${getStatusColor(currentEssay.status).border} text-xs py-0.5 px-2`}
                   >
                     {currentEssay.status}
                   </Badge>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <BookOpen className="h-4 w-4" />
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
+                    <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span>
-                      {getWordCount(editorContent)} / {currentEssay.wordCount || 650} words
+                      {getWordCount(editorContent)} / {currentEssay.wordCount || 650}
                     </span>
                   </div>
                   {hasUnsavedChanges && (
-                    <Badge variant="outline" className="text-orange-600 border-orange-300">
-                      Unsaved changes
+                    <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs py-0.5 px-2">
+                      Unsaved
                     </Badge>
                   )}
                 </div>
 
                 {/* Essay Prompt */}
                 {currentEssay.prompt && (
-                  <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-gray-200 mb-8">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <Target className="h-4 w-4" />
-                      Essay Prompt
+                  <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 mb-3 sm:mb-4">
+                    <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                      <Target className="h-3 w-3 sm:h-4 sm:w-4" />
+                      Prompt
                     </h3>
-                    <p className="text-base text-gray-800 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-gray-800 leading-relaxed">
                       {currentEssay.prompt}
                     </p>
                   </div>
                 )}
 
                 {/* Word Count Progress */}
-                <div className="mb-8">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Progress</span>
-                    <span className="text-sm text-gray-600">
+                <div className="mb-3 sm:mb-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs sm:text-sm font-medium text-gray-700">Progress</span>
+                    <span className="text-xs sm:text-sm text-gray-600">
                       {Math.min(
                         ((getWordCount(editorContent) / (currentEssay.wordCount || 650)) * 100).toFixed(0),
                         100
-                      )}
-                      % complete
+                      )}%
                     </span>
                   </div>
                   <Progress
@@ -888,7 +892,7 @@ export default function EssaysPage() {
                       (getWordCount(editorContent) / (currentEssay.wordCount || 650)) * 100,
                       100
                     )}
-                    className="h-2"
+                    className="h-1.5"
                   />
                 </div>
               </motion.div>
@@ -903,9 +907,9 @@ export default function EssaysPage() {
                   value={editorContent}
                   onChange={(e) => handleEditorContentChange(e.target.value)}
                   placeholder="Start writing your essay here..."
-                  className="min-h-[600px] text-base leading-relaxed rounded-2xl border-2 border-gray-200 focus:border-[#f89880] focus:ring-[#f89880] p-8 resize-none"
+                  className="min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] text-sm sm:text-base leading-relaxed rounded-xl border-2 border-gray-200 focus:border-[#f89880] focus:ring-[#f89880] p-3 sm:p-4 lg:p-6 resize-none"
                   style={{
-                    fontSize: "16px",
+                    fontSize: "15px",
                     lineHeight: "1.75",
                     fontFamily: "inherit",
                   }}
@@ -913,12 +917,11 @@ export default function EssaysPage() {
               </motion.div>
 
               {/* Helper Text */}
-              <div className="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-200">
-                <p className="text-sm text-gray-600 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-[#f89880]" />
+              <div className="mt-3 sm:mt-4 p-2.5 sm:p-3 rounded-lg bg-gray-50 border border-gray-200">
+                <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1.5 sm:gap-2">
+                  <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-[#f89880] flex-shrink-0" />
                   <span>
-                    <strong>Tip:</strong> Remember to save your changes before closing the editor. Your
-                    progress is not automatically saved.
+                    <strong>Tip:</strong> Save changes before closing.
                   </span>
                 </p>
               </div>
@@ -929,55 +932,55 @@ export default function EssaysPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
-                  className="mt-8"
+                  className="mt-4 sm:mt-6"
                 >
                   <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
-                    <CardHeader>
+                    <CardHeader className="pb-3 sm:pb-4">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-2xl font-bold flex items-center gap-3" style={{ color: "#0f172a" }}>
-                          <Sparkles className="h-6 w-6" style={{ color: "#a78bfa" }} />
-                          Proofreading Results
+                        <CardTitle className="text-base sm:text-lg lg:text-xl font-bold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                          <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: "#a78bfa" }} />
+                          Results
                         </CardTitle>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setShowProofreadPanel(false)}
-                          className="h-8 w-8"
+                          className="h-7 w-7 p-0"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-3.5 w-3.5" />
                         </Button>
                       </div>
-                      <CardDescription>
-                        AI-powered feedback on grammar, style, and college essay best practices
+                      <CardDescription className="text-xs sm:text-sm">
+                        AI-powered feedback on grammar, style, and best practices
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-3 sm:space-y-4">
                       {/* Overall Score */}
-                      <div className="flex items-center gap-4 p-4 rounded-xl bg-white border-2 border-purple-200">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-600 mb-1">Overall Score</p>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-4xl font-bold" style={{ color: "#a78bfa" }}>
+                      <div className="grid grid-cols-3 gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-white border border-purple-200">
+                        <div>
+                          <p className="text-xs font-medium text-gray-600 mb-0.5">Score</p>
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-xl sm:text-2xl font-bold" style={{ color: "#a78bfa" }}>
                               {proofreadResults.overallScore}
                             </span>
-                            <span className="text-xl text-gray-500">/100</span>
+                            <span className="text-sm text-gray-500">/100</span>
                           </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-600 mb-1">Word Count</p>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-bold text-gray-800">
+                        <div>
+                          <p className="text-xs font-medium text-gray-600 mb-0.5">Words</p>
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-lg sm:text-xl font-bold text-gray-800">
                               {proofreadResults.wordCount}
                             </span>
                             {currentEssay.wordCount && (
-                              <span className="text-sm text-gray-500">/ {currentEssay.wordCount}</span>
+                              <span className="text-xs text-gray-500">/{currentEssay.wordCount}</span>
                             )}
                           </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-600 mb-1">Tone</p>
+                        <div>
+                          <p className="text-xs font-medium text-gray-600 mb-0.5">Tone</p>
                           <Badge 
-                            className={`text-sm ${
+                            className={`text-xs px-1.5 py-0 ${
                               proofreadResults.tone === 'authentic' 
                                 ? 'bg-green-100 text-green-800 border-green-300'
                                 : proofreadResults.tone === 'generic'
@@ -992,28 +995,28 @@ export default function EssaysPage() {
 
                       {/* Summary */}
                       {proofreadResults.summary && (
-                        <div className="p-4 rounded-xl bg-white border-2 border-gray-200">
-                          <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                            <BookOpen className="h-4 w-4" />
+                        <div className="p-2.5 sm:p-3 rounded-lg bg-white border border-gray-200">
+                          <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                            <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
                             Summary
                           </h3>
-                          <p className="text-gray-800">{proofreadResults.summary}</p>
+                          <p className="text-xs sm:text-sm text-gray-800">{proofreadResults.summary}</p>
                         </div>
                       )}
 
                       {/* Issues Found */}
                       {proofreadResults.issues && proofreadResults.issues.length > 0 && (
-                        <div className="p-4 rounded-xl bg-white border-2 border-orange-200">
-                          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            <AlignLeft className="h-4 w-4" />
-                            Issues Found ({proofreadResults.issues.length})
+                        <div className="p-2.5 sm:p-3 rounded-lg bg-white border border-orange-200">
+                          <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+                            <AlignLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                            Issues ({proofreadResults.issues.length})
                           </h3>
-                          <div className="space-y-3">
+                          <div className="space-y-2">
                             {proofreadResults.issues.map((issue: any, index: number) => (
-                              <div key={index} className="p-3 rounded-lg bg-orange-50 border border-orange-200">
-                                <div className="flex items-start justify-between mb-2">
+                              <div key={index} className="p-2 sm:p-2.5 rounded-lg bg-orange-50 border border-orange-200">
+                                <div className="flex items-start justify-between mb-1">
                                   <Badge 
-                                    className={`text-xs ${
+                                    className={`text-xs px-1.5 py-0 ${
                                       issue.type === 'grammar' 
                                         ? 'bg-red-100 text-red-800 border-red-300'
                                         : issue.type === 'style'
@@ -1024,12 +1027,12 @@ export default function EssaysPage() {
                                     {issue.type}
                                   </Badge>
                                 </div>
-                                <p className="text-sm text-gray-700 mb-2">
+                                <p className="text-xs text-gray-700 mb-1">
                                   <span className="font-medium">Found: </span>
                                   <span className="line-through text-red-600">"{issue.text}"</span>
                                 </p>
-                                <p className="text-sm text-gray-700 mb-2">
-                                  <span className="font-medium">Suggestion: </span>
+                                <p className="text-xs text-gray-700 mb-1">
+                                  <span className="font-medium">Fix: </span>
                                   <span className="text-green-600 font-medium">"{issue.suggestion}"</span>
                                 </p>
                                 <p className="text-xs text-gray-600 italic">
@@ -1043,15 +1046,15 @@ export default function EssaysPage() {
 
                       {/* Strengths */}
                       {proofreadResults.strengths && proofreadResults.strengths.length > 0 && (
-                        <div className="p-4 rounded-xl bg-white border-2 border-green-200">
-                          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
+                        <div className="p-2.5 sm:p-3 rounded-lg bg-white border border-green-200">
+                          <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
                             Strengths
                           </h3>
-                          <ul className="space-y-2">
+                          <ul className="space-y-1.5">
                             {proofreadResults.strengths.map((strength: string, index: number) => (
-                              <li key={index} className="flex items-start gap-2 text-sm text-gray-800">
-                                <span className="text-green-600 mt-0.5">✓</span>
+                              <li key={index} className="flex items-start gap-1.5 text-xs sm:text-sm text-gray-800">
+                                <span className="text-green-600 mt-0.5 text-xs">✓</span>
                                 <span>{strength}</span>
                               </li>
                             ))}
@@ -1061,15 +1064,15 @@ export default function EssaysPage() {
 
                       {/* Improvements */}
                       {proofreadResults.improvements && proofreadResults.improvements.length > 0 && (
-                        <div className="p-4 rounded-xl bg-white border-2 border-blue-200">
-                          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-blue-600" />
-                            Suggested Improvements
+                        <div className="p-2.5 sm:p-3 rounded-lg bg-white border border-blue-200">
+                          <h3 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
+                            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+                            Improvements
                           </h3>
-                          <ul className="space-y-2">
+                          <ul className="space-y-1.5">
                             {proofreadResults.improvements.map((improvement: string, index: number) => (
-                              <li key={index} className="flex items-start gap-2 text-sm text-gray-800">
-                                <span className="text-blue-600 mt-0.5">→</span>
+                              <li key={index} className="flex items-start gap-1.5 text-xs sm:text-sm text-gray-800">
+                                <span className="text-blue-600 mt-0.5 text-xs">→</span>
                                 <span>{improvement}</span>
                               </li>
                             ))}
@@ -1081,6 +1084,36 @@ export default function EssaysPage() {
                 </motion.div>
               )}
             </div>
+
+            {/* Discard Confirmation Dialog */}
+            <Dialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                    <X className="h-5 w-5 text-red-500" />
+                    Discard Changes?
+                  </DialogTitle>
+                  <DialogDescription className="text-base pt-2">
+                    Are you sure you want to discard all unsaved changes? This action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="gap-2 sm:gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowDiscardDialog(false)}
+                    className="h-10 rounded-xl px-4"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleDiscardChanges}
+                    className="h-10 rounded-xl px-4 bg-red-500 hover:bg-red-600 text-white font-semibold"
+                  >
+                    Yes, Discard
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </motion.div>
         )}
       </AnimatePresence>

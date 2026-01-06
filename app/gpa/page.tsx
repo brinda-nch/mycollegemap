@@ -241,46 +241,47 @@ export default function AcademicsPage() {
           </motion.div>
 
           {/* Tabs */}
-          <div className="flex gap-2 sm:gap-4 mt-4 sm:mt-6 overflow-x-auto">
+          <div className="flex gap-1.5 sm:gap-2 lg:gap-3 mt-3 sm:mt-4 lg:mt-6 overflow-x-auto pb-1">
             <button
               onClick={() => setActiveTab("gpa")}
-              className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all whitespace-nowrap ${
+              className={`px-2.5 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm lg:text-base font-semibold transition-all whitespace-nowrap ${
                 activeTab === "gpa"
                   ? "text-white shadow-lg"
                   : "text-slate-600 hover:bg-white/50"
               }`}
               style={{ backgroundColor: activeTab === "gpa" ? "#f89880" : "transparent" }}
             >
-              <div className="flex items-center gap-1 sm:gap-2">
-                <BarChart3 className="h-4 sm:h-5 w-4 sm:w-5" />
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <BarChart3 className="h-3.5 sm:h-4 lg:h-5 w-3.5 sm:w-4 lg:w-5" />
                 <span>GPA</span>
               </div>
             </button>
             <button
               onClick={() => setActiveTab("tests")}
-              className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all whitespace-nowrap ${
+              className={`px-2.5 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm lg:text-base font-semibold transition-all whitespace-nowrap ${
                 activeTab === "tests"
                   ? "text-white shadow-lg"
                   : "text-slate-600 hover:bg-white/50"
               }`}
               style={{ backgroundColor: activeTab === "tests" ? "#f89880" : "transparent" }}
             >
-              <div className="flex items-center gap-1 sm:gap-2">
-                <BookOpen className="h-4 sm:h-5 w-4 sm:w-5" />
-                <span>Test Scores</span>
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <BookOpen className="h-3.5 sm:h-4 lg:h-5 w-3.5 sm:w-4 lg:w-5" />
+                <span className="hidden xs:inline sm:hidden">Tests</span>
+                <span className="xs:hidden sm:inline">Test Scores</span>
               </div>
             </button>
             <button
               onClick={() => setActiveTab("resources")}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              className={`px-2.5 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm lg:text-base font-semibold transition-all whitespace-nowrap ${
                 activeTab === "resources"
                   ? "text-white shadow-lg"
                   : "text-slate-600 hover:bg-white/50"
               }`}
               style={{ backgroundColor: activeTab === "resources" ? "#f89880" : "transparent" }}
             >
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Target className="h-3.5 sm:h-4 lg:h-5 w-3.5 sm:w-4 lg:w-5" />
                 <span>Resources</span>
               </div>
             </button>
