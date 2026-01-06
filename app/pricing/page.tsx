@@ -50,16 +50,16 @@ export default function PricingPage() {
             </Link>
             <Link 
               href="/features" 
-              className="text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              className="hidden sm:inline-block text-sm lg:text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
             >
               Features
             </Link>
             <Link 
               href="/pricing" 
-              className="text-base font-medium"
+              className="hidden sm:inline-block text-sm lg:text-base font-medium"
               style={{ color: '#f89880' }}
             >
-              Pricing
+              About
             </Link>
           </div>
           <div className="flex gap-4 items-center">

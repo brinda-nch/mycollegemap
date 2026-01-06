@@ -7,7 +7,7 @@ interface PngLogoProps {
   src?: string
 }
 
-export function PngLogo({ className = "", size = "md", src = "/logo.png" }: PngLogoProps) {
+export function PngLogo({ className = "", size = "md", src = "/images/MCM.png" }: PngLogoProps) {
   const sizeClasses = {
     sm: "h-8 w-8",
     md: "h-12 w-12", 
@@ -15,13 +15,13 @@ export function PngLogo({ className = "", size = "md", src = "/logo.png" }: PngL
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative rounded-2xl overflow-hidden ${className}`}>
       <Image
         src={src}
         alt="mycollegemap logo"
         width={64}
         height={64}
-        className={`${className ? '' : sizeClasses[size]} object-contain`}
+        className={`${className ? '' : sizeClasses[size]} object-cover`}
         priority
       />
     </div>

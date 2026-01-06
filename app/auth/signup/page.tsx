@@ -95,28 +95,28 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-red-100 via-orange-50 to-blue-100">
       {/* Navigation */}
       <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm fixed top-0 w-full z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-2xl font-bold" style={{ color: '#1e293b' }}>
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3 sm:gap-4 lg:gap-8">
+            <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-bold" style={{ color: '#1e293b' }}>
               MyCollegeMap
             </Link>
             <Link 
               href="/features" 
-              className="text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              className="hidden sm:inline-block text-sm lg:text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
             >
               Features
             </Link>
             <Link 
               href="/pricing" 
-              className="text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              className="hidden sm:inline-block text-sm lg:text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
             >
-              Pricing
+              About
             </Link>
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 sm:gap-3 lg:gap-4 items-center">
             <Link
               href="/auth/login"
-              className="px-5 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              className="px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors"
             >
               Sign in
             </Link>
@@ -125,26 +125,26 @@ export default function SignupPage() {
       </nav>
 
       {/* Signup Form */}
-      <div className="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-center min-h-screen py-20 sm:py-12 px-3 sm:px-4 lg:px-8">
         <motion.div 
           className="w-full max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-gray-200">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl lg:rounded-3xl shadow-2xl p-5 sm:p-6 lg:p-8 border border-gray-200">
             {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold mb-2" style={{ color: '#0f172a' }}>
+            <div className="text-center mb-5 sm:mb-6 lg:mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2" style={{ color: '#0f172a' }}>
                 Create your account
               </h1>
-              <p className="text-slate-600">
-                Start your college journey with MyCollegeMap
+              <p className="text-sm sm:text-base text-slate-600">
+                Start your college journey today
               </p>
             </div>
 
             {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {error && (
               <Alert variant="destructive" className="rounded-xl">
                 <AlertDescription>{error}</AlertDescription>
@@ -318,7 +318,7 @@ export default function SignupPage() {
               disabled={isLoading}
               className="w-full h-12 rounded-xl font-semibold text-base border-2 border-gray-300 bg-white hover:bg-gray-50 text-slate-700 transition-all hover:shadow-lg flex items-center justify-center gap-3"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -340,11 +340,11 @@ export default function SignupPage() {
             </Button>
 
             {/* Sign in link */}
-            <div className="mt-8 text-center">
-              <span className="text-slate-600">Already have an account? </span>
+            <div className="mt-5 sm:mt-6 lg:mt-8 text-center">
+              <span className="text-xs sm:text-sm text-slate-600">Already have an account? </span>
               <Link 
                 href="/auth/login" 
-                className="font-semibold hover:underline transition-colors" 
+                className="text-xs sm:text-sm font-semibold hover:underline transition-colors" 
                 style={{ color: '#f89880' }}
               >
                 Sign in

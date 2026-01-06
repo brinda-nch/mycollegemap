@@ -78,28 +78,28 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-red-100 via-orange-50 to-blue-100">
       {/* Navigation */}
       <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm fixed top-0 w-full z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="text-2xl font-bold" style={{ color: '#1e293b' }}>
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3 sm:gap-4 lg:gap-8">
+            <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-bold" style={{ color: '#1e293b' }}>
               MyCollegeMap
             </Link>
             <Link 
               href="/features" 
-              className="text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              className="hidden sm:inline-block text-sm lg:text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
             >
               Features
             </Link>
             <Link 
               href="/pricing" 
-              className="text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
+              className="hidden sm:inline-block text-sm lg:text-base font-medium text-slate-700 hover:text-slate-900 transition-colors"
             >
-              Pricing
+              About
             </Link>
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 sm:gap-3 lg:gap-4 items-center">
             <Link
               href="/auth/signup"
-              className="px-5 py-2 text-sm font-medium rounded-full text-white transition-all hover:shadow-lg"
+              className="px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-full text-white transition-all hover:shadow-lg"
               style={{ backgroundColor: '#f89880' }}
             >
               Sign up
@@ -109,34 +109,34 @@ export default function LoginPage() {
       </nav>
 
       {/* Login Form */}
-      <div className="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-center min-h-screen py-20 sm:py-12 px-3 sm:px-4 lg:px-8">
         <motion.div 
           className="w-full max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-gray-200">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl lg:rounded-3xl shadow-2xl p-5 sm:p-6 lg:p-8 border border-gray-200">
             {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold mb-2" style={{ color: '#0f172a' }}>
+            <div className="text-center mb-5 sm:mb-6 lg:mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2" style={{ color: '#0f172a' }}>
                 Welcome back
               </h1>
-              <p className="text-slate-600">
+              <p className="text-sm sm:text-base text-slate-600">
                 Sign in to continue your college journey
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
               {error && (
-                <Alert variant="destructive" className="rounded-xl">
-                  <AlertDescription>{error}</AlertDescription>
+                <Alert variant="destructive" className="rounded-lg sm:rounded-xl">
+                  <AlertDescription className="text-sm">{error}</AlertDescription>
                 </Alert>
               )}
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium" style={{ color: '#0f172a' }}>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="email" className="text-xs sm:text-sm font-medium" style={{ color: '#0f172a' }}>
                   Email
                 </Label>
                 <Input
@@ -147,12 +147,12 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880]"
+                  className="h-10 sm:h-11 lg:h-12 rounded-lg sm:rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] text-sm sm:text-base"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium" style={{ color: '#0f172a' }}>
+              <div className="space-y-1.5 sm:space-y-2">
+                <Label htmlFor="password" className="text-xs sm:text-sm font-medium" style={{ color: '#0f172a' }}>
                   Password
                 </Label>
                 <div className="relative">
@@ -164,23 +164,23 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    className="h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] pr-12"
+                    className="h-10 sm:h-11 lg:h-12 rounded-lg sm:rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] pr-10 sm:pr-12 text-sm sm:text-base"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-12 px-3 hover:bg-transparent text-slate-600"
+                    className="absolute right-0 top-0 h-10 sm:h-11 lg:h-12 px-2 sm:px-3 hover:bg-transparent text-slate-600"
                     onClick={() => setShowPassword(!showPassword)}
                     disabled={isLoading}
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                   </Button>
                 </div>
                 <div className="text-right">
                   <Link 
                     href="/auth/forgot-password" 
-                    className="text-sm hover:underline transition-colors" 
+                    className="text-xs sm:text-sm hover:underline transition-colors" 
                     style={{ color: '#f89880' }}
                   >
                     Forgot password?
@@ -190,7 +190,7 @@ export default function LoginPage() {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 text-white rounded-xl font-semibold text-base transition-all hover:shadow-xl hover:scale-105" 
+                className="w-full h-10 sm:h-11 lg:h-12 text-white rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base transition-all hover:shadow-xl hover:scale-105" 
                 disabled={isLoading}
                 style={{ 
                   backgroundColor: '#f89880',
@@ -201,12 +201,12 @@ export default function LoginPage() {
             </form>
 
             {/* Divider */}
-            <div className="relative my-6">
+            <div className="relative my-4 sm:my-5 lg:my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-600">Or continue with</span>
+              <div className="relative flex justify-center text-xs sm:text-sm">
+                <span className="px-3 sm:px-4 bg-white text-slate-600">Or continue with</span>
               </div>
             </div>
 
@@ -215,9 +215,9 @@ export default function LoginPage() {
               type="button"
               onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
               disabled={isLoading}
-              className="w-full h-12 rounded-xl font-semibold text-base border-2 border-gray-300 bg-white hover:bg-gray-50 text-slate-700 transition-all hover:shadow-lg flex items-center justify-center gap-3"
+              className="w-full h-10 sm:h-11 lg:h-12 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base border-2 border-gray-300 bg-white hover:bg-gray-50 text-slate-700 transition-all hover:shadow-lg flex items-center justify-center gap-2 sm:gap-3"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -239,11 +239,11 @@ export default function LoginPage() {
             </Button>
 
             {/* Sign up link */}
-            <div className="mt-8 text-center">
-              <span className="text-slate-600">Don't have an account? </span>
+            <div className="mt-5 sm:mt-6 lg:mt-8 text-center">
+              <span className="text-xs sm:text-sm text-slate-600">Don't have an account? </span>
               <Link 
                 href="/auth/signup" 
-                className="font-semibold hover:underline transition-colors" 
+                className="text-xs sm:text-sm font-semibold hover:underline transition-colors" 
                 style={{ color: '#f89880' }}
               >
                 Sign up
