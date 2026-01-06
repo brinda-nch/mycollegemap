@@ -1104,14 +1104,15 @@ export default function ExtracurricularsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Selection Controls */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <Label className="text-sm font-medium">Select items to analyze:</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={selectAllActivities}
                     disabled={activities.length === 0}
+                    className="text-xs sm:text-sm"
                   >
                     All Activities
                   </Button>
@@ -1120,6 +1121,7 @@ export default function ExtracurricularsPage() {
                     size="sm"
                     onClick={selectAllHonors}
                     disabled={honorsAwards.length === 0}
+                    className="text-xs sm:text-sm"
                   >
                     All Honors
                   </Button>
@@ -1128,6 +1130,7 @@ export default function ExtracurricularsPage() {
                     size="sm"
                     onClick={selectAllEssays}
                     disabled={essays.length === 0}
+                    className="text-xs sm:text-sm"
                   >
                     All Essays
                   </Button>
@@ -1136,6 +1139,7 @@ export default function ExtracurricularsPage() {
                     size="sm"
                     onClick={clearAllSelections}
                     disabled={selectedActivities.size === 0 && selectedHonors.size === 0 && selectedEssays.size === 0}
+                    className="text-xs sm:text-sm"
                   >
                     Clear
                   </Button>
@@ -1145,11 +1149,11 @@ export default function ExtracurricularsPage() {
               {/* Activities Section */}
               {activities.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
-                    <Trophy className="h-5 w-5" style={{ color: "#f89880" }} />
-                    Activities ({selectedActivities.size} of {activities.length} selected)
+                  <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                    <Trophy className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: "#f89880" }} />
+                    <span className="break-words">Activities ({selectedActivities.size} of {activities.length} selected)</span>
                   </h3>
-                  <div className="max-h-64 overflow-y-auto space-y-2 border rounded-xl p-3 bg-gray-50">
+                  <div className="max-h-64 overflow-y-auto overflow-x-hidden space-y-2 border rounded-xl p-3 bg-gray-50">
                     {activities.map((activity) => (
                       <label
                         key={activity.id}
@@ -1162,12 +1166,12 @@ export default function ExtracurricularsPage() {
                           className="mt-1 h-4 w-4 rounded border-gray-300"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-900">{activity.activityName}</p>
+                          <p className="text-sm sm:text-base font-medium text-slate-900 break-words">{activity.activityName}</p>
                           {activity.category && (
                             <p className="text-xs text-gray-500 mt-0.5">{activity.category}</p>
                           )}
                           {activity.description && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{activity.description}</p>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2 break-words">{activity.description}</p>
                           )}
                         </div>
                       </label>
@@ -1179,11 +1183,11 @@ export default function ExtracurricularsPage() {
               {/* Honors Section */}
               {honorsAwards.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
-                    <Award className="h-5 w-5" style={{ color: "#a78bfa" }} />
-                    Honors & Awards ({selectedHonors.size} of {honorsAwards.length} selected)
+                  <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                    <Award className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: "#a78bfa" }} />
+                    <span className="break-words">Honors & Awards ({selectedHonors.size} of {honorsAwards.length} selected)</span>
                   </h3>
-                  <div className="max-h-64 overflow-y-auto space-y-2 border rounded-xl p-3 bg-gray-50">
+                  <div className="max-h-64 overflow-y-auto overflow-x-hidden space-y-2 border rounded-xl p-3 bg-gray-50">
                     {honorsAwards.map((honor) => (
                       <label
                         key={honor.id}
@@ -1196,12 +1200,12 @@ export default function ExtracurricularsPage() {
                           className="mt-1 h-4 w-4 rounded border-gray-300"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-900">{honor.title}</p>
+                          <p className="text-sm sm:text-base font-medium text-slate-900 break-words">{honor.title}</p>
                           {honor.level && (
                             <p className="text-xs text-gray-500 mt-0.5">{honor.level}</p>
                           )}
                           {honor.description && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{honor.description}</p>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2 break-words">{honor.description}</p>
                           )}
                         </div>
                       </label>
@@ -1213,11 +1217,11 @@ export default function ExtracurricularsPage() {
               {/* Essays Section */}
               {essays.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
-                    <FileText className="h-5 w-5" style={{ color: "#34d399" }} />
-                    Essays ({selectedEssays.size} of {essays.length} selected)
+                  <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2" style={{ color: "#0f172a" }}>
+                    <FileText className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: "#34d399" }} />
+                    <span className="break-words">Essays ({selectedEssays.size} of {essays.length} selected)</span>
                   </h3>
-                  <div className="max-h-64 overflow-y-auto space-y-2 border rounded-xl p-3 bg-gray-50">
+                  <div className="max-h-64 overflow-y-auto overflow-x-hidden space-y-2 border rounded-xl p-3 bg-gray-50">
                     {essays.map((essay) => (
                       <label
                         key={essay.id}
@@ -1230,9 +1234,9 @@ export default function ExtracurricularsPage() {
                           className="mt-1 h-4 w-4 rounded border-gray-300"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-slate-900">{essay.title || 'Untitled Essay'}</p>
+                          <p className="text-sm sm:text-base font-medium text-slate-900 break-words">{essay.title || 'Untitled Essay'}</p>
                           {essay.prompt && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{essay.prompt}</p>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2 break-words">{essay.prompt}</p>
                           )}
                         </div>
                       </label>
@@ -1254,18 +1258,20 @@ export default function ExtracurricularsPage() {
               <Button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing || (selectedActivities.size === 0 && selectedHonors.size === 0 && selectedEssays.size === 0)}
-                className="w-full h-12 text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:scale-105"
+                className="w-full h-10 sm:h-12 text-sm sm:text-base text-white font-semibold rounded-xl transition-all hover:shadow-lg hover:scale-105"
                 style={{ backgroundColor: "#f89880" }}
               >
                 {isAnalyzing ? (
                   <span className="flex items-center gap-2">
                     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Analyzing...
+                    <span className="hidden sm:inline">Analyzing...</span>
+                    <span className="sm:hidden">Analyzing...</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5" />
-                    Analyze Selected Items ({selectedActivities.size + selectedHonors.size + selectedEssays.size})
+                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden sm:inline">Analyze Selected Items ({selectedActivities.size + selectedHonors.size + selectedEssays.size})</span>
+                    <span className="sm:hidden">Analyze ({selectedActivities.size + selectedHonors.size + selectedEssays.size})</span>
                   </span>
                 )}
               </Button>
