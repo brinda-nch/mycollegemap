@@ -13,18 +13,48 @@ import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 
+// Validation helpers
+const validateEmail = (email: string): boolean => {
+  // Standard email format: something@domain.extension
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  return emailRegex.test(email.trim())
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+  const [emailError, setEmailError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value)
+    if (emailError) setEmailError("")
+  }
+
+  const handleEmailBlur = (value: string) => {
+    if (value.trim() && !validateEmail(value)) {
+      setEmailError("Please enter a valid email address")
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log("Form submitted with:", { email, password })
     setError("")
+
+    // Validate email before submitting
+    if (!email.trim()) {
+      setEmailError("Email is required")
+      return
+    }
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address")
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -144,11 +174,15 @@ export default function LoginPage() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => handleEmailChange(e.target.value)}
+                  onBlur={(e) => handleEmailBlur(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="h-10 sm:h-11 lg:h-12 rounded-lg sm:rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] text-sm sm:text-base"
+                  className={`h-10 sm:h-11 lg:h-12 rounded-lg sm:rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] text-sm sm:text-base ${emailError ? 'border-red-500' : ''}`}
                 />
+                {emailError && (
+                  <p className="text-xs text-red-500">{emailError}</p>
+                )}
               </div>
 
               <div className="space-y-1.5 sm:space-y-2">

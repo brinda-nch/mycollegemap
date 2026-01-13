@@ -14,6 +14,31 @@ import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 
+// Validation helpers
+const validateName = (name: string): boolean => {
+  // Only letters, spaces, hyphens, and apostrophes (for names like O'Brien, Mary-Jane)
+  const nameRegex = /^[A-Za-z][A-Za-z\s'-]*$/
+  return nameRegex.test(name.trim())
+}
+
+const validateEmail = (email: string): boolean => {
+  // Standard email format: something@domain.extension
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  return emailRegex.test(email.trim())
+}
+
+const validatePassword = (password: string): { valid: boolean; message: string } => {
+  if (password.length < 8) {
+    return { valid: false, message: "Password must be at least 8 characters long" }
+  }
+  // Allow letters, numbers, and common special characters: !@#$%^&*()_+-=[]{}|;:,.<>?
+  const allowedCharsRegex = /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{}|;:',.<>?\/\\`~"]+$/
+  if (!allowedCharsRegex.test(password)) {
+    return { valid: false, message: "Password contains invalid characters. Use letters, numbers, and standard symbols (!@#$%^&*)" }
+  }
+  return { valid: true, message: "" }
+}
+
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     email: "",
@@ -27,6 +52,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({})
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -35,6 +61,39 @@ export default function SignupPage() {
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    // Clear field error when user starts typing
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: "" }))
+    }
+  }
+
+  const validateField = (field: string, value: string): string => {
+    switch (field) {
+      case "firstName":
+        if (!value.trim()) return "First name is required"
+        if (!validateName(value)) return "First name should only contain letters"
+        return ""
+      case "lastName":
+        if (value.trim() && !validateName(value)) return "Last name should only contain letters"
+        return ""
+      case "email":
+        if (!value.trim()) return "Email is required"
+        if (!validateEmail(value)) return "Please enter a valid email address"
+        return ""
+      case "password":
+        const passwordResult = validatePassword(value)
+        return passwordResult.message
+      case "confirmPassword":
+        if (value !== formData.password) return "Passwords do not match"
+        return ""
+      default:
+        return ""
+    }
+  }
+
+  const handleBlur = (field: string, value: string) => {
+    const error = validateField(field, value)
+    setFieldErrors((prev) => ({ ...prev, [field]: error }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,13 +101,20 @@ export default function SignupPage() {
     console.log("Signup form submitted with:", formData)
     setError("")
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
-      return
-    }
+    // Validate all fields
+    const errors: { [key: string]: string } = {}
+    errors.firstName = validateField("firstName", formData.firstName)
+    errors.lastName = validateField("lastName", formData.lastName)
+    errors.email = validateField("email", formData.email)
+    errors.password = validateField("password", formData.password)
+    errors.confirmPassword = validateField("confirmPassword", formData.confirmPassword)
 
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long")
+    // Filter out empty errors
+    const activeErrors = Object.entries(errors).filter(([, error]) => error !== "")
+    
+    if (activeErrors.length > 0) {
+      setFieldErrors(errors)
+      setError(activeErrors[0][1]) // Show first error as main error
       return
     }
 
@@ -161,10 +227,14 @@ export default function SignupPage() {
                   placeholder="John"
                   value={formData.firstName}
                   onChange={(e) => handleChange("firstName", e.target.value)}
+                  onBlur={(e) => handleBlur("firstName", e.target.value)}
                   required
                   disabled={isLoading}
-                  className="h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880]"
+                  className={`h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] ${fieldErrors.firstName ? 'border-red-500' : ''}`}
                 />
+                {fieldErrors.firstName && (
+                  <p className="text-xs text-red-500">{fieldErrors.firstName}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName" className="text-sm font-medium" style={{ color: '#0f172a' }}>
@@ -175,9 +245,13 @@ export default function SignupPage() {
                   placeholder="Doe"
                   value={formData.lastName}
                   onChange={(e) => handleChange("lastName", e.target.value)}
+                  onBlur={(e) => handleBlur("lastName", e.target.value)}
                   disabled={isLoading}
-                  className="h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880]"
+                  className={`h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] ${fieldErrors.lastName ? 'border-red-500' : ''}`}
                 />
+                {fieldErrors.lastName && (
+                  <p className="text-xs text-red-500">{fieldErrors.lastName}</p>
+                )}
               </div>
             </div>
 
@@ -191,10 +265,14 @@ export default function SignupPage() {
                 placeholder="you@example.com"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
+                onBlur={(e) => handleBlur("email", e.target.value)}
                 required
                 disabled={isLoading}
-                className="h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880]"
+                className={`h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] ${fieldErrors.email ? 'border-red-500' : ''}`}
               />
+              {fieldErrors.email && (
+                <p className="text-xs text-red-500">{fieldErrors.email}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -208,9 +286,10 @@ export default function SignupPage() {
                   placeholder="At least 8 characters"
                   value={formData.password}
                   onChange={(e) => handleChange("password", e.target.value)}
+                  onBlur={(e) => handleBlur("password", e.target.value)}
                   required
                   disabled={isLoading}
-                  className="h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] pr-12"
+                  className={`h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] pr-12 ${fieldErrors.password ? 'border-red-500' : ''}`}
                 />
                 <Button
                   type="button"
@@ -223,6 +302,10 @@ export default function SignupPage() {
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </Button>
               </div>
+              {fieldErrors.password && (
+                <p className="text-xs text-red-500">{fieldErrors.password}</p>
+              )}
+              <p className="text-xs text-slate-500">Min 8 characters. Letters, numbers, and symbols (!@#$%^&*) allowed.</p>
             </div>
 
             <div className="space-y-2">
@@ -236,9 +319,10 @@ export default function SignupPage() {
                   placeholder="Re-enter your password"
                   value={formData.confirmPassword}
                   onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                  onBlur={(e) => handleBlur("confirmPassword", e.target.value)}
                   required
                   disabled={isLoading}
-                  className="h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] pr-12"
+                  className={`h-12 rounded-xl border-gray-300 focus:border-[#f89880] focus:ring-[#f89880] pr-12 ${fieldErrors.confirmPassword ? 'border-red-500' : ''}`}
                 />
                 <Button
                   type="button"
@@ -251,6 +335,9 @@ export default function SignupPage() {
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </Button>
               </div>
+              {fieldErrors.confirmPassword && (
+                <p className="text-xs text-red-500">{fieldErrors.confirmPassword}</p>
+              )}
             </div>
 
             <div className="space-y-2">

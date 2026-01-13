@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useSession, signOut } from "next-auth/react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -45,11 +46,17 @@ const navigation = [
 export function Sidebar() {
   const { data: session } = useSession()
   const pathname = usePathname()
+  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { isSidebarVisible, toggleSidebar } = useSidebar()
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" })
+  }
+
+  const handleNavigate = (path: string) => {
+    router.push(path)
+    setIsMobileMenuOpen(false)
   }
 
   const getInitials = (name: string) => {
@@ -115,16 +122,7 @@ export function Sidebar() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
+            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </DropdownMenuItem>

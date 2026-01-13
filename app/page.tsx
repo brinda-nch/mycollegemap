@@ -329,8 +329,8 @@ export default function HomePage() {
           >
             mycollegemap@gmail.com
           </a>
-          <p className="mt-6 sm:mt-8 text-xs sm:text-sm text-slate-500">
-            © 2024 MyCollegeMap. All rights reserved.
+          <p className="mt-6 sm:mt-8 text-xs sm:text-sm text-slate-300">
+            © 2025 MyCollegeMap. All rights reserved.
           </p>
         </motion.div>
       </footer>

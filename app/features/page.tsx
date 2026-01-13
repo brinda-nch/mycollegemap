@@ -293,8 +293,8 @@ export default function FeaturesPage() {
           >
             mycollegemap@gmail.com
           </a>
-          <p className="mt-8 text-sm text-slate-500">
-            © 2024 MyCollegeMap. All rights reserved.
+          <p className="mt-8 text-sm text-slate-300">
+            © 2025 MyCollegeMap. All rights reserved.
           </p>
         </div>
       </footer>

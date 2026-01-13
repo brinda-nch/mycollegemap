@@ -2,6 +2,28 @@ import { type NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { supabase, isDemoMode } from "@/lib/supabase"
 
+// Server-side validation helpers
+const validateName = (name: string): boolean => {
+  const nameRegex = /^[A-Za-z][A-Za-z\s'-]*$/
+  return nameRegex.test(name.trim())
+}
+
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+  return emailRegex.test(email.trim())
+}
+
+const validatePassword = (password: string): { valid: boolean; message: string } => {
+  if (password.length < 8) {
+    return { valid: false, message: "Password must be at least 8 characters long" }
+  }
+  const allowedCharsRegex = /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{}|;:',.<>?\/\\`~"]+$/
+  if (!allowedCharsRegex.test(password)) {
+    return { valid: false, message: "Password contains invalid characters" }
+  }
+  return { valid: true, message: "" }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -12,8 +34,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email, password, and first name are required" }, { status: 400 })
     }
 
-    if (password.length < 8) {
-      return NextResponse.json({ error: "Password must be at least 8 characters long" }, { status: 400 })
+    // Validate first name
+    if (!validateName(firstName)) {
+      return NextResponse.json({ error: "First name should only contain letters" }, { status: 400 })
+    }
+
+    // Validate last name if provided
+    if (lastName && !validateName(lastName)) {
+      return NextResponse.json({ error: "Last name should only contain letters" }, { status: 400 })
+    }
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 })
+    }
+
+    // Validate password
+    const passwordValidation = validatePassword(password)
+    if (!passwordValidation.valid) {
+      return NextResponse.json({ error: passwordValidation.message }, { status: 400 })
     }
 
     // In demo mode, just return success without actually creating a user
